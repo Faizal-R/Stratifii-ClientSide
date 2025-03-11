@@ -1,5 +1,5 @@
-"use client"
-import  { ChangeEvent, useState } from "react";
+"use client";
+import { ChangeEvent, useState } from "react";
 import {
   Mail,
   Lock,
@@ -18,9 +18,10 @@ import {
 import { useInterviewerRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { RiseLoader } from "react-spinners";
 
 function InterviewerRegistrationPage() {
-  const registerInterviewer = useInterviewerRegister()
+  const { loading, registerInterviewer } = useInterviewerRegister();
   const [formData, setFormData] = useState({
     name: "",
     position: "",
@@ -33,20 +34,37 @@ function InterviewerRegistrationPage() {
     availableDays: [] as string[],
     professionalSummary: "",
     expertise: [] as string[],
+    status: "", // Add status property
   });
 
   const [registrationStep, setRegistrationStep] = useState(1);
-  const [languageInput, setLanguageInput] = useState({ name: "", level: "Beginner" });
+  const [languageInput, setLanguageInput] = useState({
+    name: "",
+    level: "Beginner",
+  });
   const [expertiseInput, setExpertiseInput] = useState("");
   const [dayInput, setDayInput] = useState("Monday");
 
-  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const languageLevels = ["Beginner", "Intermediate", "Advanced", "Native/Fluent"];
-  const router=useRouter()
+  const weekDays = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+  const languageLevels = [
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+    "Native/Fluent",
+  ];
+  const router = useRouter();
 
   const onHandleChange = (
     event: ChangeEvent<
-    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = event.target;
@@ -56,20 +74,20 @@ function InterviewerRegistrationPage() {
     }));
   };
 
-  const handleRegistrationSubmit = (e: React.FormEvent) => {
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-       registerInterviewer.mutate(formData,{onError:(error)=>{
-           toast.error(error.message)
-        },
-       onSuccess:(data)=>{
-         toast.promise(data.message)
-        router.push(`/otp?email=${formData.email}&&role=interviewer`)
-
-       }
-      })
+    const response = await registerInterviewer({ ...formData, status: "pending" }); // Set default status
+    if (!response.success) {
+      toast(response.error);
+    } else {
+      toast(response.message);
+      setTimeout(()=>{
+        router.push(`/verify-otp?email=${formData.email}&&role=interviewer`)
+      },1000)
+    }
   };
-  
+
   const nextStep = () => {
     setRegistrationStep(registrationStep + 1);
   };
@@ -80,64 +98,63 @@ function InterviewerRegistrationPage() {
 
   const addLanguage = () => {
     if (languageInput.name.trim() === "") return;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       language: {
         ...prev.language,
-        [languageInput.name]: languageInput.level
-      }
+        [languageInput.name]: languageInput.level,
+      },
     }));
-    
+
     setLanguageInput({ name: "", level: "Beginner" });
   };
 
   const removeLanguage = (langName: string) => {
     const updatedLanguages = { ...formData.language };
     delete updatedLanguages[langName];
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      language: updatedLanguages
+      language: updatedLanguages,
     }));
   };
 
   const addExpertise = () => {
     if (expertiseInput.trim() === "") return;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      expertise: [...prev.expertise, expertiseInput]
+      expertise: [...prev.expertise, expertiseInput],
     }));
-    
+
     setExpertiseInput("");
   };
 
   const removeExpertise = (skill: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      expertise: prev.expertise.filter(item => item !== skill)
+      expertise: prev.expertise.filter((item) => item !== skill),
     }));
   };
 
   const addAvailability = () => {
     if (!dayInput || formData.availableDays.includes(dayInput)) return;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      availableDays: [...prev.availableDays, dayInput]
+      availableDays: [...prev.availableDays, dayInput],
     }));
-    
+
     setDayInput("Monday");
   };
 
   const removeAvailability = (day: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      availableDays: prev.availableDays.filter(item => item !== day)
+      availableDays: prev.availableDays.filter((item) => item !== day),
     }));
   };
-
 
   return (
     <div className="min-h-screen flex">
@@ -148,7 +165,8 @@ function InterviewerRegistrationPage() {
             Interviewer Registration
           </h2>
           <p className="text-violet-200 mb-8">
-            Join our platform as an interviewer and help companies find the best talent
+            Join our platform as an interviewer and help companies find the best
+            talent
           </p>
 
           <div className="mb-6">
@@ -282,16 +300,15 @@ function InterviewerRegistrationPage() {
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
                     size={20}
                   />
-                  <input 
-                  type="number"
-                  name="experience"
-                  value={formData.experience===0 ? "" : formData.experience}
-                  onChange={onHandleChange}
-                  className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-                  placeholder="Years of Experience"
-                  required
-                />
-                
+                  <input
+                    type="number"
+                    name="experience"
+                    value={formData.experience === 0 ? "" : formData.experience}
+                    onChange={onHandleChange}
+                    className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                    placeholder="Years of Experience"
+                    required
+                  />
                 </div>
 
                 <div className="relative">
@@ -345,18 +362,30 @@ function InterviewerRegistrationPage() {
                         <input
                           type="text"
                           value={languageInput.name}
-                          onChange={(e) => setLanguageInput({...languageInput, name: e.target.value})}
+                          onChange={(e) =>
+                            setLanguageInput({
+                              ...languageInput,
+                              name: e.target.value,
+                            })
+                          }
                           className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                           placeholder="Language"
                         />
                       </div>
                       <select
                         value={languageInput.level}
-                        onChange={(e) => setLanguageInput({...languageInput, level: e.target.value})}
+                        onChange={(e) =>
+                          setLanguageInput({
+                            ...languageInput,
+                            level: e.target.value,
+                          })
+                        }
                         className="bg-black/80 border border-violet-900/50 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                       >
-                        {languageLevels.map(level => (
-                          <option key={level} value={level}>{level}</option>
+                        {languageLevels.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
                         ))}
                       </select>
                       <button
@@ -367,21 +396,28 @@ function InterviewerRegistrationPage() {
                         Add
                       </button>
                     </div>
-                    
+
                     {Object.keys(formData.language).length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.entries(formData.language).map(([lang, level]) => (
-                          <div key={lang} className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center">
-                            <span>{lang} - {level}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeLanguage(lang)}
-                              className="ml-2 text-violet-300 hover:text-violet-100"
+                        {Object.entries(formData.language).map(
+                          ([lang, level]) => (
+                            <div
+                              key={lang}
+                              className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center"
                             >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+                              <span>
+                                {lang} - {level}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeLanguage(lang)}
+                                className="ml-2 text-violet-300 hover:text-violet-100"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                   </div>
@@ -412,11 +448,14 @@ function InterviewerRegistrationPage() {
                         Add
                       </button>
                     </div>
-                    
+
                     {formData.expertise.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {formData.expertise.map(skill => (
-                          <div key={skill} className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center">
+                        {formData.expertise.map((skill) => (
+                          <div
+                            key={skill}
+                            className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center"
+                          >
                             <span>{skill}</span>
                             <button
                               type="button"
@@ -446,8 +485,10 @@ function InterviewerRegistrationPage() {
                           onChange={(e) => setDayInput(e.target.value)}
                           className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                         >
-                          {weekDays.map(day => (
-                            <option key={day} value={day}>{day}</option>
+                          {weekDays.map((day) => (
+                            <option key={day} value={day}>
+                              {day}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -459,11 +500,14 @@ function InterviewerRegistrationPage() {
                         Add
                       </button>
                     </div>
-                    
+
                     {formData.availableDays.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {formData.availableDays.map(day => (
-                          <div key={day} className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center">
+                        {formData.availableDays.map((day) => (
+                          <div
+                            key={day}
+                            className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center"
+                          >
                             <span>{day}</span>
                             <button
                               type="button"
@@ -566,10 +610,15 @@ function InterviewerRegistrationPage() {
                     Back
                   </button>
                   <button
+                    disabled={loading}
                     type="submit"
                     className="w-1/2 bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition duration-200"
                   >
-                    Register as Interviewer
+                    {loading ? (
+                      <RiseLoader color="white" size={11} />
+                    ) : (
+                      "Register as Interviewer"
+                    )}
                   </button>
                 </div>
               </>
@@ -607,7 +656,8 @@ function InterviewerRegistrationPage() {
                   Showcase Your Expertise
                 </h3>
                 <p className="text-violet-200">
-                  Demonstrate your technical knowledge and help companies find the best talent.
+                  Demonstrate your technical knowledge and help companies find
+                  the best talent.
                 </p>
               </div>
             </div>
@@ -621,7 +671,8 @@ function InterviewerRegistrationPage() {
                   Flexible Scheduling
                 </h3>
                 <p className="text-violet-200">
-                  Set your own availableDays and conduct interviews when it works for you.
+                  Set your own availableDays and conduct interviews when it
+                  works for you.
                 </p>
               </div>
             </div>
@@ -635,7 +686,8 @@ function InterviewerRegistrationPage() {
                   Advanced Interview Tools
                 </h3>
                 <p className="text-violet-200">
-                  Access to collaborative coding environments, video conferencing, and assessment tools.
+                  Access to collaborative coding environments, video
+                  conferencing, and assessment tools.
                 </p>
               </div>
             </div>
@@ -649,7 +701,8 @@ function InterviewerRegistrationPage() {
                   Remote Opportunities
                 </h3>
                 <p className="text-violet-200">
-                  Conduct interviews from anywhere in the world with our cloud-based platform.
+                  Conduct interviews from anywhere in the world with our
+                  cloud-based platform.
                 </p>
               </div>
             </div>

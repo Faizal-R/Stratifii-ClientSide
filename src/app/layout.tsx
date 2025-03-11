@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import QueryProviders from "@/components/providers/QueryProvider";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -28,22 +27,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-      <title>
-        Stratifii Interviews
-      </title>
+        <title>Stratifii Interviews</title>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-black via-black to-violet-950`}
       >
-        <QueryProviders>{children}</QueryProviders>
+        {children}
         <Toaster
           position="bottom-right"
-          duration={1500} 
+          duration={1500}
           toastOptions={{
             className: "custom-toast",
-            
           }}
-        />
+          />
       </body>
     </html>
   );

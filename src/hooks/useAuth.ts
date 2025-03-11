@@ -5,21 +5,23 @@ import { ICompany } from "@/types/ICompany";
 
 export const useSignIn = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const signIn = useCallback(
-    async ({ email, password, role }: { email: string; password: string; role: string }) => {
+    async ({
+      email,
+      password,
+      role,
+    }: {
+      email: string;
+      password: string;
+      role: string;
+    }) => {
       setLoading(true);
-      setError(null);
 
       try {
         const response = await AuthService.signIn(email, password, role);
-        window.location.href = `/${role}/`; // Redirect after successful login
+        console.log("res", response);
         return response;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-        console.error("Sign-in error:", err);
-        throw err;
       } finally {
         setLoading(false);
       }
@@ -27,70 +29,79 @@ export const useSignIn = () => {
     []
   );
 
-  return { signIn, loading, error };
+  return { signIn, loading };
 };
 
 export const useCompanyRegister = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const registerCompany = useCallback(async (company:ICompany) => {
+  const registerCompany = useCallback(async (company: ICompany) => {
     setLoading(true);
-    setError(null);
     try {
       const response = await AuthService.companyRegister(company);
       return response;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      console.error("Company registration error:", err);
-      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { registerCompany, loading, error };
+  return { registerCompany, loading };
 };
 
 export const useInterviewerRegister = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const registerInterviewer = useCallback(async (interviewer:IInterviewer) => {
+  const registerInterviewer = useCallback(async (interviewer: IInterviewer) => {
     setLoading(true);
-    setError(null);
     try {
       const response = await AuthService.interviewerRegister(interviewer);
       return response;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      console.error("Interviewer registration error:", err);
-      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { registerInterviewer, loading, error };
+  return { registerInterviewer, loading };
 };
 
-export const useSendVerificationCode = () => {
+export const useVerifyOtp = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const sendVerificationCode = useCallback(async (email: string, role: string) => {
-    setLoading(true);
-    setError(null);
+
+  const verifyOtp = useCallback(
+    async ({
+      otp,
+      email,
+      role,
+    }: {
+      otp: string;
+      email: string;
+      role: string;
+    }) => {
+      setLoading(true);
+      try {
+        const response = await AuthService.verifyOtp(otp, email, role);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { verifyOtp, loading };
+};
+
+export const useTriggerOtpResend = () => {
+  const [loading, setLoading] = useState(false);
+
+  const resendOtp = useCallback(async (email: string) => {
     try {
-      const response = await AuthService.sendOtpVerificiationCode(email, role);
+      setLoading(true);
+      const response = await AuthService.triggerOtpResend(email);
       return response;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      console.error("OTP verification error:", err);
-      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { sendVerificationCode, loading, error };
+  return { resendOtp, loading };
 };

@@ -1,11 +1,11 @@
 import apiClient from "@/config/apiClient";
-import { ICompanyProfile } from "@/validations/CompanySchema";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { isAxiosError } from "axios";
 
-export const CompanyService = {
-  getCompanyProfile: async () => {
+export const InterviewerService = {
+  getInterviewerProfile: async () => {
     try {
-      const response = await apiClient.get("/company/profile");
+      const response = await apiClient.get("/interviewer/profile");
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -13,7 +13,7 @@ export const CompanyService = {
           success: false,
           error:
             error.response?.data.message ||
-            "An Error occured During Fetching Company Profile",
+            "An Error occured During Fetching Interviewer Profile",
         };
       }
       return {
@@ -23,9 +23,9 @@ export const CompanyService = {
     }
   },
 
-  updateCompanyProfile: async (company: ICompanyProfile) => {
+  updateInterviewerProfile: async (interviewer:IInterviewerProfile) => {
     try {
-      const response = await apiClient.put("/company/profile", company);
+      const response = await apiClient.put("/interviewer/profile", interviewer);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -33,12 +33,12 @@ export const CompanyService = {
           success: false,
           error:
             error.response?.data.message ||
-           "An error occurred while updating the company profile. Please try again later."
+           "An error occurred while updating the interviewer profile. Please try again later."
         };
       }
       return {
         success: false,
-        error: "Unexpected error occurred While Updating Company Profile",
+        error: "Unexpected error occurred While Updating Interviewer Profile",
       };
     }
   },

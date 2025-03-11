@@ -25,5 +25,6 @@ export interface IInterviewer{
     isVerified?: boolean;
     rating?: number;
     reviews?: [];
+    status:'approved'|'pending'|'rejected';
   }
   

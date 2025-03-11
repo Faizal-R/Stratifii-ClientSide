@@ -2,6 +2,7 @@ import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
 import { IInterviewer } from "@/types/IInterviewer";
+import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 // import { setAuthTokens, removeAuthTokens } from "../utils/storage";/
 
 export interface LoginResponse {
@@ -22,49 +23,76 @@ const AuthService = {
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        const errorMessage =
-          error.response?.data?.message || "An error occurred during login";
-        console.error("Login failed:", errorMessage);
-        throw new Error(errorMessage);
-      }
-      throw new Error("Unexpected error occurred While SignIn");
+        console.log("axios",error)
+      return {success:false,error:
+          error.response?.data?.message || "An error occurred during login"};
+        }
+      return{success:false,error:"Unexpected error occurred While SignIn"};
     }
   },
 
   companyRegister: async (company: ICompany) => {
     console.log("company : ", company);
     try {
-      const response = await apiClient.post("/company/register", company);
+      const response = await apiClient.post("/auth/register/company", company);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        throw new Error(error.response?.data.message);
+        console.log("axios",error)
+        return { success: false, error: error.response?.data.message || "Request failed" };
       }
+      return { success: false, error: "Unknown error" };
     }
   },
+  
   interviewerRegister: async (interviewer: IInterviewer) => {
     try {
       const response = await apiClient.post(
-        "/interviewer/register",
+        "/auth/register/interviewer",
         interviewer
       );
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        throw new Error(error.response?.data.message);
+        return {success:false,error:error.response?.data.message||"unknow error occured while register"}
       }
+      return {success:false,error:"Unknow Error"}
     }
   },
-  sendOtpVerificiationCode: async (email: string, role: string) => {
-    try {
-      const response = await apiClient.post("/auth/otp/send", { email, role });
+ 
+  verifyOtp: async (otp: string, email: string,role:string) => {
+    try { 
+      const response = await apiClient.post("/auth/otp/verify", {
+        otp,
+        email,
+        role,
+      });
       return response.data;
-    } catch (error) {
+    }
+    catch (error) {
       if (isAxiosError(error)) {
-        throw new Error(error.response?.data.message);
+        console.log(error)
+        return { success: false, error: error.response?.data.message || "Request failed" };
       }
+      return { success: false, error: "Unexpected Error Occured while verifying Otp" };
     }
   },
+
+    triggerOtpResend:async(email)=>{
+      try {
+        const resposne=await apiClient.post('/auth/otp/resend',{email})
+        return response.data
+        
+      } catch (error) {
+        if(isAxiosError(error)){
+          console.log(error)
+          return {success:false,error:error.response?.data.message}
+        }
+        return {success:false,error:"Unexpected Error Occured while Resend Otp"}
+      }
+     
+    },
+   
   // Logout and remove tokens
   signOut: () => {
     // removeAuthTokens();

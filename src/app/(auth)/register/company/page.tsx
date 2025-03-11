@@ -17,8 +17,12 @@ import {
 import Link from "next/link";
 import { useCompanyRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { RiseLoader } from "react-spinners";
+import{useRouter} from 'next/navigation'
 
 function CompanyRegistrationPage() {
+    const router=useRouter()
+
   const [formData, setFormData] = useState({
     companyName: "",
     email: "",
@@ -31,7 +35,7 @@ function CompanyRegistrationPage() {
   });
   const [registrationStep, setRegistrationStep] = useState(1);
 
-  const registerCompany = useCompanyRegister();
+  const { loading, registerCompany } = useCompanyRegister();
 
   const onHandleChange = (
     event: ChangeEvent<
@@ -45,20 +49,20 @@ function CompanyRegistrationPage() {
     }));
   };
 
-  const handleRegistrationSubmit = (e: React.FormEvent) => {
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
 
-    registerCompany.mutate(formData, {
-      onError: (error) => {
-        toast.error(error.message);
-        console.log("error here");
-      },
-      onSuccess: (data) => {
-        toast(data.message);
-        console.log("success here");
-      },
-    });
+    const response = await registerCompany(formData);
+    if (!response.success) {
+      toast(response.error);
+      return;
+    } else {
+      toast(response.message);
+     setTimeout(()=>{
+      router.push(`/verify-otp?email=${formData.email}&&role=company`)
+     },1000)
+    }
   };
 
   const nextStep = () => {
@@ -337,10 +341,11 @@ function CompanyRegistrationPage() {
                     Back
                   </button>
                   <button
+                  disabled={loading}
                     type="submit"
                     className="w-1/2 bg-black/80 border border-violet-900/50 text-white py-3 rounded-lg font-semibold hover:bg-violet-950 transition duration-200"
                   >
-                    Register Company
+                   {loading?<RiseLoader color="white" size={11}/>:" Register Company"}
                   </button>
                 </div>
               </>
