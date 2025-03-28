@@ -1,28 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Lock, User, Shield } from "lucide-react";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAdminSignIn } from "@/hooks/useAdmin";
+import { useAuthStore } from "@/stores/authStore";
+import { Roles } from "@/constants/roles";
+import { RiseLoader } from "react-spinners";
 
-function App() {
-  const router=useRouter()
+function AdminSignIn() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
- const {loading,signIn} =useAdminSignIn()
-  const handleSubmit =async (e: React.FormEvent) => {
+  const { loading, signIn } = useAdminSignIn();
+  const { user, setUser } = useAuthStore();
+  useEffect(() => {
+    if (!user || user.role !== Roles.ADMIN) {
+      router.push("/admin/signin");
+    }
+  }, [router, user]);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-      const response=await signIn({email,password})
-       if(!response.success){
-        toast(response.error)
-       }else{
-        toast(response.message)
-       setTimeout(()=>{
-         router.push('/admin/dashboard')
-       },1000)
-       }
+    const response = await signIn({ email, password });
+    if (!response.success) {
+      toast(response.error);
+      return;
+    } else {
+      toast(response.message);
+      setUser({
+        email,
+        role: Roles.ADMIN,
+        token: response.data,
+      });
+    }
+    setTimeout(() => {
+      router.push("/admin/dashboard");
+    }, 500);
     console.log("Login attempt:", { email, password });
   };
 
@@ -56,7 +71,7 @@ function App() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-violet-950 bg-violet-900 text-white rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent placeholder-gray-300"
                 placeholder="admin@example.com"
-                required
+                
               />
             </div>
           </div>
@@ -79,16 +94,16 @@ function App() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-violet-950 bg-violet-900 text-white rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent placeholder-gray-300"
                 placeholder="••••••••"
-                required
               />
             </div>
           </div>
 
           <button
+            disabled={loading}
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-purple-900 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
-            Sign in
+            {loading ? <RiseLoader color="white" /> : "Sign in"}
           </button>
         </form>
       </div>
@@ -96,4 +111,4 @@ function App() {
   );
 }
 
-export default App;
+export default AdminSignIn;

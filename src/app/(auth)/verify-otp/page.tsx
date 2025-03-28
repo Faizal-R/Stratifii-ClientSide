@@ -115,10 +115,10 @@ function OtpVerificationPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-white text-center mb-2">
-          Verify Your Email
+        Enter OTP to verify.Resend if needed.
         </h1>
         <p className="text-gray-400 text-center mb-6">
-          We&apos;ve sent a verification code to
+          We&apos;ve sent a verification code to <b>{email}</b>
         </p>
 
         <div className="flex justify-between mb-6">

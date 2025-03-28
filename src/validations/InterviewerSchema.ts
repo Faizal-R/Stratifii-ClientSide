@@ -10,7 +10,22 @@ export const InterviewerProfileSchema = z.object({
   duration: z.number().optional(),
   location: z.string().optional(),
   language: z.record(z.string(), z.string()), // Key-value pair of languages
-  availableDays: z.array(z.string()).min(1, "At least one available day is required"),
+  availableDays: z
+    .array(z.string())
+    .min(1, "At least one available day is required"),
+    availability: z
+    .array(
+      z.object({
+        day: z.string(),
+        timeSlot: z.array(
+          z.object({
+            startTime: z.string(),
+            endTime: z.string(),
+          })
+        ),
+      })
+    )
+    .optional(),
   professionalSummary: z.string().min(1, "Professional summary is required"),
   expertise: z.array(z.string()).min(1, "At least one expertise is required"),
   avatar: z.string().url("Invalid avatar URL").optional(),
@@ -18,6 +33,47 @@ export const InterviewerProfileSchema = z.object({
   status: z.enum(["approved", "pending", "rejected"]),
 });
 
-
+const statusEnum = z.enum(["pending", "approved", "rejected"])
+;
+export const interviewerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  position: z.string().min(2, "Position must be at least 2 characters long"),
+  email: z.string().email("Invalid email format"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  experience: z.number().min(0, "Experience cannot be negative"),
+  linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
+  location: z.string().optional(),
+  language: z.record(z.string(), z.string()), // Accepts an object { language: proficiency }
+  availableDays: z
+    .array(z.string())
+    .nonempty("At least one available day is required"),
+  availability: z
+    .array(
+      z.object({
+        day: z.string(),
+        timeSlot: z.array(
+          z.object({
+            startTime: z.string(),
+            endTime: z.string(),
+          })
+        ),
+      })
+    )
+    .optional(),
+  isBlocked: z.boolean().optional(),
+  professionalSummary: z
+    .string()
+    .min(10, "Professional summary must be at least 10 characters"),
+  expertise: z
+    .array(z.string())
+    .nonempty("At least one expertise area is required"),
+  scheduleInterviews: z.array(z.string()).optional(), // Array of ObjectIds (strings)
+  avatar: z.string().optional(),
+  isVerified: z.boolean().default(false),
+  rating: z.number().min(0).max(5).optional(),
+  reviews: z.array(z.string()).optional(), // Array of ObjectIds (strings)
+  status: statusEnum.default("pending"),
+});
 
 export type IInterviewerProfile = z.infer<typeof InterviewerProfileSchema>;

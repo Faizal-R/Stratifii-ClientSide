@@ -105,3 +105,49 @@ export const useTriggerOtpResend = () => {
 
   return { resendOtp, loading };
 };
+
+export const useSendForgotPasswordOtpRequest = () => {
+  const [loading, setLoading] = useState(false);
+  const sendForgotPasswordOtpRequest = useCallback(
+    async (email: string, role: string) => {
+      try {
+        setLoading(true);
+        const response = await AuthService.sendForgotPasswordOtpRequest(
+          email,
+          role
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { loading, sendForgotPasswordOtpRequest };
+};
+
+export const useResetPassword = () => {
+  const [loading, setLoading] = useState(false);
+  const resetPassword = useCallback(
+    async (
+      newPassword: string,
+      newConfirmPassword: string,
+      token: string
+    ) => {
+      try {
+        setLoading(true);
+        const response = await AuthService.resetPassword(
+          newPassword,
+          newConfirmPassword,
+          token
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { resetPassword, loading };
+};

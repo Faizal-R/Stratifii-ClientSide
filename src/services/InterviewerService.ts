@@ -11,6 +11,7 @@ export const InterviewerService = {
       if (isAxiosError(error)) {
         return {
           success: false,
+          status:error.status,
           error:
             error.response?.data.message ||
             "An Error occured During Fetching Interviewer Profile",
@@ -31,6 +32,7 @@ export const InterviewerService = {
       if (isAxiosError(error)) {
         return {
           success: false,
+          status:error.status,
           error:
             error.response?.data.message ||
            "An error occurred while updating the interviewer profile. Please try again later."
@@ -42,4 +44,9 @@ export const InterviewerService = {
       };
     }
   },
+  
+
+  
 };
+
+

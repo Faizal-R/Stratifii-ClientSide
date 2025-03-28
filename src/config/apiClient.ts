@@ -1,21 +1,42 @@
 import { StatusCodes } from "@/constants/statusCodes";
 import axios from "axios";
-console.log(process.env.NEXT_PUBLIC_API_BASE_URL)
+
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials:true
+  withCredentials: true,
 });
+
+async function refreshAccessToken() {
+  try {
+    const response = await apiClient.post("/auth/refresh-token");
+    console.log("Refreshing token...", response.data);
+    const newAccessToken = response.data.data.accessToken;
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      parsedUser.token = newAccessToken; // Update stored token
+      localStorage.setItem("user", JSON.stringify(parsedUser));
+    }
+
+    return newAccessToken;
+  } catch (error) {
+    console.error("Refresh token failed", error);
+    return null; // Return null to indicate failure
+  }
+}
 
 apiClient.interceptors.request.use(
   (config) => {
-    const role=config.url?.split('/')[1]
-    const token = localStorage.getItem(`${role}AccessToken`);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== "undefined") {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      const token = user?.token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -25,10 +46,25 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === StatusCodes.UNAUTHORIZED) {
-      console.error("Unauthorized! Redirecting to login...");
-      window.location.href = "/signin";
+    const originalRequest = error.config;
+    console.log("response", originalRequest);
+
+    if (
+      error.response?.status === StatusCodes.UNAUTHORIZED &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      const newAccessToken = await refreshAccessToken();
+      console.log("newAccessToken", newAccessToken); // Backend call
+
+      if (newAccessToken) {
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+        return apiClient(originalRequest);
+      }
     }
+
     return Promise.reject(error);
   }
 );

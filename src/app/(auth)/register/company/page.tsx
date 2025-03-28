@@ -19,6 +19,8 @@ import { useCompanyRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import{useRouter} from 'next/navigation'
+import { CompanyRegistrationSchema } from "@/validations/CompanySchema";
+import { handleCompanyRegistrationStep } from "@/utils/handleRegistrationStep";
 
 function CompanyRegistrationPage() {
     const router=useRouter()
@@ -32,6 +34,7 @@ function CompanyRegistrationPage() {
     phone: "",
     password: "",
     companyType: "",
+    confirmPassword:'',
   });
   const [registrationStep, setRegistrationStep] = useState(1);
 
@@ -52,20 +55,41 @@ function CompanyRegistrationPage() {
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-
-    const response = await registerCompany(formData);
+     const validatedCompany=CompanyRegistrationSchema.safeParse({...formData,status: "pending"  });
+      if(!validatedCompany.success){
+      const errors = validatedCompany.error;
+      console.log("errors.issues",errors.issues);
+      for (const issue of errors.issues) {
+        toast(issue.message);
+        return;
+      }
+    }
+    if(formData.password!==formData.confirmPassword){
+      toast("Passwords do not match");
+      return;
+    }
+    const response = await registerCompany(validatedCompany.data!);
     if (!response.success) {
       toast(response.error);
+      console.log("register error",response)
       return;
     } else {
       toast(response.message);
      setTimeout(()=>{
       router.push(`/verify-otp?email=${formData.email}&&role=company`)
-     },1000)
+     },200)
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
+     const validCompany=await handleCompanyRegistrationStep(formData,registrationStep)
+     if(!validCompany?.success){
+      const errors = validCompany?.errors;
+      for (const issue of errors!) {
+        toast(issue.message);
+        return;
+      }
+     }
     setRegistrationStep(registrationStep + 1);
   };
 
@@ -125,7 +149,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Company Name"
-                    required
+                    
                   />
                 </div>
 
@@ -141,7 +165,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Company Website"
-                    required
+                    
                   />
                 </div>
 
@@ -157,7 +181,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Registration Certificate Number"
-                    required
+                    
                   />
                 </div>
 
@@ -171,7 +195,7 @@ function CompanyRegistrationPage() {
                     name="companyType"
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50 appearance-none"
-                    required
+                    
                   >
                     <option
                       className="bg-black/80 text-gray-400"
@@ -219,7 +243,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Email Address"
-                    required
+                    
                   />
                 </div>
 
@@ -235,7 +259,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Phone Number"
-                    required
+                    
                   />
                 </div>
 
@@ -287,7 +311,7 @@ function CompanyRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Password"
-                    required
+                    
                   />
                 </div>
 
@@ -298,9 +322,12 @@ function CompanyRegistrationPage() {
                   />
                   <input
                     type="password"
+                    value={formData.confirmPassword}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Confirm Password"
-                    required
+                    onChange={onHandleChange}
+                    name="confirmPassword"
+                    
                   />
                 </div>
 
@@ -309,7 +336,7 @@ function CompanyRegistrationPage() {
                     id="terms"
                     type="checkbox"
                     className="rounded bg-black/80 border-violet-900/50 text-violet-600 focus:ring-violet-500/50"
-                    required
+                    
                   />
                   <label
                     htmlFor="terms"

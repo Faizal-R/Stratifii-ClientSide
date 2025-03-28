@@ -1,10 +1,21 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Edit3,
-  Check,
   X,
-  Plus,
+  User,
+  Edit2,
+  Save,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Briefcase,
+  Languages,
+  Calendar,
+  Upload,
+
+  ImageIcon,
+  Clock,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -17,27 +28,20 @@ import {
   useUpadteInterviewerProfile,
 } from "@/hooks/useInterviewer";
 import { toast } from "sonner";
+import { StatusCodes } from "@/constants/statusCodes";
+import { useAuthStore } from "@/stores/authStore";
+import { RiseLoader } from "react-spinners";
 
-
-
-function App() {
+function InterviewerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile } = useUpadteInterviewerProfile();
+  const { logout } = useAuthStore();
 
-  const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>({
-    name: "",
-    position: "",
-    email: "",
-    phone: "",
-    experience: 0,
-    linkedinProfile: "",
-    language: {},
-    status: "pending",
-    availableDays: [],
-    expertise: [],
-    professionalSummary: "",
-  });
+  const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(
+    {} as IInterviewerProfile
+  );
 
   // const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(interviewerData);
 
@@ -69,8 +73,16 @@ function App() {
   };
 
   const handleCancel = () => {
-    // setInterviewerData(interviewerData);
     setIsEditing(false);
+    setLogoPreview(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setLogoPreview(imageUrl);
+    }
   };
 
   const handleAddLanguage = () => {
@@ -84,320 +96,327 @@ function App() {
     setInterviewerData({ ...interviewerData, language: newLang });
   };
 
+  const handleAddExpertise = () => {
+    setInterviewerData({
+      ...interviewerData,
+      expertise: [...interviewerData.expertise, ""],
+    });
+  };
+
+  const handleRemoveExpertise = (index: number) => {
+    setInterviewerData({
+      ...interviewerData,
+      expertise: interviewerData.expertise.filter((_, i) => i !== index),
+    });
+  };
+
   const fetchInterviewerProfile = useCallback(async () => {
     const response = await interviewerProfile();
     if (!response.success) {
       toast(response.error);
+      if (response.status === StatusCodes.FORBIDDEN) {
+        logout();
+      }
     } else {
-      console.log(response)
       setInterviewerData(response.data);
     }
-  }, [interviewerProfile]);
+  }, [interviewerProfile, logout]);
 
   useEffect(() => {
     fetchInterviewerProfile();
   }, [fetchInterviewerProfile]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white">
-      {/* Sidebar */}
-      {/* <div
-        className={`h-screen bg-gray-900/50 backdrop-blur-sm border-r border-gray-800 transition-all duration-300 ${
-          isSidebarCollapsed ? "w-20" : "w-64"
-        } flex flex-col fixed left-0 top-0`}
-      >
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          <div
-            className={`flex items-center gap-3 ${
-              isSidebarCollapsed ? "hidden" : "block"
-            }`}
-          >
-            <Building2 className="text-violet-500" size={32} />
-            <span className="font-bold text-lg">TechCorp</span>
-          </div>
-          <button
-            onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            {isSidebarCollapsed ? (
-              <ChevronRight size={20} />
-            ) : (
-              <ChevronLeft size={20} />
-            )}
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === item.id
-                      ? "bg-violet-600 text-white"
-                      : "hover:bg-gray-800/50 text-gray-300"
-                  }`}
-                >
-                  <item.icon size={20} />
-                  <span className={isSidebarCollapsed ? "hidden" : "block"}>
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-gray-800">
-          <button
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-            onClick={() => console.log("Logout clicked")}
-          >
-            <LogOut size={20} />
-            <span className={isSidebarCollapsed ? "hidden" : "block"}>
-              Logout
-            </span>
-          </button>
-        </div>
-      </div> */}
-
-      {/* Main Content */}
-      <div className= "ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800">
-            <div className="flex justify-between items-start mb-8">
-              <div className="flex items-center gap-6">
-                <Image
-                  src={
-                    interviewerData.avatar ??
-                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
-                  }
-                  alt={interviewerData.name || "interviewerData Avatar"}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-violet-500"
-                  width={96}
-                  height={96}
-                />
-                <div>
-                  <h1 className="text-3xl font-bold">{interviewerData.name}</h1>
-                  <p className="text-violet-400">{interviewerData.position}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        interviewerData.status === "approved"
-                          ? "bg-green-500/20 text-green-400"
-                          : interviewerData.status === "pending"
-                          ? "bg-yellow-500/20 text-yellow-400"
-                          : "bg-red-500/20 text-red-400"
-                      }`}
-                    >
-                      {interviewerData.status?.charAt(0).toUpperCase() +
-                        interviewerData.status?.slice(1)}
-                    </span>
-                    <span className="flex items-center gap-1 text-yellow-400">
-                      <span>★</span>
-                      <span>{interviewerData.rating}</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                {isEditing ? (
-                  <>
-                    <button
-                      onClick={handleSave}
-                      className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
-                    >
-                      <Check size={18} />
-                      Save
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                    >
-                      <X size={18} />
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={handleEdit}
-                    className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
-                  >
-                    <Edit3 size={18} />
-                    Edit Profile
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">
-                    Contact Information
-                  </h2>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-gray-400">Email</label>
-                      {isEditing ? (
-                        <input
-                          type="email"
-                          value={interviewerData.email}
-                          onChange={(e) =>
-                            setInterviewerData({
-                              ...interviewerData,
-                              email: e.target.value,
-                            })
-                          }
-                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-violet-500"
-                        />
-                      ) : (
-                        <p>{interviewerData.email}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-gray-400">Phone</label>
-                      {isEditing ? (
-                        <input
-                          type="tel"
-                          value={interviewerData.phone}
-                          onChange={(e) =>
-                            setInterviewerData({
-                              ...interviewerData,
-                              phone: e.target.value,
-                            })
-                          }
-                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-violet-500"
-                        />
-                      ) : (
-                        <p>{interviewerData.phone}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-gray-400">Location</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={interviewerData.location}
-                          onChange={(e) =>
-                            setInterviewerData({
-                              ...interviewerData,
-                              location: e.target.value,
-                            })
-                          }
-                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-violet-500"
-                        />
-                      ) : (
-                        <p>{interviewerData.location}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-gray-400">LinkedIn</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={interviewerData.linkedinProfile}
-                          onChange={(e) =>
-                            setInterviewerData({
-                              ...interviewerData,
-                              linkedinProfile: e.target.value,
-                            })
-                          }
-                          className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-violet-500"
-                        />
-                      ) : (
-                        <p>{interviewerData.linkedinProfile}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Languages</h2>
-                    {isEditing && (
-                      <button
-                        onClick={handleAddLanguage}
-                        className="flex items-center gap-2 px-3 py-1 bg-violet-600/20 text-violet-400 rounded-lg hover:bg-violet-600/30 transition-colors"
-                      >
-                        <Plus size={16} />
-                        Add Language
-                      </button>
+  return loading ? (
+    <div className="w-screen flex items-center justify-center h-screen ">
+      <RiseLoader color="white" />
+    </div>
+  ) : (
+    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white ml-64">
+      <div className="p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-800">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row gap-8 mb-12">
+              {/* Profile Image Section */}
+              <div className="w-full md:w-1/3">
+                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 flex flex-col items-center justify-center">
+                  <div className="w-48 h-48 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center mb-4 overflow-hidden">
+                    {logoPreview || interviewerData.avatar ? (
+                      <Image
+                        src={
+                          logoPreview ||
+                          interviewerData.avatar ||
+                          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
+                        }
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-500" />
+                        <p className="text-sm text-gray-400">
+                          No profile photo
+                        </p>
+                      </div>
                     )}
                   </div>
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      {Object.entries(interviewerData.language).map(
-                        ([lang, level]) => (
-                          <div key={lang} className="flex items-center gap-2">
-                            <div className="flex-1 grid grid-cols-2 gap-2">
-                              <input
-                                type="text"
-                                value={lang}
-                                placeholder="Language"
-                                onChange={(e) => {
-                                  const newLang = {
-                                    ...interviewerData.language,
-                                  };
-                                  delete newLang[lang];
-                                  newLang[e.target.value] = level;
-                                  setInterviewerData({
-                                    ...interviewerData,
-                                    language: newLang,
-                                  });
-                                }}
-                                className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-                              />
-                              <input
-                                type="text"
-                                value={level}
-                                placeholder="Proficiency"
-                                onChange={(e) => {
-                                  setInterviewerData({
-                                    ...interviewerData,
-                                    language: {
-                                      ...interviewerData.language,
-                                      [lang]: e.target.value,
-                                    },
-                                  });
-                                }}
-                                className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-                              />
-                            </div>
-                            <button
-                              onClick={() => handleRemoveLanguage(lang)}
-                              className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {Object.entries(interviewerData.language).map(
-                        ([lang, level]) => (
-                          <div
-                            key={lang}
-                            className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg"
-                          >
-                            <span>{lang}</span>
-                            <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full text-sm">
-                              {level}
-                            </span>
-                          </div>
-                        )
-                      )}
+                  {isEditing && (
+                    <div className="w-full">
+                      <label className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                        <Upload size={18} />
+                        Upload Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-xs text-gray-400 text-center mt-2">
+                        Recommended: 400x400px, Max 2MB
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="space-y-6">
+              {/* Profile Info */}
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="">
+                    <div className="flex items-center gap-1">
+                      <User className="text-violet-500" size={32} />
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={interviewerData.name}
+                          onChange={(e) =>
+                            setInterviewerData({
+                              ...interviewerData,
+                              name: e.target.value,
+                            })
+                          }
+                          className="text-1xl font-bold bg-gray-800/50 border border-gray-700 rounded px-2 py-1 "
+                        />
+                      ) : (
+                        <h1 className="text-3xl font-bold">
+                          {interviewerData.name}
+                        </h1>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        placeholder="enter your position here"
+                        value={interviewerData.position}
+                        onChange={(e) =>
+                          setInterviewerData({
+                            ...interviewerData,
+                            position: e.target.value,
+                          })
+                        }
+                        className="text-violet-400 text-sm mt-2 bg-gray-800/50 border border-gray-700 rounded px-3 py-1 ml-9"
+                      />
+                    ) : (
+                      <p className="text-violet-400 mt-2">
+                        {interviewerData.position}
+                      </p>
+                    )}
+                    {
+                      !isEditing&&<div className="flex items-center gap-2 mt-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          interviewerData.status === "approved"
+                            ? "bg-green-500/20 text-green-400"
+                            : interviewerData.status === "pending"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}
+                      >
+                        {/* {interviewerData.status.charAt(0).toUpperCase() + interviewerData.status.slice(1)} */}
+                      </span>
+                     
+                    </div>
+                    }
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {!isEditing ? (
+                      <button
+                        onClick={handleEdit}
+                        className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg transition-colors"
+                      >
+                        <Edit2 size={18} />
+                        Edit Profile
+                      </button>
+                    ) : (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleCancel}
+                          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                        >
+                          <X size={18} />
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSave}
+                          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg transition-colors"
+                        >
+                          <Save size={18} />
+                          Save Changes
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Mail className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">Email</p>
+                        {isEditing ? (
+                          <input
+                            type="email"
+                            value={interviewerData.email}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                email: e.target.value,
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.email}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">Phone</p>
+                        {isEditing ? (
+                          <input
+                            type="tel"
+                            value={interviewerData.phone}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                phone: e.target.value,
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Briefcase className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">
+                          Experience (years)
+                        </p>
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            value={interviewerData.experience}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                experience: parseInt(e.target.value),
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.experience} years</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <MapPin className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">Location</p>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={interviewerData.location}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                location: e.target.value,
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.location}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Linkedin className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">LinkedIn</p>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={interviewerData.linkedinProfile}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                linkedinProfile: e.target.value,
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.linkedinProfile}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="text-violet-400" size={20} />
+                      <div>
+                        <p className="text-sm text-gray-400">
+                          Interview Duration (minutes)
+                        </p>
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            value={interviewerData.duration}
+                            onChange={(e) =>
+                              setInterviewerData({
+                                ...interviewerData,
+                                duration: parseInt(e.target.value),
+                              })
+                            }
+                            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 mt-1 w-full"
+                          />
+                        ) : (
+                          <p>{interviewerData.duration} minutes</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-8">
+                {/* Professional Summary */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">
+                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Briefcase className="text-violet-400" size={20} />
                     Professional Summary
                   </h2>
                   {isEditing ? (
@@ -409,7 +428,7 @@ function App() {
                           professionalSummary: e.target.value,
                         })
                       }
-                      className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 h-32 focus:outline-none focus:border-violet-500"
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 min-h-[120px]"
                     />
                   ) : (
                     <p className="text-gray-300">
@@ -418,79 +437,148 @@ function App() {
                   )}
                 </div>
 
+                {/* Languages */}
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Expertise</h2>
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <Languages className="text-violet-400" size={20} />
+                      Languages
+                    </h2>
                     {isEditing && (
                       <button
-                        onClick={() => {
-                          setInterviewerData({
-                            ...interviewerData,
-                            expertise: [...interviewerData.expertise, ""],
-                          });
-                        }}
+                        onClick={handleAddLanguage}
                         className="flex items-center gap-2 px-3 py-1 bg-violet-600/20 text-violet-400 rounded-lg hover:bg-violet-600/30 transition-colors"
                       >
-                        <Plus size={16} />
-                        Add Skill
+                        Add Language
                       </button>
                     )}
                   </div>
-                  {isEditing ? (
-                    <div className="flex flex-wrap gap-2">
-                      {interviewerData.expertise.map((skill, index) => (
+                  <div className="space-y-2">
+                    {Object.entries(interviewerData.language || []).map(
+                      ([lang, level]) => (
                         <div
-                          key={index}
-                          className="group flex items-center gap-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg overflow-hidden"
+                          key={lang}
+                          className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg"
                         >
-                          <input
-                            type="text"
-                            value={skill}
-                            placeholder="Enter skill"
-                            onChange={(e) => {
-                              const newExpertise = [
-                                ...interviewerData.expertise,
-                              ];
-                              newExpertise[index] = e.target.value;
-                              setInterviewerData({
-                                ...interviewerData,
-                                expertise: newExpertise,
-                              });
-                            }}
-                            className="bg-transparent px-3 py-1 focus:outline-none min-w-[100px]"
-                          />
-                          <button
-                            onClick={() => {
-                              setInterviewerData({
-                                ...interviewerData,
-                                expertise: interviewerData.expertise.filter(
-                                  (_, i) => i !== index
-                                ),
-                              });
-                            }}
-                            className="p-2 text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X size={16} />
-                          </button>
+                          {isEditing ? (
+                            <>
+                              <div className="flex gap-2 flex-1">
+                                <input
+                                  type="text"
+                                  value={lang}
+                                  onChange={(e) => {
+                                    const newLangKey = e.target.value;
+                                    setInterviewerData((prevData) => {
+                                      const newLang = { ...prevData.language };
+                                      if (lang) delete newLang[lang]; // Only delete the previous key if it exists
+                                      newLang[newLangKey] = level;
+                                      return { ...prevData, language: newLang };
+                                    });
+                                  }}
+                                  className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
+                                  placeholder="Language"
+                                />
+
+                                <input
+                                  type="text"
+                                  value={level}
+                                  onChange={(e) => {
+                                    const newLang = {
+                                      ...interviewerData.language,
+                                    };
+                                    newLang[lang] = e.target.value;
+                                    setInterviewerData({
+                                      ...interviewerData,
+                                      language: newLang,
+                                    });
+                                  }}
+                                  className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
+                                  placeholder="Proficiency"
+                                />
+                              </div>
+                              <button
+                                onClick={() => handleRemoveLanguage(lang)}
+                                className="ml-2 text-red-400 hover:text-red-300"
+                              >
+                                <X size={20} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span>{lang}</span>
+                              <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full text-sm">
+                                {level}
+                              </span>
+                            </>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {interviewerData.expertise.map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-8">
+                {/* Expertise */}
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <Briefcase className="text-violet-400" size={20} />
+                      Expertise
+                    </h2>
+                    {isEditing && (
+                      <button
+                        onClick={handleAddExpertise}
+                        className="flex items-center gap-2 px-3 py-1 bg-violet-600/20 text-violet-400 rounded-lg hover:bg-violet-600/30 transition-colors"
+                      >
+                        Add Expertise
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(interviewerData.expertise || []).map((skill, index) => (
+                      <div key={index} className="flex items-center">
+                        {isEditing ? (
+                          <div className="flex items-center bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden">
+                            <input
+                              type="text"
+                              value={skill}
+                              onChange={(e) => {
+                                const newExpertise = [
+                                  ...interviewerData.expertise,
+                                ];
+                                newExpertise[index] = e.target.value;
+                                setInterviewerData({
+                                  ...interviewerData,
+                                  expertise: newExpertise,
+                                });
+                              }}
+                              className="bg-transparent px-3 py-1 focus:outline-none"
+                            />
+                            <button
+                              onClick={() => handleRemoveExpertise(index)}
+                              className="px-2 text-red-400 hover:bg-red-500/10"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full">
+                            {skill}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
+                {/* Available Days */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">Available Days</h2>
+                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Calendar className="text-violet-400" size={20} />
+                    Available Days
+                  </h2>
                   {isEditing ? (
                     <div className="flex flex-wrap gap-2">
                       {[
@@ -528,7 +616,7 @@ function App() {
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {interviewerData.availableDays.map((day) => (
+                      {(interviewerData.availableDays || []).map((day) => (
                         <span
                           key={day}
                           className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full"
@@ -539,6 +627,71 @@ function App() {
                     </div>
                   )}
                 </div>
+
+                {/* Availability Schedule */}
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Clock className="text-violet-400" size={20} />
+                    Availability Schedule
+                  </h2>
+                  {/* <div className="space-y-2">
+                    {(interviewerData.availability||[]).map((schedule, index) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg">
+                        {isEditing ? (
+                          <div className="flex gap-2 w-full">
+                            <select
+                              value={schedule.day}
+                              onChange={(e) => {
+                                const newAvailability = [...(interviewerData.availability || [])];
+                                newAvailability[index] = { ...schedule, day: e.target.value };
+                                setInterviewerData({ ...interviewerData, availability: newAvailability });
+                              }}
+                              className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
+                            >
+                              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                                <option key={day} value={day}>{day}</option>
+                              ))}
+                            </select>
+                            <input
+                              type="text"
+                              value={schedule.time}
+                              onChange={(e) => {
+                                const newAvailability = [...interviewerData.availability||[]];
+                                newAvailability[index] = { ...schedule, time: e.target.value };
+                                setInterviewerData({ ...interviewerData, availability: newAvailability });
+                              }}
+                              className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
+                              placeholder="Time (e.g., 9:00 AM - 5:00 PM)"
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <span>{schedule.day}</span>
+                            <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full text-sm">
+                              {schedule.time}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    {isEditing && (
+                      <button
+                        onClick={() => {
+                          setInterviewerData({
+                            ...interviewerData,
+                            availability: [
+                              ...interviewerData.availability,
+                              { day: "Monday", time: "9:00 AM - 5:00 PM" }
+                            ]
+                          });
+                        }}
+                        className="w-full px-3 py-2 bg-violet-600/20 text-violet-400 rounded-lg hover:bg-violet-600/30 transition-colors mt-2"
+                      >
+                        Add Availability Slot
+                      </button>
+                    )}
+                  </div> */}
+                </div>
               </div>
             </div>
           </div>
@@ -548,4 +701,4 @@ function App() {
   );
 }
 
-export default App;
+export default InterviewerProfilePage

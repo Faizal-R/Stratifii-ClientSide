@@ -19,6 +19,8 @@ import { useInterviewerRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { RiseLoader } from "react-spinners";
+import { interviewerSchema } from "@/validations/InterviewerSchema";
+import Link from "next/link";
 
 function InterviewerRegistrationPage() {
   const { loading, registerInterviewer } = useInterviewerRegister();
@@ -28,6 +30,7 @@ function InterviewerRegistrationPage() {
     email: "",
     phone: "",
     password: "",
+    confirmPassword:'',
     experience: 0,
     linkedinProfile: "",
     language: {} as Record<string, string>,
@@ -77,8 +80,26 @@ function InterviewerRegistrationPage() {
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-    const response = await registerInterviewer({ ...formData, status: "pending" }); // Set default status
+    const validatedInterviewer=interviewerSchema.safeParse({...formData,status: "pending"  });
+    console.log(validatedInterviewer);
+    if(!validatedInterviewer.success){
+      const errors = validatedInterviewer.error;
+      console.log(errors);
+      for (const issue of errors.issues) {
+        toast(issue.message);
+      }
+      return;
+    }
+
+
+    if(formData.password!==formData.confirmPassword){
+      toast("Passwords do not match");
+      return;
+    }
+
+    const response = await registerInterviewer({...formData,status:"pending"}); // Set default status
     if (!response.success) {
+       console.log(response)
       toast(response.error);
     } else {
       toast(response.message);
@@ -215,7 +236,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Full Name"
-                    required
+                    
                   />
                 </div>
 
@@ -231,7 +252,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Email Address"
-                    required
+                    
                   />
                 </div>
 
@@ -247,7 +268,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Phone Number"
-                    required
+                    
                   />
                 </div>
 
@@ -263,7 +284,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="LinkedIn Profile"
-                    required
+                    
                   />
                 </div>
 
@@ -291,7 +312,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Current Position"
-                    required
+                    
                   />
                 </div>
 
@@ -307,7 +328,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Years of Experience"
-                    required
+                    
                   />
                 </div>
 
@@ -323,7 +344,7 @@ function InterviewerRegistrationPage() {
                     rows={4}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Professional Summary"
-                    required
+                    
                   />
                 </div>
 
@@ -556,7 +577,7 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Password"
-                    required
+                    
                   />
                 </div>
 
@@ -569,7 +590,9 @@ function InterviewerRegistrationPage() {
                     type="password"
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Confirm Password"
-                    required
+                    value={formData.confirmPassword}
+                    onChange={onHandleChange}
+                    name="confirmPassword"
                   />
                 </div>
 
@@ -578,7 +601,7 @@ function InterviewerRegistrationPage() {
                     id="terms"
                     type="checkbox"
                     className="rounded bg-black/80 border-violet-900/50 text-violet-600 focus:ring-violet-500/50"
-                    required
+                    
                   />
                   <label
                     htmlFor="terms"
@@ -628,12 +651,12 @@ function InterviewerRegistrationPage() {
           <div className="mt-6 text-center">
             <p className="text-violet-200">
               Already have an account?{" "}
-              <a
+              <Link
                 href="/signin"
                 className="text-violet-300 hover:text-violet-100 font-medium"
               >
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -76,7 +76,8 @@ export default{
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+			'custom': 'linear-gradient(to bottom right, black, black, #2E1065)',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

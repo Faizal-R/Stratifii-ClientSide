@@ -2,8 +2,6 @@ import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
 import { IInterviewer } from "@/types/IInterviewer";
-import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-// import { setAuthTokens, removeAuthTokens } from "../utils/storage";/
 
 export interface LoginResponse {
   accessToken: string;
@@ -78,9 +76,9 @@ const AuthService = {
     }
   },
 
-    triggerOtpResend:async(email)=>{
+    triggerOtpResend:async(email:string)=>{
       try {
-        const resposne=await apiClient.post('/auth/otp/resend',{email})
+        const response=await apiClient.post('/auth/otp/resend',{email})
         return response.data
         
       } catch (error) {
@@ -92,6 +90,34 @@ const AuthService = {
       }
      
     },
+    
+    sendForgotPasswordOtpRequest:async function(email:string,role:string){
+      try {
+        const response=await apiClient.post('/auth/forgot-password',{email,role})
+        return response.data
+      } catch (error) {
+        if(isAxiosError(error)){
+          console.log(error)
+          return {success:false,error:error.response?.data.message}
+        }
+        return {success:false,error:"Unexpected Error Occured while Requesting Forgot Password"}
+      }
+    },
+
+    resetPassword: async function(password:string,confirmPassword:string,token:string){
+      try {
+        const response=await apiClient.post('/auth/reset-password',{password,confirmPassword,token})
+        return response.data
+      } catch (error) {
+        if(isAxiosError(error)){
+          console.log(error)
+          return {success:false,error:error.response?.data.message}
+        }
+        return {success:false,error:"Unexpected Error Occured while resetting Password"}
+      }
+    },
+ 
+
    
   // Logout and remove tokens
   signOut: () => {

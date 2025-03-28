@@ -20,6 +20,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "../../../validations/AuthSchema";
 import { GoogleAuthButton } from "../../../components/ui/GoogleAuthButton";
+// import Link from "next/link";
+import { Modal } from "../../../components/ui/ConfirmationModal";
+import { useAuthStore } from "@/stores/authStore";
+import { Roles } from "@/constants/roles";
+import Link from "next/link";
+
 const roles = [
   {
     id: "candidate",
@@ -42,8 +48,10 @@ const roles = [
 ];
 
 function App() {
+  const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("candidate");
   const { signIn, loading } = useSignIn();
+  const user=useAuthStore((state)=>state.user)
   const router = useRouter();
 
   const {
@@ -60,20 +68,34 @@ function App() {
       password: data.password,
       role: selectedRole,
     });
-    console.log("response", response);
 
     if (!response.success) {
       toast(response.error);
       return;
     }
     toast(response.message);
-    console.log("response", response.data.accessToken);
-    localStorage.setItem(`${selectedRole}AccessToken`, response.data.accessToken);
+    const { email, _id:id } = response.data.user;
+    useAuthStore
+      .getState()
+      .setUser({
+        id,
+        email,
+        role: selectedRole as Roles,
+        token: response.data.accessToken,
+       
+      });
     setTimeout(() => {
+      
       router.push(`/${selectedRole}`);
     }, 1000);
   };
+  const handleModalConfirm = () => {
+    router.push(`/forgot-password?role=${selectedRole}`);
+  };
 
+  const handleForgotPassword = () => {
+    setShowModal(true);
+  };
   useEffect(() => {
     if (errors.email) {
       toast.error(errors.email.message);
@@ -82,8 +104,23 @@ function App() {
     }
   }, [errors]);
 
+  useEffect(() => {
+    if(user){
+      router.push(`/${user.role}`);
+    }
+  },[user,router])
+
   return (
     <div className="min-h-screen flex">
+      <Modal
+        title="Confirm Role"
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        confirmText="Yes,I Selected the Correct Role!"
+        onConfirm={handleModalConfirm}
+        cancelText="Cancel"
+        description={`Are you sure you selected the correct role: ${selectedRole}?`}
+      />
       {/* Login Form Section */}
       <div className="w-full flex items-center justify-center bg-gradient-to-br from-black via-black to-violet-950 md:w-1/2">
         <div className="w-full max-w-md p-8">
@@ -127,7 +164,10 @@ function App() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onHandleSubmit)} className="space-y-6">
+          <div
+            // onSubmit={handleSubmit(onHandleSubmit)}
+            className="space-y-6"
+          >
             <div className="relative">
               <Mail
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
@@ -153,6 +193,7 @@ function App() {
               />
               <input
                 {...register("password")}
+                type="password"
                 className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                 placeholder="Password"
               />
@@ -161,35 +202,35 @@ function App() {
                 <p className="text-red-500">{errors.password.message}</p>
               )} */}
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="rounded bg-black/80 border-violet-900/50 text-violet-600 focus:ring-violet-500/50"
-                />
-                <span className="ml-2 text-sm text-violet-200">
-                  Remember me
-                </span>
-              </label>
-              <a
-                href="#"
+            <div className="flex items-center justify-end">
+
+              <button
+                onClick={handleForgotPassword}
                 className="text-sm text-violet-300 hover:text-violet-200"
               >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             <button
               disabled={loading}
-              type="submit"
-              className="flex justify-center items-center h-12 w-full bg-black/80 border border-violet-900/50 text-white py-3 rounded-lg font-semibold hover:bg-violet-950 transition duration-200"
+              onClick={handleSubmit(onHandleSubmit)}
+              // type="submit"
+              className="flex justify-center items-center h-12 w-full bg-black/80 border border-violet-900/50 text-white py-3 rounded-lg font-semibold mb-2 hover:bg-violet-950 transition duration-200"
             >
               {loading ? <RiseLoader color="white" size={11} /> : "SignIn"}
             </button>
-          </form>
-          <div className="mt-5">
-         {selectedRole==='interviewer'&&<GoogleAuthButton />}
 
+          </div>
+          <div className="mt-3">
+
+            {selectedRole !==Roles.CANDIDATE && <div 
+                className="text-md text-violet-300 ml-12"  >
+              First time signing in? <Link className="font-semibold text-sm hover:text-violet-200 " href={`/register/${selectedRole}`}>Create an account</Link>
+              </div>}
+          </div>
+          <div className="mt-5">
+            {selectedRole === "interviewer" && <GoogleAuthButton />}
           </div>
         </div>
       </div>

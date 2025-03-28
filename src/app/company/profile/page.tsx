@@ -15,51 +15,53 @@ import {
   Save,
   Image as ImageIcon,
   Upload,
+  FileText,
+  Users,
+  MapPin,
 } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
 import NextImage from "next/image";
-import { useFetchCompanyProfile, useUpadteCompanyProfile } from "@/hooks/useCompany";
-import { CompanyProfileSchema, ICompanyProfile } from "@/validations/CompanySchema";
+import {
+  useFetchCompanyProfile,
+  useUpadteCompanyProfile,
+} from "@/hooks/useCompany";
+import {
+  CompanyProfileSchema,
+  ICompanyProfile,
+} from "@/validations/CompanySchema";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-
-// const initialCompanyData = {
-//   companyName: "TechCorp Solutions",
-//   email: "contact@techcorp.com",
-//   companyWebsite: "https://techcorp.com",
-//   registrationCertificateNumber: "REG123456789",
-//   linkedInProfile: "https://linkedin.com/company/techcorp",
-//   phone: "+1 (555) 123-4567",
-//   companyType: "Technology",
-//   isVerified: true,
-//   status: "approved",
-//   industry: "Software Development",
-//   logo: null,
-// };
+import withProtectedRoute from "@/lib/withProtectedRoutes";
+import { Roles } from "@/constants/roles";
+import { StatusCodes } from "@/constants/statusCodes";
+import { useAuthStore } from "@/stores/authStore";
+import { SelectField } from "@/components/ui/SelectField";
+import { convertBlobUrlToFile } from "@/utils/fileConversion";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [companyData, setCompanyData] = useState<ICompanyProfile>(
     {} as ICompanyProfile
   );
-  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
   const [logoPreview, setLogoPreview] = useState<string | null>("");
 
+  const { logout } = useAuthStore();
+
   const { companyProfile, loading } = useFetchCompanyProfile();
-  const { updateCompanyProfile} = useUpadteCompanyProfile();
+  const { updateCompanyProfile } = useUpadteCompanyProfile();
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
-  
   const handleCancel = () => {
     setIsEditing(false);
     setLogoPreview(null);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setCompanyData((prev) => ({
       ...prev,
@@ -68,125 +70,67 @@ function CompanyProfilePage() {
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file: File | undefined = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const imageFile = URL.createObjectURL(file);
+      setLogoPreview(imageFile);
     }
   };
-  
 
-
-
-  const handleSave = async() => {
-        
-    const validatedCompany=CompanyProfileSchema.safeParse(companyData)
-      if(!validatedCompany.success){
-        const errors=validatedCompany.error;
-        console.log(errors)
-          for(const issue of errors.issues){
-               toast(issue.message)
-          }
-
-        // toast.error(JSON.stringify(validatedCompany.error.format()));
-        return
+  const handleSave = async () => {
+    const validatedCompany = CompanyProfileSchema.safeParse(companyData);
+    if (!validatedCompany.success) {
+      const errors = validatedCompany.error;
+      console.log(errors);
+      for (const issue of errors.issues) {
+        toast(issue.message);
       }
 
-    const respone= await updateCompanyProfile(companyData);
-    if(!respone.success){
-
+      // toast.error(JSON.stringify(validatedCompany.error.format()));
+      return;
+    }
+    const formData=new FormData();
+    if (logoPreview) {
+      const file=await convertBlobUrlToFile(logoPreview)
+      console.log("file: " + file);
+      formData.append("companyLogo", file!);
+      formData.append("company", JSON.stringify(companyData));
+      setCompanyData((prev) => ({...prev, ...formData}));
+    }
+    const respone = await updateCompanyProfile(formData);
+    if (!respone.success) {
       toast.error(respone.error);
-      return
-    }else{  
+      return;
+    } else {
       toast.success(respone.message);
       setIsEditing(false);
-      }
+    }
   };
-  
+
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
       toast(response.error);
+      if (response.status === StatusCodes.FORBIDDEN) {
+        logout();
+      }
     } else {
+      setLogoPreview(response.data.companyLogo);
       setCompanyData(response.data);
     }
-  }, [companyProfile]);
+  }, [companyProfile, logout]);
   useEffect(() => {
     fetchCompanyProfile();
   }, [fetchCompanyProfile]);
-  
+
+  const companySizeOptions = ["Small", "Medium", "Startup", "Enterprise"];
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white flex">
-      {/* Sidebar */}
-      {/* <div
-        className={`h-screen bg-gray-900/50 backdrop-blur-sm border-r border-gray-800 transition-all duration-300 ${
-          isSidebarCollapsed ? "w-20" : "w-64"
-          } flex flex-col fixed left-0 top-0`}
-      >
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          <div
-            className={`flex items-center gap-3 ${
-              isSidebarCollapsed ? "hidden" : "block"
-              }`}
-          >
-            <Building2 className="text-violet-500" size={32} />
-            <span className="font-bold text-lg">TechCorp</span>
-          </div>
-          <button
-            onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            {isSidebarCollapsed ? (
-              <ChevronRight size={20} />
-            ) : (
-              <ChevronLeft size={20} />
-            )}
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === item.id
-                      ? "bg-violet-600 text-white"
-                      : "hover:bg-gray-800/50 text-gray-300"
-                  }`}
-                >
-                  <item.icon size={20} />
-                  <span className={isSidebarCollapsed ? "hidden" : "block"}>
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-gray-800">
-          <button
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-            onClick={() => console.log("Logout clicked")}
-          >
-            <LogOut size={20} />
-            <span className={isSidebarCollapsed ? "hidden" : "block"}>
-              Logout
-            </span>
-          </button>
-        </div>
-      </div> */}
-
       {/* Main Content */}
       {loading ? (
-        <RiseLoader className="m-auto"  color="white"/>
+        <RiseLoader className="m-auto" color="white" />
       ) : (
-        <div className={`flex-1 p-4 ${isSidebarCollapsed ? "ml-20" : "ml-64"}`}>
+        <div className="flex-1 p-4 ml-64">
           <div className="max-w-5xl mx-auto">
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-800">
               {/* Header with Logo Upload */}
@@ -200,6 +144,8 @@ function CompanyProfilePage() {
                           src={logoPreview}
                           alt="Company Logo"
                           className="w-full h-full object-cover"
+                          width={400}
+                          height={400}
                         />
                       ) : (
                         <div className="text-center p-4">
@@ -339,6 +285,44 @@ function CompanyProfilePage() {
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
+                <div className="col-span-2">
+                  <InputField
+                    icon={FileText}
+                    label="Company Description"
+                    placeholder="Company description is not specified"
+                    value={companyData.description || ""}
+                    name="description"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <SelectField
+                    icon={Building2}
+                    label="Company Size"
+                    value={companyData.companySize || ""}
+                    name="companySize"
+                    options={companySizeOptions}
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={Users}
+                    label="Number of Employees"
+                    placeholder="Number of Employees are not specified"
+                    value={companyData.numberOfEmployees || ""}
+                    name="numberOfEmployees"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={MapPin}
+                    label="Headquarters Location"
+                    placeholder="headquarters Location are not specified"
+                    value={companyData.headquartersLocation || ""}
+                    name="headquartersLocation"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -347,5 +331,4 @@ function CompanyProfilePage() {
     </div>
   );
 }
-
-export default CompanyProfilePage;
+export default withProtectedRoute(CompanyProfilePage, [Roles.COMPANY]);

@@ -6,6 +6,7 @@ type Availability = {
   
 
 export interface IInterviewer{
+  _id?:string;
     name: string;
     position: string;
     email: string;
@@ -13,7 +14,6 @@ export interface IInterviewer{
     password:string;
     experience: number;
     linkedinProfile: string;
-    duration?: number;
     location?: string;
     language: Record<string, string>;
     availableDays:string[];
@@ -26,5 +26,7 @@ export interface IInterviewer{
     rating?: number;
     reviews?: [];
     status:'approved'|'pending'|'rejected';
+    createdAt:Date;
+    isBlocked:boolean;
   }
   

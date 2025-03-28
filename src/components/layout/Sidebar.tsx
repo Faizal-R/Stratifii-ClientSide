@@ -1,20 +1,24 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 interface NavItem {
-    id: string;
-    label: string;
-    icon: React.ElementType;
-  }
-  
-  interface SidebarProps {
-    navItems: NavItem[];
-  }
-  
-  const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  route: string;
+}
+
+interface SidebarProps {
+  navItems: NavItem[];
+  isModalOpen: boolean;
+  handleModalState: (state: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ navItems, handleModalState }) => {
+  const router = useRouter();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(navItems[0].id);
 
   return (
     <div
@@ -23,7 +27,11 @@ interface NavItem {
       } flex flex-col fixed left-0 top-0`}
     >
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        <div className={`flex items-center gap-3 ${isSidebarCollapsed ? "hidden" : "block"}`}>
+        <div
+          className={`flex items-center gap-3 ${
+            isSidebarCollapsed ? "hidden" : "block"
+          }`}
+        >
           <Building2 className="text-violet-500" size={32} />
           <span className="font-bold text-lg text-white">Stratifii</span>
         </div>
@@ -31,7 +39,11 @@ interface NavItem {
           onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors border border-violet-900 text-white"
         >
-          {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {isSidebarCollapsed ? (
+            <ChevronRight size={20} />
+          ) : (
+            <ChevronLeft size={20} />
+          )}
         </button>
       </div>
 
@@ -40,7 +52,10 @@ interface NavItem {
           {navItems.map((item) => (
             <li key={item.id}>
               <button
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  router.push(item.route);
+                  setActiveTab(item.id);
+                }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
                     ? "bg-violet-600 text-white"
@@ -48,7 +63,9 @@ interface NavItem {
                 }`}
               >
                 <item.icon size={20} />
-                <span className={isSidebarCollapsed ? "hidden" : "block"}>{item.label}</span>
+                <span className={isSidebarCollapsed ? "hidden" : "block"}>
+                  {item.label}
+                </span>
               </button>
             </li>
           ))}
@@ -58,10 +75,12 @@ interface NavItem {
       <div className="p-4 border-t border-gray-800">
         <button
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-          onClick={() => console.log("Logout clicked")}
+          onClick={() => handleModalState(true)}
         >
           <LogOut size={20} />
-          <span className={isSidebarCollapsed ? "hidden" : "block"}>Logout</span>
+          <span className={isSidebarCollapsed ? "hidden" : "block"}>
+            Logout
+          </span>
         </button>
       </div>
     </div>
