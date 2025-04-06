@@ -13,7 +13,6 @@ import {
   Languages,
   Calendar,
   Upload,
-
   ImageIcon,
   Clock,
 } from "lucide-react";
@@ -86,8 +85,13 @@ function InterviewerProfilePage() {
   };
 
   const handleAddLanguage = () => {
-    const newLang = { ...interviewerData.language, "": "" };
-    setInterviewerData({ ...interviewerData, language: newLang });
+    setInterviewerData((prev) => ({
+      ...prev,
+      language: {
+        ...prev.language,
+        "": "",
+      },
+    }));
   };
 
   const handleRemoveLanguage = (langToRemove: string) => {
@@ -222,22 +226,22 @@ function InterviewerProfilePage() {
                         {interviewerData.position}
                       </p>
                     )}
-                    {
-                      !isEditing&&<div className="flex items-center gap-2 mt-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          interviewerData.status === "approved"
-                            ? "bg-green-500/20 text-green-400"
-                            : interviewerData.status === "pending"
-                            ? "bg-yellow-500/20 text-yellow-400"
-                            : "bg-red-500/20 text-red-400"
-                        }`}
-                      >
-                        {/* {interviewerData.status.charAt(0).toUpperCase() + interviewerData.status.slice(1)} */}
-                      </span>
-                     
-                    </div>
-                    }
+                    {!isEditing && interviewerData.status && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            interviewerData.status === "approved"
+                              ? "bg-green-500/20 text-green-400"
+                              : interviewerData.status === "pending"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {interviewerData.status.charAt(0).toUpperCase() +
+                            interviewerData.status.slice(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     {!isEditing ? (
@@ -467,11 +471,18 @@ function InterviewerProfilePage() {
                                   type="text"
                                   value={lang}
                                   onChange={(e) => {
-                                    const newLangKey = e.target.value;
+                                    const newLangKey = e.target.value.trim();
+                                    if (!newLangKey) return; // Prevent empty keys
+                                  
                                     setInterviewerData((prevData) => {
                                       const newLang = { ...prevData.language };
-                                      if (lang) delete newLang[lang]; // Only delete the previous key if it exists
-                                      newLang[newLangKey] = level;
+                                      
+                                      // If lang is modified, delete the old key and add a new one
+                                      if (lang !== newLangKey) {
+                                        delete newLang[lang];
+                                        newLang[newLangKey] = level;
+                                      }
+                                  
                                       return { ...prevData, language: newLang };
                                     });
                                   }}
@@ -483,15 +494,15 @@ function InterviewerProfilePage() {
                                   type="text"
                                   value={level}
                                   onChange={(e) => {
-                                    const newLang = {
-                                      ...interviewerData.language,
-                                    };
-                                    newLang[lang] = e.target.value;
-                                    setInterviewerData({
-                                      ...interviewerData,
-                                      language: newLang,
-                                    });
+                                    setInterviewerData((prevData) => ({
+                                      ...prevData,
+                                      language: {
+                                        ...prevData.language,
+                                        [lang]: e.target.value, // Only update the level
+                                      },
+                                    }));
                                   }}
+                                  
                                   className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
                                   placeholder="Proficiency"
                                 />
@@ -701,4 +712,4 @@ function InterviewerProfilePage() {
   );
 }
 
-export default InterviewerProfilePage
+export default InterviewerProfilePage;

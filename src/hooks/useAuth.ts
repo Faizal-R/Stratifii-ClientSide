@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import AuthService from "../services/AuthService";
 import { IInterviewer } from "@/types/IInterviewer";
 import { ICompany } from "@/types/ICompany";
+import { IInterviewerSchema } from "@/validations/InterviewerSchema";
 
 export const useSignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ export const useCompanyRegister = () => {
 
 export const useInterviewerRegister = () => {
   const [loading, setLoading] = useState(false);
-  const registerInterviewer = useCallback(async (interviewer: IInterviewer) => {
+  const registerInterviewer = useCallback(async (interviewer: IInterviewerSchema) => {
     setLoading(true);
     try {
       const response = await AuthService.interviewerRegister(interviewer);

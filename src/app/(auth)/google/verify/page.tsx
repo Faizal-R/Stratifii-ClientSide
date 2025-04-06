@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
@@ -8,7 +8,7 @@ import { Roles } from "@/constants/roles";
 
 export default function VerifyPage() {
   const { data: session, status} = useSession(); 
-  console.log(session)// Get session data
+
   const setUser = useAuthStore((state) => state.setUser); // Get the setUser function from your store
   const router = useRouter();
 
@@ -31,8 +31,8 @@ export default function VerifyPage() {
         token: session.accessToken!,
         role: Roles.INTERVIEWER,
       });
-
-      // Navigate to the interviewer page
+       signOut()
+     
       router.push("/interviewer");
     }
   }, [status, session, router, setUser]);

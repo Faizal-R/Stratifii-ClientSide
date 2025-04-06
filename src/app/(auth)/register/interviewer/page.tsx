@@ -19,8 +19,9 @@ import { useInterviewerRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { RiseLoader } from "react-spinners";
-import { interviewerSchema } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration, interviewerSchema } from "@/validations/InterviewerSchema";
 import Link from "next/link";
+import { handleInterviewerRegistrationStep } from "@/utils/handleRegistrationStep";
 
 function InterviewerRegistrationPage() {
   const { loading, registerInterviewer } = useInterviewerRegister();
@@ -38,6 +39,7 @@ function InterviewerRegistrationPage() {
     professionalSummary: "",
     expertise: [] as string[],
     status: "", // Add status property
+    isVerified: false, // Add isVerified property
   });
 
   const [registrationStep, setRegistrationStep] = useState(1);
@@ -97,7 +99,7 @@ function InterviewerRegistrationPage() {
       return;
     }
 
-    const response = await registerInterviewer({...formData,status:"pending"}); // Set default status
+    const response = await registerInterviewer(validatedInterviewer.data); // Set default status
     if (!response.success) {
        console.log(response)
       toast(response.error);
@@ -109,7 +111,15 @@ function InterviewerRegistrationPage() {
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async() => {
+    const validInterviewer=await handleInterviewerRegistrationStep(formData,registrationStep)
+         if(!validInterviewer?.success){
+          const errors = validInterviewer?.errors;
+          for (const issue of errors!) {
+            toast(issue.message); 
+            return;
+          }
+         }
     setRegistrationStep(registrationStep + 1);
   };
 
@@ -126,6 +136,7 @@ function InterviewerRegistrationPage() {
         ...prev.language,
         [languageInput.name]: languageInput.level,
       },
+     
     }));
 
     setLanguageInput({ name: "", level: "Beginner" });

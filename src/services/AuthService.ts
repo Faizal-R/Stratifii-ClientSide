@@ -2,6 +2,7 @@ import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
 import { IInterviewer } from "@/types/IInterviewer";
+import { IInterviewerSchema } from "@/validations/InterviewerSchema";
 
 export interface LoginResponse {
   accessToken: string;
@@ -43,7 +44,7 @@ const AuthService = {
     }
   },
   
-  interviewerRegister: async (interviewer: IInterviewer) => {
+  interviewerRegister: async (interviewer: IInterviewerSchema) => {
     try {
       const response = await apiClient.post(
         "/auth/register/interviewer",
@@ -69,7 +70,7 @@ const AuthService = {
     }
     catch (error) {
       if (isAxiosError(error)) {
-        console.log(error)
+       
         return { success: false, error: error.response?.data.message || "Request failed" };
       }
       return { success: false, error: "Unexpected Error Occured while verifying Otp" };
@@ -83,7 +84,7 @@ const AuthService = {
         
       } catch (error) {
         if(isAxiosError(error)){
-          console.log(error)
+
           return {success:false,error:error.response?.data.message}
         }
         return {success:false,error:"Unexpected Error Occured while Resend Otp"}
@@ -97,7 +98,7 @@ const AuthService = {
         return response.data
       } catch (error) {
         if(isAxiosError(error)){
-          console.log(error)
+          
           return {success:false,error:error.response?.data.message}
         }
         return {success:false,error:"Unexpected Error Occured while Requesting Forgot Password"}
@@ -110,7 +111,7 @@ const AuthService = {
         return response.data
       } catch (error) {
         if(isAxiosError(error)){
-          console.log(error)
+
           return {success:false,error:error.response?.data.message}
         }
         return {success:false,error:"Unexpected Error Occured while resetting Password"}

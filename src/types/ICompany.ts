@@ -9,6 +9,6 @@ export interface ICompany {
     companyType: string;
     candidates?: object[];
     isVerified?: boolean;
-    createdAt:string;
+    createdAt?:string;
     isBlocked?:boolean;
   }

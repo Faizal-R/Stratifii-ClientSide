@@ -3,9 +3,10 @@ import { useFetchCompanyProfile } from "@/hooks/useCompany";
 import { ICompany } from "@/validations/CompanySchema";
 import { CheckCircle, Hourglass, Info } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { RiseLoader } from "react-spinners";
 import { toast } from "sonner";
 const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
-  const { companyProfile } = useFetchCompanyProfile();
+  const { companyProfile, loading } = useFetchCompanyProfile();
   const [company, setCompany] = useState({} as ICompany);
 
   const hasFetched = useRef(false);
@@ -26,7 +27,11 @@ const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
 
     fetchCompany();
   }, [companyProfile]);
-  return company.status === "approved" ? (
+  return loading ? (
+    <div className="w-screen h-screen flex items-center justify-center">
+      <RiseLoader className="" color="white" />
+    </div>
+  ) : company.status === "approved" ? (
     <div>{children}</div>
   ) : (
     <div className="flex items-center justify-center min-h-screen ">

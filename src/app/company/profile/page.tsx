@@ -83,26 +83,30 @@ function CompanyProfilePage() {
       const errors = validatedCompany.error;
       console.log(errors);
       for (const issue of errors.issues) {
-        toast(issue.message);
+        toast.error(issue.message, {
+          className: "custom-error-toast",
+        });
       }
 
-      // toast.error(JSON.stringify(validatedCompany.error.format()));
+     
       return;
     }
-    const formData=new FormData();
+    const formData = new FormData();
     if (logoPreview) {
-      const file=await convertBlobUrlToFile(logoPreview)
+      const file = await convertBlobUrlToFile(logoPreview);
       console.log("file: " + file);
       formData.append("companyLogo", file!);
       formData.append("company", JSON.stringify(companyData));
-      setCompanyData((prev) => ({...prev, ...formData}));
+      setCompanyData((prev) => ({ ...prev, ...formData }));
     }
-    const respone = await updateCompanyProfile(formData);
-    if (!respone.success) {
-      toast.error(respone.error);
+    const response = await updateCompanyProfile(formData);
+    if (!response.success) {
+      toast.error(response.error, {
+        className: "custom-error-toast",
+      });
       return;
     } else {
-      toast.success(respone.message);
+      toast.success(response.message);
       setIsEditing(false);
     }
   };
@@ -110,7 +114,9 @@ function CompanyProfilePage() {
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error, {
+        className: "custom-error-toast",
+      });
       if (response.status === StatusCodes.FORBIDDEN) {
         logout();
       }

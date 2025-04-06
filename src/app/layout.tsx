@@ -32,16 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-black via-black to-violet-950`}
       >
-        <SessionProviders>
-          {children}
-        </SessionProviders>
+        <SessionProviders>{children}</SessionProviders>
         <Toaster
           position="bottom-right"
           duration={1500}
           toastOptions={{
             className: "custom-toast",
           }}
-          />
+        />
       </body>
     </html>
   );

@@ -26,7 +26,7 @@ export interface IInterviewer{
     rating?: number;
     reviews?: [];
     status:'approved'|'pending'|'rejected';
-    createdAt:Date;
+    createdAt?:Date;
     isBlocked:boolean;
   }
   

@@ -46,9 +46,10 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
+       session.expires= new Date(Date.now() + 5 * 60 * 1000).toISOString();
       }
       session.accessToken = token.accessToken; 
-      console.log("session",session)
+      
       return session;
     }
   },

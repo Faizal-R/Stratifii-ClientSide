@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter,usePathname } from "next/navigation";
 interface NavItem {
   id: string;
   label: string;
@@ -16,10 +16,18 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ navItems, handleModalState }) => {
-  const router = useRouter();
-  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(navItems[0].id);
 
+  const router = useRouter();
+  const currentUrl=usePathname()
+
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+ const [activeTab, setActiveTab] = useState<string>(navItems[0].id);
+ useEffect(() => {
+  const matchedTab = navItems.find(item => item.route === currentUrl)?.id;
+  if (matchedTab) {
+    setActiveTab(matchedTab);
+  }
+}, [currentUrl])
   return (
     <div
       className={`h-screen bg-gray-900/50 backdrop-blur-sm border-r border-gray-800 transition-all duration-300 ${

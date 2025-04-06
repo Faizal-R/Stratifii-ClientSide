@@ -3,6 +3,7 @@ import {
   CompanyRegistrationStep2Schema,
 } from "@/validations/CompanySchema";
 import { ICompanyRegistration } from "@/validations/CompanySchema";
+import { IInterviewerRegistration, IInterviewerSchema, InterviewerRegistrationStep1, InterviewerRegistrationStep2, InterviewerRegistrationStep3 } from "@/validations/InterviewerSchema";
 
 export const handleCompanyRegistrationStep = async (
   formData: ICompanyRegistration,
@@ -28,3 +29,35 @@ export const handleCompanyRegistrationStep = async (
 
   }
 };
+
+
+
+export const  handleInterviewerRegistrationStep=async (formData:IInterviewerRegistration,step:number)=>{
+  switch (step) {
+    case 1:
+      const validatedInterviewerStep1 =
+        await InterviewerRegistrationStep1.safeParse(formData);
+      if (validatedInterviewerStep1.success) {
+        return { success: true, company: validatedInterviewerStep1.data };
+      } else {
+        return { success: false, errors: validatedInterviewerStep1.error.issues };
+      }
+    case 2:
+      const validatedInterviewerStep2 =
+        await InterviewerRegistrationStep2.safeParse(formData);
+      if (validatedInterviewerStep2.success) {
+        return { success: true, company: validatedInterviewerStep2.data };
+      } else {
+        return { success: false, errors: validatedInterviewerStep2.error.issues };
+      }
+    case 3:
+      const validatedInterviewerStep3 =
+        await InterviewerRegistrationStep3.safeParse(formData);
+      if (validatedInterviewerStep3.success) {
+        return { success: true, company: validatedInterviewerStep3.data };
+      } else {
+        return { success: false, errors: validatedInterviewerStep3.error.issues };
+      }
+
+  }
+}
