@@ -16,8 +16,8 @@ import {
 } from "@/hooks/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { Modal } from "@/components/ui/ConfirmationModal";
-import CompanyDetailsModal from "@/components/ui/UserDetailsModal";
+import { Modal } from "@/components/ui/modals/ConfirmationModal";
+import CompanyDetailsModal from "@/components/ui/modals/UserDetailsModal";
 import { ICompany } from "@/validations/CompanySchema";
 import { FaCheck, FaTimes } from "react-icons/fa";
 

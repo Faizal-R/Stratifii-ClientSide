@@ -1,6 +1,17 @@
+export interface ISubscriptionFeatures {
+  candidateSlotPerMonth: number;
+  minimumCandidatesPerJob: number;
+  finalInterviewAccess: boolean;
+  interviewRecordingAccess: boolean;
+  feedbackDownloadAccess: boolean;
+  jobPostLimitPerMonth: number;
+  companySpecificQuestionAccess: boolean;
+}
+
 export interface ISubscription {
-  _id?: string;
+  _id?:string;
   name: string;
   price: number;
-  features: string[];
+  isActive: boolean;
+  features: ISubscriptionFeatures;
 }

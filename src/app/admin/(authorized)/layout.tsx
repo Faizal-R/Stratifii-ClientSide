@@ -10,7 +10,7 @@ import {
     Wallet, 
     LogOut 
   } from "lucide-react";
-import { Modal } from '@/components/ui/ConfirmationModal';
+import { Modal } from '@/components/ui/modals/ConfirmationModal';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
   

@@ -1,5 +1,5 @@
 "use client";
-import React, {  useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Plus,
   X,
@@ -31,7 +31,7 @@ interface Job {
   description: string;
   requiredSkills: string[];
   deadline: string;
-  experienceRequired: number;
+  experienceRequired: number | string;
 }
 
 function InterviewDelegation() {
@@ -49,7 +49,7 @@ function InterviewDelegation() {
     description: "",
     requiredSkills: [],
     deadline: "",
-    experienceRequired: 0,
+    experienceRequired: "",
   });
 
   const handleEditJob = async (e: React.FormEvent) => {
@@ -61,6 +61,7 @@ function InterviewDelegation() {
     const res = await updateJob({
       ...selectedJob,
       deadline: new Date(selectedJob.deadline),
+      experienceRequired: Number(selectedJob.experienceRequired),
     });
     if (!res.success) {
       toast(res.error);
@@ -84,7 +85,7 @@ function InterviewDelegation() {
       newJob.position,
       newJob.description,
       new Date(newJob.deadline),
-      newJob.experienceRequired,
+      Number(newJob.experienceRequired),
       newJob.requiredSkills
     );
     if (!response.success) {
@@ -99,7 +100,7 @@ function InterviewDelegation() {
       description: "",
       requiredSkills: [],
       deadline: "",
-      experienceRequired: 0,
+      experienceRequired: "",
     });
   };
   const handleJobDelete = async (jobId: string) => {
@@ -138,10 +139,10 @@ function InterviewDelegation() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (hasFetched.current) return; 
-  
-    hasFetched.current = true; 
-  
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
     const fetchJobs = async () => {
       const response = await getJobs();
       if (!response.success) {
@@ -150,10 +151,9 @@ function InterviewDelegation() {
       }
       setJobs(response.data);
     };
-  
+
     fetchJobs();
-  }, [getJobs]); 
-  
+  }, [getJobs]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-8 pl-72">
@@ -226,10 +226,10 @@ function InterviewDelegation() {
               <div
                 key={job._id}
                 // onClick={() => navigateToJob(job._id)}
-                className="group bg-gradient-to-br from-black via-black to-violet-950 rounded-xl shadow-md p-6 border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:-translate-y-1 relative"
+                className="group bg-gradient-to-br from-black via-black to-violet-950 rounded-xl shadow-md p-6 border border-violet-950 cursor-pointer hover:shadow-xl transition-all duration-200 hover:-translate-y-1 relative"
               >
                 <div className="flex items-start justify-between">
-                  <h3 className="text-xl font-semibold group-hover:text-violet-600 transition-colors flex items-center gap-1">
+                  <h3 className="text-xl text-violet-400 font-semibold group-hover:text-violet-600 transition-colors flex items-center gap-1">
                     {job?.position}
                     <Briefcase
                       className="text-violet-500 group-hover:text-violet-600 transition-colors"
@@ -256,7 +256,7 @@ function InterviewDelegation() {
                     {job.requiredSkills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-violet-50 text-violet-700 rounded-full text-sm font-medium group-hover:bg-violet-100 transition-colors"
+                        className="px-3 py-1 border border-violet-900 text-violet-700 rounded-full text-sm font-medium hover:bg-violet-900 hover:text-white transition-colors"
                       >
                         {skill}
                       </span>
@@ -327,7 +327,7 @@ function InterviewDelegation() {
                   </label>
                   <input
                     name="experienceRequired"
-                    type="number"
+                    type="string"
                     value={
                       isJobEditing
                         ? selectedJob.experienceRequired

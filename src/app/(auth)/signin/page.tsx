@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "../../../validations/AuthSchema";
 import { GoogleAuthButton } from "../../../components/ui/GoogleAuthButton";
 // import Link from "next/link";
-import { Modal } from "../../../components/ui/ConfirmationModal";
+import { Modal } from "../../../components/ui/modals/ConfirmationModal";
 import { useAuthStore } from "@/stores/authStore";
 import { Roles } from "@/constants/roles";
 import Link from "next/link";
@@ -70,7 +70,9 @@ function App() {
     });
 
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error,{
+        className:"custom-error-toast"
+      });
       return;
     }
     toast(response.message);
@@ -98,9 +100,13 @@ function App() {
   };
   useEffect(() => {
     if (errors.email) {
-      toast.error(errors.email.message);
+      toast.error(errors.email.message,{
+        className:"custom-error-toast"
+      });
     } else if (errors.password) {
-      toast.error(errors.password.message);
+      toast.error(errors.password.message,{
+        className:"custom-error-toast"
+      });
     }
   }, [errors]);
 

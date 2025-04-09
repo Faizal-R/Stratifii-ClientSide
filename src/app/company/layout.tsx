@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation"; 
 import { useAuthStore } from "@/stores/authStore";
-import { Modal } from "@/components/ui/ConfirmationModal";
+import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
 

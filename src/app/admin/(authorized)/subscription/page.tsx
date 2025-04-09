@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Edit2, PackagePlus, Plus, Smile, X } from "lucide-react";
-import SubscriptionModal from "@/components/ui/SubscriptionModal";
+import {
+  Check,
+  CrossIcon,
+  Edit2,
+  PackagePlus,
+  Plus,
+  Smile,
+  X,
+} from "lucide-react";
+import SubscriptionModal from "@/components/ui/modals/SubscriptionModal";
 import {
   useCreateSubscription,
   useGetAllSubscriptions,
@@ -17,19 +25,18 @@ export default function SubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<ISubscription | null>(
-    null
-  );
-  
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<ISubscription | null>(null);
+
   const { getSubscriptions, loading: isFetchingSubscription } =
-  useGetAllSubscriptions();
+    useGetAllSubscriptions();
   const { createSubscription, loading } = useCreateSubscription();
-  const {updateSubscription}=useUpdateSubscription()
+  const { updateSubscription } = useUpdateSubscription();
 
   const handleSaveSubscription = async (subscription: ISubscription) => {
     console.log(subscription);
     if (isEditing) {
-      await updateSubscription(subscription._id!,subscription);
+      await updateSubscription(subscription._id!, subscription);
       setSubscriptions(
         subscriptions.map((s) =>
           s._id === subscription._id ? subscription : s
@@ -47,13 +54,12 @@ export default function SubscriptionPage() {
     }
     setIsModalOpen(false);
   };
-  const  handleEditSubscription=(subscription:ISubscription)=>{
-    setIsModalOpen(true)
+  const handleEditSubscription = (subscription: ISubscription) => {
+    setIsModalOpen(true);
     setIsEditing(true);
     setSelectedSubscription(subscription);
-  }
+  };
 
-  
   const hasFetched = useRef(false);
   useEffect(() => {
     if (hasFetched.current) return;
@@ -83,7 +89,7 @@ export default function SubscriptionPage() {
           <h1 className="text-3xl font-bold text-violet-100">
             Subscription Plans
           </h1>
-          {subscriptions.length < 3 && (
+          {subscriptions.length !== 0 && subscriptions.length < 3 && (
             <div className="flex justify-end w-[94%]">
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -95,15 +101,17 @@ export default function SubscriptionPage() {
             </div>
           )}
         </div>
-        <div className="text-center w-[94%] mx-auto mb-6">
-          <h2 className="text-2xl font-semibold text-gray-200">
-            Manage & Customize Subscription Plans
-          </h2>
-          <p className="text-gray-400 text-lg mt-2">
-            Create, update, and monitor subscription plans to optimize the
-            platform’s revenue and user experience.
-          </p>
-        </div>
+        {subscriptions.length > 0 && (
+          <div className="text-center w-[94%] mx-auto mb-6">
+            <h2 className="text-2xl font-semibold text-gray-200">
+              Manage & Customize Subscription Plans
+            </h2>
+            <p className="text-gray-400 text-lg mt-2">
+              Create, update, and monitor subscription plans to optimize the
+              platform’s revenue and user experience.
+            </p>
+          </div>
+        )}
 
         {subscriptions.length === 0 ? (
           <div className="flex flex-col items-center justify-center w-full h-[80%] text-center py-12">
@@ -148,15 +156,64 @@ export default function SubscriptionPage() {
                     <span className="text-4xl font-bold text-violet-600">
                       ${subscription.price}
                     </span>
-                    <span className="text-gray-500">/month</span>
+                    <span className="text-gray-400">/month</span>
                   </div>
-                  <ul className="space-y-3">
-                    {(subscription.features || []).map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                  <ul className="space-y-3 ">
+                    <ul className="space-y-3 text-gray-600">
+                      <li className="flex items-start gap-2">
                         <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-600">{feature}</span>
+                        Can Post {subscription.features.jobPostLimitPerMonth}{" "}
+                        Job(s) Per Month
                       </li>
-                    ))}
+                      <li className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        Minimum {subscription.features.minimumCandidatesPerJob}{" "}
+                        Candidates Per Job
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        {subscription.features.candidateSlotPerMonth} Candidate
+                        Slot(s) Per Month
+                      </li>
+                      <li className="flex items-start gap-2">
+                        {subscription.features.companySpecificQuestionAccess ? (
+                          <>
+                            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            Access to Company Specific Questions
+                          </>
+                        ) : (
+                          <>
+                            <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                            No Access to Company Specific Questions
+                          </>
+                        )}
+                      </li>
+                      <li className="flex items-start gap-2">
+                        {subscription.features.feedbackDownloadAccess ? (
+                          <>
+                            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            Can Download Feedback
+                          </>
+                        ) : (
+                          <>
+                            <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                            Cannot Download Feedback
+                          </>
+                        )}
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        {subscription.features.finalInterviewAccess
+                          ? "Access to Final Interviews"
+                          : "No Access to Final Interviews"}
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        {subscription.features.interviewRecordingAccess
+                          ? "Access to Interview Recordings"
+                          : "No Access to Interview Recordings"}
+                      </li>
+                    </ul>
                   </ul>
                 </div>
               </div>

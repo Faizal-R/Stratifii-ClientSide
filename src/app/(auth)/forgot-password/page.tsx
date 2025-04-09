@@ -4,7 +4,7 @@ import { Mail, ArrowRight,  } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSendForgotPasswordOtpRequest } from '@/hooks/useAuth';
 import {  useSearchParams } from 'next/navigation';
-import { RiseLoader } from 'react-spinners';
+import { BeatLoader, HashLoader, RiseLoader } from 'react-spinners';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -24,7 +24,9 @@ function ForgotPasswordPage() {
   const response= await  sendForgotPasswordOtpRequest(email,role!);
 
      if(!response.success){
-        toast(response.error);
+        toast.error(response.error,{
+          className:'custom-error-toast'
+        });
         return;
      }
      console.log(response)
@@ -64,8 +66,10 @@ function ForgotPasswordPage() {
             className="w-full bg-violet-600 text-violet-200 py-2 px-4 rounded-lg hover:bg-violet-700 transition duration-200 font-medium flex items-center justify-center gap-2"
 
           >
-            {loading?<RiseLoader/>:"Send Verification Code..."}
-            <ArrowRight size={18} />
+            {loading?<HashLoader size={24} color='white' className='text-center'/>:<>
+              "Send Verification Code..."
+              <ArrowRight size={18} />
+            </> }
           </button>
 
           <div className="text-sm text-violet-200 text-bold space-y-4 bg-violet-500 p-4 rounded-lg">

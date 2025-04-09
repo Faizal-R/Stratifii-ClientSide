@@ -6,7 +6,7 @@ import { IRazorpayResponse } from "@/types/IRazorpay";
 export const SubscriptionService = {
    createSubscription:async (subscription :ISubscription)=>{
     try {
-        const response = await apiClient.post("/admin/subscription",subscription);
+        const response = await apiClient.post("/subscription",subscription);
         return response.data;
       } catch (error) {
         if (isAxiosError(error)) {
@@ -26,7 +26,7 @@ export const SubscriptionService = {
    },
    getSubscriptions: async () => {
     try {
-      const response = await apiClient.get("/admin/subscription");
+      const response = await apiClient.get("/subscription");
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -46,7 +46,7 @@ export const SubscriptionService = {
   },
   updateSubscription: async (subscriptionId:string,updatedSubscription :ISubscription) => {
     try {
-      const response = await apiClient.put(`admin/subscription/${subscriptionId}`,{updatedSubscription});
+      const response = await apiClient.put(`/subscription/${subscriptionId}`,{updatedSubscription});
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {

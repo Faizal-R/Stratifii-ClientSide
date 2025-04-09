@@ -33,7 +33,9 @@ function ResetPassword() {
       token as string
     );
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error,{
+        className:"custom-error-toast"
+      });
       return;
     }
     toast(response.message);

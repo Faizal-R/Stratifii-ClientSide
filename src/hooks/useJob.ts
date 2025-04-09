@@ -75,3 +75,39 @@ export const useDeleteJob = function () {
 
   return { loading, deleteJob };
 };
+export const useUploadResumesAndCreateCandidates = function () {
+  const [loading, setLoading] = useState(false);
+
+  const uploadResumesAndCreateCandidates = useCallback(
+    async (jobId: string, files: FormData) => {
+      try {
+        setLoading(true);
+        const response = await JobService.uploadResumesAndCreateCandidates(
+          jobId,
+          files
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { loading, uploadResumesAndCreateCandidates };
+};
+export const useGetCandidatesByJob = function () {
+  const [loading, setLoading] = useState(false);
+
+  const getCandidatesByJob = useCallback(async (jobId: string) => {
+    try {
+      setLoading(true);
+      const response = await JobService.getCandidatesByJobId(jobId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, getCandidatesByJob };
+};

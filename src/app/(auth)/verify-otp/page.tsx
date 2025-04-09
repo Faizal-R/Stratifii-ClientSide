@@ -85,7 +85,9 @@ function OtpVerificationPage() {
 
   const onHandleOtpVerification = async () => {
     if (verificationCode.includes("")) {
-      toast("All the fields are required");
+      toast.error("All the fields are required",{
+        className:"custom-error-toast"
+      });
       return;
     }
     console.log(verificationCode);
@@ -95,7 +97,9 @@ function OtpVerificationPage() {
       role,
     });
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error,{
+        className:"custom-error-toast"
+      });
       return;
     }
     toast(response.message);

@@ -8,7 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-import { Modal } from "@/components/ui/ConfirmationModal";
+import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import withProtectedRoute from "@/lib/withProtectedRoutes";

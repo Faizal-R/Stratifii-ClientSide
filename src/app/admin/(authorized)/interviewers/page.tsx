@@ -6,10 +6,10 @@ import { Roles } from "@/constants/roles";
 import { useAdminInterviewers, useHandleInterveiwerVerification, useInterviewerUpdate } from "@/hooks/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { Modal } from "@/components/ui/ConfirmationModal";
+import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { IInterviewer } from "@/types/IInterviewer";
-import InterviewerDetailsModal from "@/components/ui/UserDetailsModal";
+import InterviewerDetailsModal from "@/components/ui/modals/UserDetailsModal";
 
 
 function AdminInterviewerManagement() {

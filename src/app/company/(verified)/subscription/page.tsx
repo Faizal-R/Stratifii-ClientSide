@@ -10,7 +10,7 @@ import {
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import { IRazorpayResponse } from "@/types/IRazorpay";
-import { loadRazorpayScript } from "@/utils/razorpay";
+import { initiateRazorpayPayment, loadRazorpayScript } from "@/utils/razorpay";
 const CompanySubscriptionPage = () => {
   const { getSubscriptions, loading } = useGetAllSubscriptions();
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -20,12 +20,7 @@ const CompanySubscriptionPage = () => {
     useVerfiySubscriptionPaymentAndPurchaseSubscription();
 
   const processSubscriptionPurchase = async (subscription: ISubscription) => {
-    const isScriptLoaded = await loadRazorpayScript();
 
-    if (!isScriptLoaded) {
-      alert("Razorpay SDK failed to load. Are you online?");
-      return;
-    }
 
     const response = await createSubscriptionPaymentOrder(subscription.price);
     if (!response.success) {
@@ -35,45 +30,41 @@ const CompanySubscriptionPage = () => {
       return;
     }
     const { id, amount } = response.data;
-    const options = {
-      key: "rzp_test_cBenDOLHgWTyqP", // Replace with your actual Razorpay key
-      amount: amount, // Amount in paise (₹500)
-      currency: "INR",
+    await initiateRazorpayPayment({
+      amount: amount,
+      orderId: id,
       name: "Stratifii Interviews",
-      description: "Purchase Description",
-      image:
-        "https://plus.unsplash.com/premium_photo-1681412205359-a803b2649d57?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      order_id: id, // Get this from your backend
-      handler: async (response: IRazorpayResponse) => {
-        alert("Payment Successful!");
-        console.log(response, subscription._id);
+      description: "Subscription Payment",
+      image: "https://your-image-url",
+      prefill: {
+        name: "Stratifii", 
+        email: "stratifii@gmail.com",
+        contact: "1234567890",
+      },
+      onSuccess: async (response) => {
         const res = await verfiySubscriptionPaymentAndPurchaseSubscription(
           response,
           subscription._id!
         );
-        console.log(res)
+    
         if (!res.success) {
           toast.error(res.error, {
             className: "custom-error-toast",
           });
           return;
         }
+    
         toast.success(res.message, {
           className: "custom-toast",
         });
       },
-      prefill: {
-        name: "John Doe",
-        email: "johndoe@example.com",
-        contact: "9999999999",
+      onFailure: (error) => {
+        toast.error("Something went wrong during payment!", {
+          className: "custom-error-toast",
+        });
       },
-      theme: {
-        color: "#3399cc",
-      },
-    };
-
-    const razorpay = new (window as any).Razorpay(options);
-    razorpay.open();
+    });
+    
   };
 
   const hasFetched = useRef(false);

@@ -81,28 +81,35 @@ function InterviewerRegistrationPage() {
 
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    
     const validatedInterviewer=interviewerSchema.safeParse({...formData,status: "pending"  });
-    console.log(validatedInterviewer);
+   
     if(!validatedInterviewer.success){
       const errors = validatedInterviewer.error;
-      console.log(errors);
+     
       for (const issue of errors.issues) {
-        toast(issue.message);
+        toast.error(issue.message,{
+          className:"custom-error-toast"
+        });
+        return
       }
       return;
     }
 
 
     if(formData.password!==formData.confirmPassword){
-      toast("Passwords do not match");
+      toast.error("Passwords do not match",{
+        className:"custom-error-toast"
+      });
       return;
     }
 
     const response = await registerInterviewer(validatedInterviewer.data); // Set default status
     if (!response.success) {
        console.log(response)
-      toast(response.error);
+      toast.error(response.error,{
+        className:"custom-error-toast"
+      });
     } else {
       toast(response.message);
       setTimeout(()=>{
@@ -116,7 +123,9 @@ function InterviewerRegistrationPage() {
          if(!validInterviewer?.success){
           const errors = validInterviewer?.errors;
           for (const issue of errors!) {
-            toast(issue.message); 
+            toast.error(issue.message,{
+              className:"custom-error-toast"
+            }); 
             return;
           }
          }

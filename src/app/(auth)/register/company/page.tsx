@@ -58,19 +58,24 @@ function CompanyRegistrationPage() {
      const validatedCompany=CompanyRegistrationSchema.safeParse({...formData,status: "pending"  });
       if(!validatedCompany.success){
       const errors = validatedCompany.error;
-      console.log("errors.issues",errors.issues);
       for (const issue of errors.issues) {
-        toast(issue.message);
+        toast.error(issue.message,{
+          className:'custom-error-toast'
+        });
         return;
       }
     }
     if(formData.password!==formData.confirmPassword){
-      toast("Passwords do not match");
+      toast.error("Passwords do not match",{
+        className:'custom-error-toast'
+      });
       return;
     }
     const response = await registerCompany(validatedCompany.data!);
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error,{
+        className:'custom-error-toast'
+      });
       console.log("register error",response)
       return;
     } else {
@@ -86,7 +91,9 @@ function CompanyRegistrationPage() {
      if(!validCompany?.success){
       const errors = validCompany?.errors;
       for (const issue of errors!) {
-        toast(issue.message);
+        toast.error(issue.message,{
+          className:'custom-error-toast'
+        });
         return;
       }
      }

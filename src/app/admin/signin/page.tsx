@@ -25,7 +25,9 @@ function AdminSignIn() {
     e.preventDefault();
     const response = await signIn({ email, password });
     if (!response.success) {
-      toast(response.error);
+      toast.error(response.error,{
+        className:"custom-error-toast"
+      });
       return;
     } else {
       toast(response.message);
