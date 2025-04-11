@@ -111,8 +111,10 @@ function CandidatePasswordCreation() {
           toast.error(resposne.error, {
             className: "custom-error-toast",
           });
+          return
         }
         toast.success(resposne.message);
+        
         router.push("/signin");
       } catch (error) {}
     }

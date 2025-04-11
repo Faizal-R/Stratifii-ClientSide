@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import AuthService from "../services/AuthService";
 import { IInterviewer } from "@/types/IInterviewer";
 import { ICompany } from "@/types/ICompany";
-import { IInterviewerSchema } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration, IInterviewerSchema } from "@/validations/InterviewerSchema";
 
 export const useSignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -51,15 +51,18 @@ export const useCompanyRegister = () => {
 
 export const useInterviewerRegister = () => {
   const [loading, setLoading] = useState(false);
-  const registerInterviewer = useCallback(async (interviewer: IInterviewerSchema) => {
-    setLoading(true);
-    try {
-      const response = await AuthService.interviewerRegister(interviewer);
-      return response;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const registerInterviewer = useCallback(
+    async (interviewer: IInterviewerRegistration) => {
+      setLoading(true);
+      try {
+        const response = await AuthService.interviewerRegister(interviewer);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   return { registerInterviewer, loading };
 };
@@ -131,11 +134,7 @@ export const useSendForgotPasswordOtpRequest = () => {
 export const useResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const resetPassword = useCallback(
-    async (
-      newPassword: string,
-      newConfirmPassword: string,
-      token: string
-    ) => {
+    async (newPassword: string, newConfirmPassword: string, token: string) => {
       try {
         setLoading(true);
         const response = await AuthService.resetPassword(
@@ -151,4 +150,17 @@ export const useResetPassword = () => {
     []
   );
   return { resetPassword, loading };
+};
+export const useVerifyUserAccount = () => {
+  const [loading, setLoading] = useState(false);
+  const verifyUserAccount = useCallback(async (email: string) => {
+    try {
+      setLoading(true);
+      const response = await AuthService.verifyUserAccount(email);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { verifyUserAccount, loading };
 };

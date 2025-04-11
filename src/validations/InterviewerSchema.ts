@@ -31,6 +31,7 @@ export const InterviewerProfileSchema = z.object({
   avatar: z.string().url("Invalid avatar URL").optional(),
   rating: z.number().min(0).max(5).optional(),
   status: z.enum(["approved", "pending", "rejected"]),
+  isVerified: z.boolean().optional(),
 });
 
 const statusEnum = z.enum(["pending", "approved", "rejected"])
@@ -99,6 +100,11 @@ export const InterviewerRegistrationSchema=z.object({
 export const InterviewerRegistrationStep1=z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
   email: z.string().email("Invalid email format"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
+  
+})
+export const GoogleAuthInterviewerRegistrationStep1=z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
   

@@ -31,9 +31,9 @@ export default function VerifyPage() {
         token: session.accessToken!,
         role: Roles.INTERVIEWER,
       });
-       signOut()
-     
-      router.push("/interviewer");
+      
+      router.push(`/register/interviewer?isGoogleVerified=true&&id=${session.user.id}`);
+      
     }
   }, [status, session, router, setUser]);
 

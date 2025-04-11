@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSignIn } from "@/hooks/useAuth";
+import { useSignIn, useVerifyUserAccount } from "@/hooks/useAuth";
 import {
   Mail,
   Lock,
@@ -25,6 +25,7 @@ import { Modal } from "../../../components/ui/modals/ConfirmationModal";
 import { useAuthStore } from "@/stores/authStore";
 import { Roles } from "@/constants/roles";
 import Link from "next/link";
+import { StatusCodes } from "@/constants/statusCodes";
 
 const roles = [
   {
@@ -50,19 +51,25 @@ const roles = [
 function App() {
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("candidate");
+  const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
+    useState(false);
   const { signIn, loading } = useSignIn();
-  const user=useAuthStore((state)=>state.user)
+  const user = useAuthStore((state) => state.user);
+  const { verifyUserAccount, loading: verifyLoading } = useVerifyUserAccount();
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
   });
 
   const onHandleSubmit = async (data: LoginSchemaType) => {
+   
+   
     const response = await signIn({
       email: data.email,
       password: data.password,
@@ -70,29 +77,36 @@ function App() {
     });
 
     if (!response.success) {
-      toast.error(response.error,{
-        className:"custom-error-toast"
+      if (response.status === StatusCodes.BAD_REQUEST) {
+        setIsVerifyAccountModalOpen(true);
+        return
+      }
+      toast.error(response.error, {
+        className: "custom-error-toast",
       });
+     
       return;
     }
     toast(response.message);
-    const { email, _id:id } = response.data.user;
-    useAuthStore
-      .getState()
-      .setUser({
-        id,
-        email,
-        role: selectedRole as Roles,
-        token: response.data.accessToken,
-       
-      });
+    const { email, _id: id } = response.data.user;
+    useAuthStore.getState().setUser({
+      id,
+      email,
+      role: selectedRole as Roles,
+      token: response.data.accessToken,
+    });
     setTimeout(() => {
-      
       router.push(`/${selectedRole}`);
     }, 1000);
   };
   const handleModalConfirm = () => {
     router.push(`/forgot-password?role=${selectedRole}`);
+  };
+  const handleAccountVerificationModal = async () => {
+    setIsVerifyAccountModalOpen(false);
+    const userEmail = watch("email");
+    await verifyUserAccount(userEmail);
+    router.push(`/verify-otp?email=${userEmail}&&role=${selectedRole}`);
   };
 
   const handleForgotPassword = () => {
@@ -100,32 +114,48 @@ function App() {
   };
   useEffect(() => {
     if (errors.email) {
-      toast.error(errors.email.message,{
-        className:"custom-error-toast"
+      toast.error(errors.email.message, {
+        className: "custom-error-toast",
       });
     } else if (errors.password) {
-      toast.error(errors.password.message,{
-        className:"custom-error-toast"
+      toast.error(errors.password.message, {
+        className: "custom-error-toast",
       });
     }
   }, [errors]);
 
   useEffect(() => {
-    if(user){
+    if (user) {
       router.push(`/${user.role}`);
     }
-  },[user,router])
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex">
       <Modal
         title="Confirm Role"
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        confirmText="Yes,I Selected the Correct Role!"
-        onConfirm={handleModalConfirm}
-        cancelText="Cancel"
-        description={`Are you sure you selected the correct role: ${selectedRole}?`}
+        isOpen={isVerifyAccountModalOpen ? isVerifyAccountModalOpen : showModal}
+        onClose={() =>
+          isVerifyAccountModalOpen
+            ? setIsVerifyAccountModalOpen(false)
+            : setShowModal(false)
+        }
+        confirmText={
+          isVerifyAccountModalOpen
+            ? "Proceed to Verification"
+            : "Yes,I Selected the Correct Role!"
+        }
+        onConfirm={
+          isVerifyAccountModalOpen
+            ? handleAccountVerificationModal
+            : handleModalConfirm
+        }
+        cancelText={isVerifyAccountModalOpen ? "May be later" : "Cancel"}
+        description={
+          isVerifyAccountModalOpen
+            ? "Looks like your account isn’t verified yet. Please verify your account to continue."
+            : `Are you sure you selected the correct role: ${selectedRole}?`
+        }
       />
       {/* Login Form Section */}
       <div className="w-full flex items-center justify-center bg-gradient-to-br from-black via-black to-violet-950 md:w-1/2">
@@ -209,7 +239,6 @@ function App() {
               )} */}
 
             <div className="flex items-center justify-end">
-
               <button
                 onClick={handleForgotPassword}
                 className="text-sm text-violet-300 hover:text-violet-200"
@@ -226,14 +255,19 @@ function App() {
             >
               {loading ? <RiseLoader color="white" size={11} /> : "SignIn"}
             </button>
-
           </div>
           <div className="mt-3">
-
-            {selectedRole !==Roles.CANDIDATE && <div 
-                className="text-md text-violet-300 ml-12"  >
-              First time signing in? <Link className="font-semibold text-sm hover:text-violet-200 " href={`/register/${selectedRole}`}>Create an account</Link>
-              </div>}
+            {selectedRole !== Roles.CANDIDATE && (
+              <div className="text-md text-violet-300 ml-12">
+                First time signing in?{" "}
+                <Link
+                  className="font-semibold text-sm hover:text-violet-200 "
+                  href={`/register/${selectedRole}`}
+                >
+                  Create an account
+                </Link>
+              </div>
+            )}
           </div>
           <div className="mt-5">
             {selectedRole === "interviewer" && <GoogleAuthButton />}

@@ -1,6 +1,5 @@
 export interface ISubscriptionFeatures {
   candidateSlotPerMonth: number;
-  minimumCandidatesPerJob: number;
   finalInterviewAccess: boolean;
   interviewRecordingAccess: boolean;
   feedbackDownloadAccess: boolean;

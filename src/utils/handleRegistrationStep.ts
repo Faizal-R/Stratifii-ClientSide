@@ -3,7 +3,7 @@ import {
   CompanyRegistrationStep2Schema,
 } from "@/validations/CompanySchema";
 import { ICompanyRegistration } from "@/validations/CompanySchema";
-import { IInterviewerRegistration, IInterviewerSchema, InterviewerRegistrationStep1, InterviewerRegistrationStep2, InterviewerRegistrationStep3 } from "@/validations/InterviewerSchema";
+import { GoogleAuthInterviewerRegistrationStep1, IInterviewerRegistration, IInterviewerSchema, InterviewerRegistrationStep1, InterviewerRegistrationStep2, InterviewerRegistrationStep3 } from "@/validations/InterviewerSchema";
 
 export const handleCompanyRegistrationStep = async (
   formData: ICompanyRegistration,
@@ -32,11 +32,11 @@ export const handleCompanyRegistrationStep = async (
 
 
 
-export const  handleInterviewerRegistrationStep=async (formData:IInterviewerRegistration,step:number)=>{
+export const  handleInterviewerRegistrationStep=async (formData:IInterviewerRegistration,step:number,isGoogleVerified?:boolean)=>{
   switch (step) {
     case 1:
       const validatedInterviewerStep1 =
-        await InterviewerRegistrationStep1.safeParse(formData);
+       isGoogleVerified?await GoogleAuthInterviewerRegistrationStep1.safeParse(formData): await InterviewerRegistrationStep1.safeParse(formData);
       if (validatedInterviewerStep1.success) {
         return { success: true, company: validatedInterviewerStep1.data };
       } else {

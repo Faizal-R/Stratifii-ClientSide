@@ -23,11 +23,12 @@ export const useUpadteInterviewerProfile = () => {
   const [loading, setLoading] = useState(false);
 
   const updateInterviewerProfile = useCallback(
-    async (updatedInterviewer: IInterviewerProfile) => {
+    async ( updatedInterviewer: IInterviewerProfile,) => {
       try {
         setLoading(true);
         const response = await InterviewerService.updateInterviewerProfile(
-          updatedInterviewer
+          updatedInterviewer,
+          
         );
         return response;
       } finally {
@@ -38,4 +39,27 @@ export const useUpadteInterviewerProfile = () => {
   );
 
   return { updateInterviewerProfile, loading };
+};
+
+export const useSetupInterviewerAccount = () => {
+  const [loading, setLoading] = useState(false);
+
+  const setupInterviewerAccount = useCallback(
+    async ( updatedInterviewer: IInterviewerProfile,interviewerId:string) => {
+      try {
+        setLoading(true);
+        const response = await InterviewerService.setupInterviewerAccount(
+          updatedInterviewer,
+          interviewerId
+          
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { setupInterviewerAccount, loading };
 };

@@ -17,21 +17,35 @@ import {
 } from "lucide-react";
 import { useInterviewerRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RiseLoader } from "react-spinners";
-import { IInterviewerRegistration, interviewerSchema } from "@/validations/InterviewerSchema";
+import {
+  IInterviewerRegistration,
+  interviewerSchema,
+} from "@/validations/InterviewerSchema";
 import Link from "next/link";
 import { handleInterviewerRegistrationStep } from "@/utils/handleRegistrationStep";
+import { Roles } from "@/constants/roles";
+import {
+  useSetupInterviewerAccount,
+  useUpadteInterviewerProfile,
+} from "@/hooks/useInterviewer";
+import { set } from "zod";
 
 function InterviewerRegistrationPage() {
+  const isGoogleVerified =
+    Boolean(useSearchParams().get("isGoogleVerified")) ?? false;
+  const interviewerId = useSearchParams().get("id") ?? "";
   const { loading, registerInterviewer } = useInterviewerRegister();
+  const { setupInterviewerAccount, loading: isSetupingAcccount } =
+    useSetupInterviewerAccount();
   const [formData, setFormData] = useState({
     name: "",
     position: "",
     email: "",
     phone: "",
     password: "",
-    confirmPassword:'',
+    confirmPassword: "",
     experience: 0,
     linkedinProfile: "",
     language: {} as Record<string, string>,
@@ -81,54 +95,62 @@ function InterviewerRegistrationPage() {
 
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const validatedInterviewer=interviewerSchema.safeParse({...formData,status: "pending"  });
-   
-    if(!validatedInterviewer.success){
-      const errors = validatedInterviewer.error;
-     
-      for (const issue of errors.issues) {
-        toast.error(issue.message,{
-          className:"custom-error-toast"
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match", {
+        className: "custom-error-toast",
+      });
+      return;
+    }
+    if (isGoogleVerified) {
+      const response = await setupInterviewerAccount(
+        {
+          ...formData,
+          status: "pending",
+          isVerified: true,
+        },
+        interviewerId
+      );
+      if (!response.success) {
+        toast.error(response.error, {
+          className: "custom-error-toast",
         });
-        return
+        return;
       }
-      return;
-    }
-
-
-    if(formData.password!==formData.confirmPassword){
-      toast.error("Passwords do not match",{
-        className:"custom-error-toast"
-      });
-      return;
-    }
-
-    const response = await registerInterviewer(validatedInterviewer.data); // Set default status
-    if (!response.success) {
-       console.log(response)
-      toast.error(response.error,{
-        className:"custom-error-toast"
-      });
+      toast.success("Account setup successfully");
+      setTimeout(() => {
+        router.push(`/${Roles.INTERVIEWER}`);
+      }, 1000);
     } else {
-      toast(response.message);
-      setTimeout(()=>{
-        router.push(`/verify-otp?email=${formData.email}&&role=interviewer`)
-      },1000)
+      const response = await registerInterviewer(formData); // Set default status
+      if (!response.success) {
+        toast.error(response.error, {
+          className: "custom-error-toast",
+        });
+      } else {
+        toast(response.message);
+        setTimeout(() => {
+          router.push(`/verify-otp?email=${formData.email}&&role=interviewer`);
+        }, 1000);
+      }
     }
   };
 
-  const nextStep = async() => {
-    const validInterviewer=await handleInterviewerRegistrationStep(formData,registrationStep)
-         if(!validInterviewer?.success){
-          const errors = validInterviewer?.errors;
-          for (const issue of errors!) {
-            toast.error(issue.message,{
-              className:"custom-error-toast"
-            }); 
-            return;
-          }
-         }
+  const nextStep = async () => {
+    const validInterviewer = await handleInterviewerRegistrationStep(
+      formData,
+      registrationStep,
+      isGoogleVerified ? isGoogleVerified : false
+    );
+    if (!validInterviewer?.success) {
+      const errors = validInterviewer?.errors;
+      for (const issue of errors!) {
+        toast.error(issue.message, {
+          className: "custom-error-toast",
+        });
+        return;
+      }
+    }
     setRegistrationStep(registrationStep + 1);
   };
 
@@ -145,7 +167,6 @@ function InterviewerRegistrationPage() {
         ...prev.language,
         [languageInput.name]: languageInput.level,
       },
-     
     }));
 
     setLanguageInput({ name: "", level: "Beginner" });
@@ -244,38 +265,39 @@ function InterviewerRegistrationPage() {
           <form onSubmit={handleRegistrationSubmit} className="space-y-5">
             {registrationStep === 1 && (
               <>
-                <div className="relative">
-                  <User
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={onHandleChange}
-                    className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-                    placeholder="Full Name"
-                    
-                  />
-                </div>
+                {!isGoogleVerified && (
+                  <>
+                    <div className="relative">
+                      <User
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
+                        size={20}
+                      />
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={onHandleChange}
+                        className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                        placeholder="Full Name"
+                      />
+                    </div>
 
-                <div className="relative">
-                  <Mail
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
-                    size={20}
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={onHandleChange}
-                    className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-                    placeholder="Email Address"
-                    
-                  />
-                </div>
-
+                    <div className="relative">
+                      <Mail
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
+                        size={20}
+                      />
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={onHandleChange}
+                        className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                        placeholder="Email Address"
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="relative">
                   <Phone
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
@@ -288,7 +310,6 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Phone Number"
-                    
                   />
                 </div>
 
@@ -304,7 +325,6 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="LinkedIn Profile"
-                    
                   />
                 </div>
 
@@ -332,7 +352,6 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Current Position"
-                    
                   />
                 </div>
 
@@ -348,7 +367,6 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Years of Experience"
-                    
                   />
                 </div>
 
@@ -364,7 +382,6 @@ function InterviewerRegistrationPage() {
                     rows={4}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Professional Summary"
-                    
                   />
                 </div>
 
@@ -597,7 +614,6 @@ function InterviewerRegistrationPage() {
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Password"
-                    
                   />
                 </div>
 
@@ -621,7 +637,6 @@ function InterviewerRegistrationPage() {
                     id="terms"
                     type="checkbox"
                     className="rounded bg-black/80 border-violet-900/50 text-violet-600 focus:ring-violet-500/50"
-                    
                   />
                   <label
                     htmlFor="terms"
@@ -657,8 +672,12 @@ function InterviewerRegistrationPage() {
                     type="submit"
                     className="w-1/2 bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition duration-200"
                   >
-                    {loading ? (
+                    {isSetupingAcccount ? (
+                      isSetupingAcccount
+                    ) : loading ? (
                       <RiseLoader color="white" size={11} />
+                    ) : isGoogleVerified ? (
+                      "Setup My Account"
                     ) : (
                       "Register as Interviewer"
                     )}

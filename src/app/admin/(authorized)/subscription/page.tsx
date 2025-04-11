@@ -34,6 +34,8 @@ export default function SubscriptionPage() {
   const { updateSubscription } = useUpdateSubscription();
 
   const handleSaveSubscription = async (subscription: ISubscription) => {
+    
+    console.log(subscription)
     console.log(subscription);
     if (isEditing) {
       await updateSubscription(subscription._id!, subscription);
@@ -44,6 +46,7 @@ export default function SubscriptionPage() {
       );
       setIsEditing(false);
     } else {
+      console.log(subscription)
       const response = await createSubscription(subscription);
       if (!response.success) {
         toast(response.error);
@@ -72,6 +75,7 @@ export default function SubscriptionPage() {
         toast(response.error);
         return;
       }
+    
       setSubscriptions(response.data);
     };
 
@@ -158,18 +162,14 @@ export default function SubscriptionPage() {
                     </span>
                     <span className="text-gray-400">/month</span>
                   </div>
-                  <ul className="space-y-3 ">
+                  <ul className="space-y-3  mb-4">
                     <ul className="space-y-3 text-gray-600">
                       <li className="flex items-start gap-2">
                         <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                         Can Post {subscription.features.jobPostLimitPerMonth}{" "}
                         Job(s) Per Month
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        Minimum {subscription.features.minimumCandidatesPerJob}{" "}
-                        Candidates Per Job
-                      </li>
+                    
                       <li className="flex items-start gap-2">
                         <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                         {subscription.features.candidateSlotPerMonth} Candidate
@@ -202,16 +202,30 @@ export default function SubscriptionPage() {
                         )}
                       </li>
                       <li className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        {subscription.features.finalInterviewAccess
-                          ? "Access to Final Interviews"
-                          : "No Access to Final Interviews"}
+                        {subscription.features.finalInterviewAccess ? (
+                          <>
+                            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            Access to Final Interviews
+                          </>
+                        ) : (
+                          <>
+                            <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                            No Access to Final Interviews
+                          </>
+                        )}
                       </li>
                       <li className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        {subscription.features.interviewRecordingAccess
-                          ? "Access to Interview Recordings"
-                          : "No Access to Interview Recordings"}
+                        {subscription.features.interviewRecordingAccess ? (
+                          <>
+                            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            Access to Interview Recordings
+                          </>
+                        ) : (
+                          <>
+                            <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                            No Access to Interview Recordings
+                          </>
+                        )}
                       </li>
                     </ul>
                   </ul>

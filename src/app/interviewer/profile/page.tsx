@@ -516,10 +516,10 @@ function InterviewerProfilePage() {
                             </>
                           ) : (
                             <>
-                              <span>{lang}</span>
-                              <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full text-sm">
+                              {/* <span>{lang}</span> */}
+                              {/* <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full text-sm">
                                 {level}
-                              </span>
+                              </span> */}
                             </>
                           )}
                         </div>

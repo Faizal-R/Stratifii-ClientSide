@@ -23,7 +23,6 @@ export default function SubscriptionModal({
   const [isActive, setIsActive] = useState<boolean>(true);
   const [features, setFeatures] = useState<ISubscriptionFeatures>({
     candidateSlotPerMonth: 0,
-    minimumCandidatesPerJob: 15,
     finalInterviewAccess: false,
     interviewRecordingAccess: false,
     feedbackDownloadAccess: false,
@@ -43,7 +42,6 @@ export default function SubscriptionModal({
       setIsActive(true);
       setFeatures({
         candidateSlotPerMonth: 0,
-        minimumCandidatesPerJob: 15,
         finalInterviewAccess: false,
         interviewRecordingAccess: false,
         feedbackDownloadAccess: false,
@@ -55,10 +53,13 @@ export default function SubscriptionModal({
 
   if (!isOpen) return null;
 
-  const handleFeatureChange = (key: keyof ISubscriptionFeatures, value: number | boolean) => {
-    setFeatures((prev: ISubscriptionFeatures) => ({
+  const handleFeatureChange = (
+    key: keyof ISubscriptionFeatures,
+    value: number | boolean
+  ) => {
+    setFeatures((prev) => ({
       ...prev,
-      [key]: value as ISubscriptionFeatures[keyof ISubscriptionFeatures],
+      [key]: value,
     }));
   };
 
@@ -67,7 +68,6 @@ export default function SubscriptionModal({
       toast.error("Please fill in all required fields");
       return;
     }
-
     if (features.candidateSlotPerMonth <= 0 || features.jobPostLimitPerMonth <= 0) {
       toast.error("Please enter valid numbers for slots and limits");
       return;
@@ -79,179 +79,97 @@ export default function SubscriptionModal({
       isActive,
       features,
     };
-    console.log(plan)
 
-    handleSave(plan);
+    handleSave(isEditMode ? { ...plan, _id: existingPlan?._id } : plan);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <X className="h-6 w-6" />
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+      <div className="relative w-full max-w-xl  border-violet-900  dark:bg-neutral-900 rounded-2xl p-8  animate-fadeIn overflow-y-auto max-h-[90vh] bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90  border border-violet-500/20 shadow-2xl shadow-violet-500/10">
+        <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition">
+          <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-2xl text-violet-200 font-semibold mb-6 text-center">
           {isEditMode ? "Edit Subscription Plan" : "Create Subscription Plan"}
         </h2>
 
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Plan Name *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isEditMode}
-                className={`w-full rounded-md border ${
-                  isEditMode ? "bg-gray-100 text-gray-600" : ""
-                }`}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price (INR) *
-              </label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="w-full rounded-md border"
-                required
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Plan Name *" value={name} onChange={setName} disabled={isEditMode} />
+            <Input label="Price (INR) *" type="number" value={price} onChange={setPrice} />
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isActive"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-              Plan Active
-            </label>
+          <Toggle label="Active Plan" checked={isActive} onChange={() => setIsActive(!isActive)} />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Candidate Slot Per Month *" type="number" value={features.candidateSlotPerMonth} onChange={(v) => handleFeatureChange("candidateSlotPerMonth", +v)} />
+            <Input label="Job Post Limit Per Month *" type="number" value={features.jobPostLimitPerMonth} onChange={(v) => handleFeatureChange("jobPostLimitPerMonth", +v)} />
           </div>
 
-          <div className="border-t pt-4">
-            <h3 className="text-lg font-medium mb-4">Plan Features</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Candidate Slots per Month *
-                </label>
-                <input
-                  type="number"
-                  value={features.candidateSlotPerMonth}
-                  onChange={(e) => handleFeatureChange('candidateSlotPerMonth', parseInt(e.target.value))}
-                  className="w-full rounded-md border"
-                  min="1"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Minimum Candidates per Job
-                </label>
-                <input
-                  type="number"
-                  value={features.minimumCandidatesPerJob}
-                  onChange={(e) => handleFeatureChange('minimumCandidatesPerJob', parseInt(e.target.value))}
-                  className="w-full rounded-md border"
-                  min="1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Post Limit per Month *
-                </label>
-                <input
-                  type="number"
-                  value={features.jobPostLimitPerMonth}
-                  onChange={(e) => handleFeatureChange('jobPostLimitPerMonth', parseInt(e.target.value))}
-                  className="w-full rounded-md border"
-                  min="1"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 mt-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="finalInterviewAccess"
-                  checked={features.finalInterviewAccess}
-                  onChange={(e) => handleFeatureChange('finalInterviewAccess', e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                <label htmlFor="finalInterviewAccess" className="text-sm font-medium text-gray-700">
-                  Final Interview Access
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="interviewRecordingAccess"
-                  checked={features.interviewRecordingAccess}
-                  onChange={(e) => handleFeatureChange('interviewRecordingAccess', e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                <label htmlFor="interviewRecordingAccess" className="text-sm font-medium text-gray-700">
-                  Interview Recording Access
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="feedbackDownloadAccess"
-                  checked={features.feedbackDownloadAccess}
-                  onChange={(e) => handleFeatureChange('feedbackDownloadAccess', e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                <label htmlFor="feedbackDownloadAccess" className="text-sm font-medium text-gray-700">
-                  Feedback Download Access
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="companySpecificQuestionAccess"
-                  checked={features.companySpecificQuestionAccess}
-                  onChange={(e) => handleFeatureChange('companySpecificQuestionAccess', e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                <label htmlFor="companySpecificQuestionAccess" className="text-sm font-medium text-gray-700">
-                  Company Specific Question Access
-                </label>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Toggle label="Final Interview Access" checked={features.finalInterviewAccess} onChange={() => handleFeatureChange("finalInterviewAccess", !features.finalInterviewAccess)} />
+            <Toggle label="Interview Recording Access" checked={features.interviewRecordingAccess} onChange={() => handleFeatureChange("interviewRecordingAccess", !features.interviewRecordingAccess)} />
+            <Toggle label="Feedback Download Access" checked={features.feedbackDownloadAccess} onChange={() => handleFeatureChange("feedbackDownloadAccess", !features.feedbackDownloadAccess)} />
+            <Toggle label="Company Specific Questions Access" checked={features.companySpecificQuestionAccess} onChange={() => handleFeatureChange("companySpecificQuestionAccess", !features.companySpecificQuestionAccess)} />
           </div>
 
-          <button
-            onClick={onSave}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-md"
-          >
-            {isEditMode ? "Save Changes" : "Create Plan"}
-          </button>
+          <div className="flex justify-end gap-3 pt-4">
+            <button onClick={onClose} className="px-4 py-2 border-2 border-violet-900 bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90  rounded-lg text-gray-300 hover:bg-black
+            -100">
+              Cancel
+            </button>
+            <button onClick={onSave} className="px-4 py-2 border-2 border-violet-900 bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90  text-white rounded-lg hover:bg-gray-800 transition">
+              {isEditMode ? "Update Plan" : "Create Plan"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+const Input = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  disabled = false,
+}: {
+  label: string;
+  type?: string;
+  value: any;
+  onChange: (val: any) => void;
+  disabled?: boolean;
+}) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-sm text-gray-600">{label}</label>
+    <input
+      type={type}
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      className={`px-3 py-2 border rounded-lg w-full outline-none ${disabled ? " bg-black/80 border-2 border-violet-800 text-gray-600" : " bg-black/80 border-2 border-violet-800 text-gray-400"}`}
+    />
+  </div>
+);
+
+const Toggle = ({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) => (
+  <div className="flex items-center justify-between">
+    <span className="text-sm text-gray-600">{label}</span>
+    <button
+      onClick={onChange}
+      className={`w-10 h-6 flex items-center rounded-full p-1 ${checked ? "bg-violet-950" : "bg-violet-950"}`}
+    >
+      <div className={`bg-white w-4 h-4 rounded-full transform transition ${checked ? "translate-x-4" : ""}`} />
+    </button>
+  </div>
+);

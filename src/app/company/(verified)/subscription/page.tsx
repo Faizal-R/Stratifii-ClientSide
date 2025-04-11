@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ISubscription } from "@/types/ISubscription";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import {
   useCreateSubscriptionPaymentOrder,
   useGetAllSubscriptions,
@@ -20,8 +20,6 @@ const CompanySubscriptionPage = () => {
     useVerfiySubscriptionPaymentAndPurchaseSubscription();
 
   const processSubscriptionPurchase = async (subscription: ISubscription) => {
-
-
     const response = await createSubscriptionPaymentOrder(subscription.price);
     if (!response.success) {
       toast.error(response.error, {
@@ -37,7 +35,7 @@ const CompanySubscriptionPage = () => {
       description: "Subscription Payment",
       image: "https://your-image-url",
       prefill: {
-        name: "Stratifii", 
+        name: "Stratifii",
         email: "stratifii@gmail.com",
         contact: "1234567890",
       },
@@ -46,14 +44,14 @@ const CompanySubscriptionPage = () => {
           response,
           subscription._id!
         );
-    
+
         if (!res.success) {
           toast.error(res.error, {
             className: "custom-error-toast",
           });
           return;
         }
-    
+
         toast.success(res.message, {
           className: "custom-toast",
         });
@@ -64,7 +62,6 @@ const CompanySubscriptionPage = () => {
         });
       },
     });
-    
   };
 
   const hasFetched = useRef(false);
@@ -122,13 +119,74 @@ const CompanySubscriptionPage = () => {
                   </span>
                   <span className="text-gray-500">/month</span>
                 </div>
-                <ul className="space-y-3">
-                  {(subscription.features || []).map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
+                <ul className="space-y-3  mb-4">
+                  <ul className="space-y-3 text-gray-600">
+                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-600">{feature}</span>
+                      Can Post {subscription.features.jobPostLimitPerMonth}{" "}
+                      Job(s) Per Month
                     </li>
-                  ))}
+                   
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      {subscription.features.candidateSlotPerMonth} Candidate
+                      Slot(s) Per Month
+                    </li>
+                    <li className="flex items-start gap-2">
+                      {subscription.features.companySpecificQuestionAccess ? (
+                        <>
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          Access to Company Specific Questions
+                        </>
+                      ) : (
+                        <>
+                          <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                          No Access to Company Specific Questions
+                        </>
+                      )}
+                    </li>
+                    <li className="flex items-start gap-2">
+                      {subscription.features.feedbackDownloadAccess ? (
+                        <>
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          Can Download Feedback
+                        </>
+                      ) : (
+                        <>
+                          <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                          Cannot Download Feedback
+                        </>
+                      )}
+                    </li>
+                    <li className="flex items-start gap-2">
+                    
+                      {subscription.features.finalInterviewAccess ? (
+                        <>
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          Access to Final Interviews
+                        </>
+                      ) : (
+                        <>
+                          <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                          No Access to Final Interviews
+                        </>
+                      )}
+                    </li>
+                    <li className="flex items-start gap-2">
+                   
+                      {subscription.features.interviewRecordingAccess ? (
+                        <>
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          Access to Interview Recordings
+                        </>
+                      ) : (
+                        <>
+                          <X className=" h-5 w-5 text-red-500 mt-0.5  flex-shrink-0" />
+                          No Access to Interview Recordings
+                        </>
+                      )}
+                    </li>
+                  </ul>
                 </ul>
               </div>
               <button
