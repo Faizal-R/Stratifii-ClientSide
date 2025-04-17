@@ -10,9 +10,10 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-async function refreshAccessToken() {
+async function refreshAccessToken(role: string) {
   try {
-    const response = await apiClient.post("/auth/refresh-token");
+  
+    const response = await apiClient.post("/auth/refresh-token", { role });
     console.log("Refreshing token...", response.data);
     const newAccessToken = response.data.data.accessToken;
     const user = localStorage.getItem("user");
@@ -54,8 +55,9 @@ apiClient.interceptors.response.use(
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
-
-      const newAccessToken = await refreshAccessToken();
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      console.log(user.role)
+      const newAccessToken = await refreshAccessToken(user.role!);
       console.log("newAccessToken", newAccessToken); // Backend call
 
       if (newAccessToken) {

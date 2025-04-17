@@ -164,3 +164,18 @@ export const useVerifyUserAccount = () => {
   }, []);
   return { verifyUserAccount, loading };
 };
+
+export const useSignoutUser = () => {
+  const [loading, setLoading] = useState(false);
+  const signoutUser = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await AuthService.signOut();
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { signoutUser, loading };
+};
+

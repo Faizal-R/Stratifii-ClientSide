@@ -6,7 +6,7 @@ import { Lock, User, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAdminSignIn } from "@/hooks/useAdmin";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/roles";
 import { RiseLoader } from "react-spinners";
 

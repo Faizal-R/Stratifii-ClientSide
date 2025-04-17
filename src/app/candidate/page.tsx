@@ -1,6 +1,6 @@
 "use client"
 import { Roles } from '@/constants/roles'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/features/auth/authStore'
 import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
 

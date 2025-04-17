@@ -6,13 +6,17 @@ import {
   LayoutDashboard,
   UserCircle,
   Wallet,
+  CalendarCheck
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
+
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
+import { useSignoutUser } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth/authStore";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer" },
@@ -21,6 +25,12 @@ const navItems = [
     label: "Profile",
     icon: UserCircle,
     route: "/interviewer/profile",
+  },
+  {
+    id: "schedule-manager",
+    label: "Schedule Manager",
+    icon: CalendarCheck,
+    route: "/interviewer/schedule-manager",
   },
   {
     id: "interviews",
@@ -35,20 +45,30 @@ const navItems = [
     icon: CreditCard,
     route: "/interviewer/payment",
   },
+
 ];
 
 const InterviewerLayout = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const { logout } = useAuthStore();
+ const {logout}=useAuthStore()
+  const {signoutUser}=useSignoutUser()
   function handleModalState(state: boolean) {
     setIsModalOpen(state);
   }
-  function handleModalConfirm() {
+  async function handleModalConfirm() {
     setIsModalOpen(false);
-    logout();
+    const response = await signoutUser();
+    if (!response.success) {
+      toast.error(response.error, {
+        className: "custom-error-toast",
+      });
+    }
+    toast.success(response.message);
+    logout()
     router.push("/signin");
   }
+
   return (
     <>
       <Modal

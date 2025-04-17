@@ -30,25 +30,27 @@ import {
   ICompanyProfile,
 } from "@/validations/CompanySchema";
 import { toast } from "sonner";
-import { RiseLoader } from "react-spinners";
+import { RiseLoader, SyncLoader } from "react-spinners";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
 import { StatusCodes } from "@/constants/statusCodes";
-import { useAuthStore } from "@/stores/authStore";
+
 import { SelectField } from "@/components/ui/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
+import { useAuthStore } from "@/features/auth/authStore";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [companyData, setCompanyData] = useState<ICompanyProfile>(
     {} as ICompanyProfile
   );
+
   const [logoPreview, setLogoPreview] = useState<string | null>("");
 
-  const { logout } = useAuthStore();
-
   const { companyProfile, loading } = useFetchCompanyProfile();
-  const { updateCompanyProfile } = useUpadteCompanyProfile();
+  const { updateCompanyProfile, loading: updateLoading } =
+    useUpadteCompanyProfile();
+  const { logout } = useAuthStore();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -56,7 +58,7 @@ function CompanyProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setLogoPreview(null);
+    setLogoPreview(companyData.companyLogo ? companyData.companyLogo : null);
   };
 
   const handleChange = (
@@ -78,6 +80,7 @@ function CompanyProfilePage() {
   };
 
   const handleSave = async () => {
+    console.log("handle save", companyData);
     const validatedCompany = CompanyProfileSchema.safeParse(companyData);
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
@@ -88,7 +91,6 @@ function CompanyProfilePage() {
         });
       }
 
-     
       return;
     }
     const formData = new FormData();
@@ -110,7 +112,6 @@ function CompanyProfilePage() {
       setIsEditing(false);
     }
   };
-
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
@@ -130,113 +131,123 @@ function CompanyProfilePage() {
   }, [fetchCompanyProfile]);
 
   const companySizeOptions = ["Small", "Medium", "Startup", "Enterprise"];
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white flex">
-      {/* Main Content */}
-      {loading ? (
-        <RiseLoader className="m-auto" color="white" />
-      ) : (
-        <div className="flex-1 p-4 ml-64">
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-800">
-              {/* Header with Logo Upload */}
-              <div className="flex flex-col md:flex-row gap-8 mb-12">
-                {/* Logo Section */}
-                <div className="w-full md:w-1/3">
-                  <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 flex flex-col items-center justify-center">
-                    <div className="w-48 h-48 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center mb-4 overflow-hidden">
-                      {logoPreview ? (
-                        <NextImage
-                          src={logoPreview}
-                          alt="Company Logo"
-                          className="w-full h-full object-cover"
-                          width={400}
-                          height={400}
+  return loading ? (
+    <div className="w-screen h-screen flex items-center justify-center">
+      <RiseLoader className="" color="white" />
+    </div>
+  ) : (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white flex">
+      {/* Main Section */}
+      <main className="flex-1 p-6 overflow-y-auto ml-60">
+        {loading ? (
+          <RiseLoader className="m-auto" color="white" />
+        ) : (
+          <div className="max-w-6xl mx-auto space-y-8">
+            {/* Profile Header */}
+            <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
+              <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
+                <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
+                  {logoPreview ? (
+                    <NextImage
+                      src={logoPreview}
+                      alt="Company Logo"
+                      className="w-full h-full object-cover"
+                      width={160}
+                      height={144}
+                    />
+                  ) : (
+                    <ImageIcon className="text-gray-400 w-10 h-10" />
+                  )}
+                  {isEditing && !companyData?.companyLogo && (
+                    <div className="w-full">
+                      <label className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                        <Upload size={18} />
+                        Upload Logo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoChange}
+                          className="hidden"
                         />
-                      ) : (
-                        <div className="text-center p-4">
-                          <ImageIcon
-                            className="w-12 h-12 mx-auto mb-2 text-gray-500"
-                            alt-text=""
-                          />
-                          <p className="text-sm text-gray-400">
-                            No logo uploaded
-                          </p>
-                        </div>
-                      )}
+                      </label>
+                      <p className="text-xs text-gray-400 text-center mt-2">
+                        Recommended: 400x400px, Max 2MB
+                      </p>
                     </div>
-                    {isEditing && (
-                      <div className="w-full">
-                        <label className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
-                          <Upload size={18} />
-                          Upload Logo
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoChange}
-                            className="hidden"
-                          />
-                        </label>
-                        <p className="text-xs text-gray-400 text-center mt-2">
-                          Recommended: 400x400px, Max 2MB
-                        </p>
+                  )}
+                  {isEditing && companyData?.companyLogo && (
+                    <div className="absolute bottom-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+                      <label className="flex items-center justify-center gap-1 font-semibold bg-violet-600 hover:bg-violet-700 px-1 rounded-lg cursor-pointer transition-colors text-base bottom-2 absolute">
+                        <Upload size={12} />
+                        <p className="text-[10px]"> Upload New Logo</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="pt-20 pb-6 px-8 bg-gray-900/60 backdrop-blur-xl rounded-b-3xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold">
+                      {companyData.companyName}
+                    </h1>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Manage your company&apos;s information and branding
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+                    {companyData?.status === "approved" && (
+                      <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                        <Check size={16} />
+                        Verified
+                      </span>
+                    )}
+                    {!isEditing ? (
+                      <button
+                        onClick={handleEdit}
+                        className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
+                      >
+                        <Edit2 size={18} />
+                        Edit Profile
+                      </button>
+                    ) : (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleCancel}
+                          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg"
+                        >
+                          <X size={18} />
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSave}
+                          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
+                        >
+                          {updateLoading ? (
+                            <SyncLoader color="white" size={12} />
+                          ) : (
+                            <>
+                              <Save size={18} />
+                              Save
+                            </>
+                          )}
+                        </button>
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* Company Info */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-8">
-                    <div>
-                      <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Building2 className="text-violet-500" size={32} />
-                        Company Profile
-                      </h1>
-                      <p className="text-gray-400 mt-2">
-                        Manage your company &apos;s information and branding
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {companyData?.status === "approved" && (
-                        <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                          <Check size={16} />
-                          Verified
-                        </span>
-                      )}
-                      {!isEditing ? (
-                        <button
-                          onClick={handleEdit}
-                          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-5 rounded-lg transition-colors"
-                        >
-                          <Edit2 size={18} />
-                          <span className="text-sm">Edit Profile</span>
-                        </button>
-                      ) : (
-                        <div className="flex gap-3">
-                          <button
-                            onClick={handleCancel}
-                            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded-lg transition-colors"
-                          >
-                            <X size={18} />
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleSave}
-                            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-1 rounded-lg transition-colors"
-                          >
-                            <Save size={18} />
-                            Save Changes
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
               </div>
+            </div>
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
                 <InputField
                   icon={Building}
                   label="Company Name"
@@ -247,18 +258,9 @@ function CompanyProfilePage() {
                   handleChange={handleChange}
                 />
                 <InputField
-                  icon={Mail}
-                  label="Email Address"
-                  placeholder="Enter email address"
-                  value={companyData.email}
-                  name="email"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
                   icon={Globe}
                   label="Company Website"
-                  placeholder="Enter company website"
+                  placeholder="Enter website"
                   value={companyData.companyWebsite}
                   name="companyWebsite"
                   isEditing={isEditing}
@@ -266,74 +268,88 @@ function CompanyProfilePage() {
                 />
                 <InputField
                   icon={FileCheck2}
-                  label="Registration Number"
-                  placeholder="Enter registration number"
+                  label="Registration No."
+                  placeholder="Enter reg. number"
                   value={companyData.registrationCertificateNumber}
                   name="registrationCertificateNumber"
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
                 <InputField
-                  icon={Linkedin}
-                  label="LinkedIn Profile"
-                  placeholder="Enter LinkedIn profile URL"
-                  value={companyData.linkedInProfile!}
-                  name="linkedInProfile"
+                  icon={Users}
+                  label="Employees"
+                  placeholder="Total employees"
+                  value={companyData.numberOfEmployees || ""}
+                  name="numberOfEmployees"
+                  isEditing={isEditing}
+                  handleChange={handleChange}
+                />
+              </div>
+
+              <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
+                <InputField
+                  icon={Mail}
+                  label="Email"
+                  placeholder="Enter email"
+                  value={companyData.email}
+                  name="email"
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
                 <InputField
                   icon={Phone}
-                  label="Phone Number"
-                  placeholder="Enter phone number"
+                  label="Phone"
+                  placeholder="Enter phone"
                   value={companyData.phone}
                   name="phone"
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
-                <div className="col-span-2">
-                  <InputField
-                    icon={FileText}
-                    label="Company Description"
-                    placeholder="Company description is not specified"
-                    value={companyData.description || ""}
-                    name="description"
-                    isEditing={isEditing}
-                    handleChange={handleChange}
-                  />
-                  <SelectField
-                    icon={Building2}
-                    label="Company Size"
-                    value={companyData.companySize || ""}
-                    name="companySize"
-                    options={companySizeOptions}
-                    isEditing={isEditing}
-                    handleChange={handleChange}
-                  />
-                  <InputField
-                    icon={Users}
-                    label="Number of Employees"
-                    placeholder="Number of Employees are not specified"
-                    value={companyData.numberOfEmployees || ""}
-                    name="numberOfEmployees"
-                    isEditing={isEditing}
-                    handleChange={handleChange}
-                  />
-                  <InputField
-                    icon={MapPin}
-                    label="Headquarters Location"
-                    placeholder="headquarters Location are not specified"
-                    value={companyData.headquartersLocation || ""}
-                    name="headquartersLocation"
-                    isEditing={isEditing}
-                    handleChange={handleChange}
-                  />
-                </div>
+                <InputField
+                  icon={Linkedin}
+                  label="LinkedIn"
+                  placeholder="Enter LinkedIn URL"
+                  value={companyData.linkedInProfile || ""}
+                  name="linkedInProfile"
+                  isEditing={isEditing}
+                  handleChange={handleChange}
+                />
+                <InputField
+                  icon={MapPin}
+                  label="Headquarters"
+                  placeholder="Enter location"
+                  value={companyData.headquartersLocation || ""}
+                  name="headquartersLocation"
+                  isEditing={isEditing}
+                  handleChange={handleChange}
+                />
               </div>
             </div>
+
+            {/* Company Description & Size */}
+            <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
+              <InputField
+                icon={FileText}
+                label="Company Description"
+                placeholder="Describe your company..."
+                value={companyData.description || ""}
+                name="description"
+                isEditing={isEditing}
+                handleChange={handleChange}
+              />
+              <SelectField
+                icon={Building2}
+                label="Company Size"
+                value={companyData.companySize || ""}
+                name="companySize"
+                options={companySizeOptions}
+                isEditing={isEditing}
+                handleChange={handleChange}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }

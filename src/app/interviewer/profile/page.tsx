@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   X,
   User,
@@ -23,19 +23,26 @@ import {
   InterviewerProfileSchema,
 } from "@/validations/InterviewerSchema";
 import {
+  useChangeInterviewerPassword,
   useFetchInterviewerProfile,
   useUpadteInterviewerProfile,
 } from "@/hooks/useInterviewer";
 import { toast } from "sonner";
 import { StatusCodes } from "@/constants/statusCodes";
-import { useAuthStore } from "@/stores/authStore";
+
 import { RiseLoader } from "react-spinners";
+import ChangePasswordButton from "@/components/ui/ChangePasswordButton";
+import PasswordResetFormModal from "@/components/ui/modals/PasswordResetFormModal";
+import { Roles } from "@/constants/roles";
+import { useAuthStore } from "@/features/auth/authStore";
 
 function InterviewerProfilePage() {
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile } = useUpadteInterviewerProfile();
+  const { changeInterviewerPassword } = useChangeInterviewerPassword();
   const { logout } = useAuthStore();
 
   const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(
@@ -114,21 +121,43 @@ function InterviewerProfilePage() {
     });
   };
 
-  const fetchInterviewerProfile = useCallback(async () => {
-    const response = await interviewerProfile();
-    if (!response.success) {
-      toast(response.error);
-      if (response.status === StatusCodes.FORBIDDEN) {
-        logout();
-      }
-    } else {
-      setInterviewerData(response.data);
+  const onHandlePasswordReset = async (state: {
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  }) => {
+    const respose = await changeInterviewerPassword(
+      state.currentPassword,
+      state.newPassword
+    );
+    if (!respose.success) {
+      toast.error(respose.error, {
+        className: "custom-error-toast",
+      });
+      return;
     }
-  }, [interviewerProfile, logout]);
+    toast.success(respose.message);
+    setShowChangePasswordModal(false);
+  };
+
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    fetchInterviewerProfile();
-  }, [fetchInterviewerProfile]);
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
+    const fetchInterviewer = async () => {
+      const response = await interviewerProfile();
+      if (!response.success) {
+        toast(response.error);
+        return;
+      }
+      setInterviewerData(response.data);
+    };
+
+    fetchInterviewer();
+  }, []);
 
   return loading ? (
     <div className="w-screen flex items-center justify-center h-screen ">
@@ -136,6 +165,16 @@ function InterviewerProfilePage() {
     </div>
   ) : (
     <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white ml-64">
+      {!isEditing}
+      {
+        <PasswordResetFormModal
+          isOpen={showChangePasswordModal}
+          onClose={() => setShowChangePasswordModal(false)}
+          role={Roles.INTERVIEWER}
+          userId={interviewerData._id!}
+          handleSubmit={onHandlePasswordReset}
+        />
+      }
       <div className="p-8">
         <div className="max-w-5xl mx-auto">
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-800">
@@ -244,6 +283,9 @@ function InterviewerProfilePage() {
                     )}
                   </div>
                   <div className="flex items-center gap-4">
+                    <ChangePasswordButton
+                      onClick={() => setShowChangePasswordModal(true)}
+                    />
                     {!isEditing ? (
                       <button
                         onClick={handleEdit}
@@ -473,16 +515,16 @@ function InterviewerProfilePage() {
                                   onChange={(e) => {
                                     const newLangKey = e.target.value.trim();
                                     if (!newLangKey) return; // Prevent empty keys
-                                  
+
                                     setInterviewerData((prevData) => {
                                       const newLang = { ...prevData.language };
-                                      
+
                                       // If lang is modified, delete the old key and add a new one
                                       if (lang !== newLangKey) {
                                         delete newLang[lang];
                                         newLang[newLangKey] = level;
                                       }
-                                  
+
                                       return { ...prevData, language: newLang };
                                     });
                                   }}
@@ -502,7 +544,6 @@ function InterviewerProfilePage() {
                                       },
                                     }));
                                   }}
-                                  
                                   className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
                                   placeholder="Proficiency"
                                 />

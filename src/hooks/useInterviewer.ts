@@ -63,3 +63,27 @@ export const useSetupInterviewerAccount = () => {
 
   return { setupInterviewerAccount, loading };
 };
+
+
+export const useChangeInterviewerPassword = () => {
+  const [loading, setLoading] = useState(false);
+  const changeInterviewerPassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        setLoading(true);
+        const response = await InterviewerService.changeCompanyPassword(
+          {
+            currentPassword,
+            newPassword,
+          }
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { changeInterviewerPassword, loading };
+};

@@ -153,9 +153,17 @@ const AuthService = {
   },
 
   // Logout and remove tokens
-  signOut: () => {
-    // removeAuthTokens();
-    window.location.href = "/login"; // Redirect user to login page
+  signOut:async () => {
+    try{
+      const response = await apiClient.post("/auth/signout",);
+      return response.data;
+    }catch(error){
+      if (isAxiosError(error)) {
+        return { success: false, error: error.response?.data.message };
+      }
+      return { success: false, error: "Unexpected Error Occured" };
+    
+    }
   },
 
   verifyUserAccount: async (email: string) => {
@@ -169,6 +177,9 @@ const AuthService = {
       return { success: false, error: "Unexpected Error Occured" };
     }
   },
+
+  
+  
 };
 
 export default AuthService;

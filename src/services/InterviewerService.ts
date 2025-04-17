@@ -64,6 +64,36 @@ export const InterviewerService = {
       };
     }
   },
+  changeCompanyPassword: async ({
+    currentPassword,
+    newPassword,
+  }: {
+    currentPassword: string;
+    newPassword: string;
+  }) => {
+    try {
+      const response = await apiClient.put("/interviewer/change-password", {
+        currentPassword,
+        newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          status: error.status,
+          error:
+            error.response?.data.message ||
+            "An error occurred while updating the company password. Please try again later.",
+        };
+      }
+      return {
+        success: false,
+        error: "Unexpected error occurred While Updating Company Password",
+      };
+    }
+  },
+
   
 
   

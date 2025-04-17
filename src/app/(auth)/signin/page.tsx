@@ -22,7 +22,8 @@ import { loginSchema, LoginSchemaType } from "../../../validations/AuthSchema";
 import { GoogleAuthButton } from "../../../components/ui/GoogleAuthButton";
 // import Link from "next/link";
 import { Modal } from "../../../components/ui/modals/ConfirmationModal";
-import { useAuthStore } from "@/stores/authStore";
+
+import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/roles";
 import Link from "next/link";
 import { StatusCodes } from "@/constants/statusCodes";
@@ -54,9 +55,10 @@ function App() {
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
     useState(false);
   const { signIn, loading } = useSignIn();
-  const user = useAuthStore((state) => state.user);
+
   const { verifyUserAccount, loading: verifyLoading } = useVerifyUserAccount();
   const router = useRouter();
+  const { setUser, user } = useAuthStore();
 
   const {
     register,
@@ -68,8 +70,6 @@ function App() {
   });
 
   const onHandleSubmit = async (data: LoginSchemaType) => {
-   
-   
     const response = await signIn({
       email: data.email,
       password: data.password,
@@ -77,27 +77,31 @@ function App() {
     });
 
     if (!response.success) {
-      if (response.status === StatusCodes.BAD_REQUEST) {
+      if (response.status === StatusCodes.FORBIDDEN) {
         setIsVerifyAccountModalOpen(true);
-        return
+        return;
       }
       toast.error(response.error, {
         className: "custom-error-toast",
       });
-     
+
       return;
     }
     toast(response.message);
-    const { email, _id: id } = response.data.user;
-    useAuthStore.getState().setUser({
-      id,
+    const { email, _id: id, phone } = response.data.user;
+    const name =
+      selectedRole === "company"
+        ? response.data.user.companyName
+        : response.data.user.name;
+
+    setUser({
       email,
+      id,
       role: selectedRole as Roles,
       token: response.data.accessToken,
+      name,
+      phone,
     });
-    setTimeout(() => {
-      router.push(`/${selectedRole}`);
-    }, 1000);
   };
   const handleModalConfirm = () => {
     router.push(`/forgot-password?role=${selectedRole}`);

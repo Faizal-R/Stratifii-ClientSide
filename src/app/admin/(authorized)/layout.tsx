@@ -12,7 +12,7 @@ import {
   } from "lucide-react";
 import { Modal } from '@/components/ui/modals/ConfirmationModal';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/features/auth/authStore';
   
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/admin/dashboard" },

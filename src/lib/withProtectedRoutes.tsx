@@ -1,8 +1,11 @@
 "use client";
 import { ComponentType, ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
+
 import { Roles } from "@/constants/roles";
+
+import { useAuthStore } from "@/features/auth/authStore";
+
 // import { RiseLoader } from "react-spinners";
 
 const withProtectedRoute = <P extends object>(
@@ -39,4 +42,4 @@ const withProtectedRoute = <P extends object>(
   };
 };
 
-export default withProtectedRoute; 
+export default withProtectedRoute;

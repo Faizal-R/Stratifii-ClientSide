@@ -118,9 +118,8 @@ function InterviewerRegistrationPage() {
         return;
       }
       toast.success("Account setup successfully");
-      setTimeout(() => {
-        router.push(`/${Roles.INTERVIEWER}`);
-      }, 1000);
+
+      router.push(`/${Roles.INTERVIEWER}`);
     } else {
       const response = await registerInterviewer(formData); // Set default status
       if (!response.success) {
@@ -129,9 +128,8 @@ function InterviewerRegistrationPage() {
         });
       } else {
         toast(response.message);
-        setTimeout(() => {
-          router.push(`/verify-otp?email=${formData.email}&&role=interviewer`);
-        }, 1000);
+
+        router.push(`/verify-otp?email=${formData.email}&&role=interviewer`);
       }
     }
   };

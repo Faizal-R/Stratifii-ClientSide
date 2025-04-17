@@ -3,13 +3,16 @@
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/roles";
+import { useFetchInterviewerProfile } from "@/hooks/useInterviewer";
+import { toast } from "sonner";
 
 export default function VerifyPage() {
-  const { data: session, status} = useSession(); 
-
-  const setUser = useAuthStore((state) => state.setUser); // Get the setUser function from your store
+  const { data: session, status } = useSession();
+  const { setUser } = useAuthStore();
+  const { interviewerProfile } = useFetchInterviewerProfile();
+  // Get the setUser function from your store
   const router = useRouter();
 
   useEffect(() => {
@@ -28,14 +31,30 @@ export default function VerifyPage() {
       setUser({
         id: session.user.id,
         email: session.user.email!,
+        name: session.user.name!,
         token: session.accessToken!,
         role: Roles.INTERVIEWER,
       });
-      
-      router.push(`/register/interviewer?isGoogleVerified=true&&id=${session.user.id}`);
-      
+      const fetchInterviewer = async () => {
+        const response = await interviewerProfile();
+        if (!response.success) {
+          toast(response.error);
+          return;
+        }
+
+        const data = response.data;
+        // setInterviewer(data);
+
+        if (data.isVerified) {
+          router.push("/interviewer");
+        }
+      };
+      router.push(
+        `/register/interviewer?isGoogleVerified=true&&id=${session.user.id}`
+      );
+      fetchInterviewer();
     }
-  }, [status, session, router, setUser]);
+  }, [status, session, router, setUser, interviewerProfile]);
 
   // Show a loading screen while verifying the session
   return (

@@ -1,4 +1,4 @@
-import { IRazorpayResponse } from "@/types/IRazorpay";
+import { IRazorpayResponse, RazorpayPaymentError } from "@/types/IRazorpay";
 
 export const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -25,7 +25,7 @@ interface RazorpayConfig {
     contact: string;
   };
   onSuccess: (response: IRazorpayResponse) => Promise<void>;
-  onFailure?: (error: any) => void;
+  onFailure?: (error:RazorpayPaymentError) => void;
 }
 
 export const initiateRazorpayPayment = async ({
@@ -61,7 +61,7 @@ export const initiateRazorpayPayment = async ({
       } catch (err) {
         console.error(err);
         if (onFailure) {
-          onFailure(err);
+          onFailure(err as RazorpayPaymentError);
         }
       }
     },

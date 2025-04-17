@@ -38,3 +38,25 @@ export const useUpadteCompanyProfile = () => {
 
   return { updateCompanyProfile, loading };
 };
+export const useChangeCompanyPassword = () => {
+  const [loading, setLoading] = useState(false);
+  const changeCompanyPassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        setLoading(true);
+        const response = await CompanyService.changeCompanyPassword(
+          {
+            currentPassword,
+            newPassword,
+          }
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { changeCompanyPassword, loading };
+};

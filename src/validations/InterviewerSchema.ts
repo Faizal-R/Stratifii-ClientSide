@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const InterviewerProfileSchema = z.object({
+  _id:z.string().optional(),
   name: z.string().min(1, "Name is required"),
   position: z.string().min(1, "Position is required"),
   email: z.string().email("Invalid email format"),

@@ -5,13 +5,19 @@ interface IPasswordRestFormModalProps {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
+  handleSubmit: (state: {
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  }) => void;
 }
+import { Input } from "../FormInput";
+import { toast } from "sonner";
 
 export default function PasswordResetFormModal({
-  role,
-  userId,
   isOpen,
   onClose,
+  handleSubmit,
 }: IPasswordRestFormModalProps) {
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -19,27 +25,33 @@ export default function PasswordResetFormModal({
     confirmNewPassword: "",
   });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (name: string, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
+  const handleOnSubmit = async(e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if(!formData.currentPassword.trim() || !formData.newPassword.trim() || !formData.confirmNewPassword.trim()) {
+      toast.error("All fields are required. Please make sure no field is left empty.",{
+        className:'custom-error-toast'
+      });
+      return
+    }
 
     if (formData.newPassword === formData.currentPassword) {
-      alert("New Password should not be same as Current Password!");
+      toast.error("New Password should not be same as Current Password!",{
+        className:'custom-error-toast'
+      });
       return;
     }
 
     if (formData.newPassword !== formData.confirmNewPassword) {
-      alert("New Password and Confirm New Password must be same!");
+      toast.error("New Password and Confirm New Password must be same!",{
+        className:'custom-error-toast'
+      });
       return;
     }
-
-    // API call logic here with role & userId
-    console.log("Password Updated For:", { role, userId, formData });
-
-    // Reset form
+    await handleSubmit(formData);
     setFormData({
       currentPassword: "",
       newPassword: "",
@@ -52,8 +64,8 @@ export default function PasswordResetFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 relative">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+      <div className=" w-full max-w-md   relative  border-violet-900  dark:bg-neutral-900 rounded-2xl p-8  animate-fadeIn overflow-y-auto max-h-[90vh] bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90  border border-violet-500/20 shadow-2xl shadow-violet-500/10">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
@@ -61,55 +73,37 @@ export default function PasswordResetFormModal({
           &times;
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        <h2 className="text-2xl font-bold mb-6 text-center text-violet-200">
           Reset Password
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-gray-600 mb-1 text-sm">
-              Current Password
-            </label>
-            <input
-              type="password"
-              name="currentPassword"
-              value={formData.currentPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter current password"
-              required
-            />
-          </div>
+        <form
+          onSubmit={handleOnSubmit}
+          className="space-y-5"
+        >
+          <Input
+            name="currentPassword"
+            label="Current Password"
+            type="password"
+            value={formData.currentPassword}
+            onChange={(val) => handleChange("currentPassword", val)}
+          />
 
-          <div>
-            <label className="block text-gray-600 mb-1 text-sm">
-              New Password
-            </label>
-            <input
-              type="password"
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter new password"
-              required
-            />
-          </div>
+          <Input
+            name="newPassword"
+            label="New Password"
+            type="password"
+            value={formData.newPassword}
+            onChange={(val) => handleChange("newPassword", val)}
+          />
 
-          <div>
-            <label className="block text-gray-600 mb-1 text-sm">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              name="confirmNewPassword"
-              value={formData.confirmNewPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Confirm new password"
-              required
-            />
-          </div>
+          <Input
+            name="confirmNewPassword"
+            label="Confirm New Password"
+            type="password"
+            value={formData.confirmNewPassword}
+            onChange={(val) => handleChange("confirmNewPassword", val)}
+          />
 
           <button
             type="submit"
