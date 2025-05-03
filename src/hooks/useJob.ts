@@ -9,7 +9,8 @@ export const useCreateJob = function () {
       description: string,
       deadline: Date,
       experienceRequired: number,
-      requiredSkills: string[]
+      requiredSkills: string[],
+      interviewDuration: number
     ) => {
       try {
         setLoading(true);
@@ -19,6 +20,7 @@ export const useCreateJob = function () {
           experienceRequired,
           requiredSkills,
           description,
+          interviewDuration,
         });
         return response;
       } finally {

@@ -31,8 +31,10 @@ import {
   useUpadteInterviewerProfile,
 } from "@/hooks/useInterviewer";
 import { set } from "zod";
+import { useAuthStore } from "@/features/auth/authStore";
 
 function InterviewerRegistrationPage() {
+  const {setUser}=useAuthStore()
   const isGoogleVerified =
     Boolean(useSearchParams().get("isGoogleVerified")) ?? false;
   const interviewerId = useSearchParams().get("id") ?? "";
@@ -117,6 +119,12 @@ function InterviewerRegistrationPage() {
         });
         return;
       }
+      setUser({
+        email: formData.email,
+        role: Roles.INTERVIEWER,
+        token: response.data.accessToken,
+        id: response.data.interviewer._id,
+      })
       toast.success("Account setup successfully");
 
       router.push(`/${Roles.INTERVIEWER}`);

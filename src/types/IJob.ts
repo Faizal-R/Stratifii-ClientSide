@@ -6,6 +6,7 @@ export interface IJob {
   deadline: Date;
   status?: "open" | "in-progress" | "completed";
   experienceRequired: number;
+  interviewDuration: number;
   candidates?: ICandidateJob[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -22,4 +23,7 @@ export interface ICandidateJob {
     | "final_completed"
     | "rejected";
   interviewerId?: string | null;
+  interviewTimeZone?: string; 
+  scheduledTime?: Date;
+
 }

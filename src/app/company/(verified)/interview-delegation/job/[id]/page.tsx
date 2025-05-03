@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Upload, X, FileText, Users, PlayCircle } from "lucide-react";
+import {
+  Upload,
+  X,
+  FileText,
+  Users,
+  PlayCircle,
+  UserCheck,
+  CalendarClock,
+} from "lucide-react";
 import FileUploadModal from "@/components/ui/modals/FileUploadModal";
 import {
   useGetCandidatesByJob,
@@ -181,77 +189,92 @@ function JobManagementPage() {
             {candidates.map((candidate) => (
               <div
                 key={candidate.candidate._id}
-                className="border border-violet-900 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all duration-300"
+                className="relative group bg-gradient-to-br from-violet-950 via-gray-950 to-black/90 backdrop-blur-xl border border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex items-center gap-4 mb-4">
+                {/* Glow background */}
+                <div className="absolute -top-8 -right-8 w-32 h-32 bg-violet-600/20 blur-2xl rounded-full z-0 group-hover:opacity-60 transition-all" />
+
+                {/* Header */}
+                <div className="relative z-10 flex items-center gap-4 mb-4">
                   <img
                     src={
                       candidate.candidate.avatar ||
                       "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
                     }
                     alt={candidate.candidate.name}
-                    className="h-14 w-14 rounded-full object-cover object-center border-2 border-violet-800 "
+                    className="h-16 w-16 rounded-full object-cover border-2 border-violet-600 shadow-md"
                   />
-
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-800">
+                    <h2 className="text-lg font-bold text-white">
                       {candidate.candidate.name}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-400">
                       {candidate.candidate.email}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-3 text-sm text-gray-700">
+                {/* Info */}
+                <div className="relative z-10 space-y-4 text-sm text-gray-200">
+                  {/* Status */}
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Status:</span>
+                    <div className="flex items-center gap-2 font-medium text-violet-300">
+                      <UserCheck size={16} className="text-violet-400" />
+                      Status
+                    </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs 
-          ${
-            candidate.candidate.status === "pending"
-              ? "bg-yellow-100 text-yellow-700"
-              : "bg-green-100 text-green-700"
-          }
-        `}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold
+        ${
+          candidate.candidate.status === "pending"
+            ? "bg-yellow-200 text-yellow-900"
+            : "bg-green-300 text-green-900"
+        }
+      `}
                     >
                       {candidate.candidate.status}
                     </span>
                   </div>
 
+                  {/* Resume */}
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Resume:</span>
-
+                    <div className="flex items-center gap-2 font-medium text-violet-300">
+                      <FileText size={16} className="text-violet-400" />
+                      Resume
+                    </div>
                     {candidate.candidate.resume ? (
                       <a
                         href={`https://docs.google.com/viewer?url=${candidate.candidate.resume}&embedded=true`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-violet-600 text-white text-xs px-3 py-1 rounded-full hover:bg-violet-700 transition"
+                        className="bg-violet-700 text-white text-xs px-3 py-1 rounded-full hover:bg-violet-800 transition"
                       >
                         View
                       </a>
                     ) : (
-                      <span className="text-gray-400 text-xs">
+                      <span className="text-gray-500 text-xs">
                         Not Uploaded
                       </span>
                     )}
                   </div>
 
+                  {/* Interview Status */}
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Interview Status:</span>
+                    <div className="flex items-center gap-2 font-medium text-violet-300">
+                      <CalendarClock size={16} className="text-violet-400" />
+                      Interview
+                    </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs 
-          ${
-            candidate.interviewStatus === "final_scheduled"
-              ? "bg-blue-100 text-blue-700"
-              : candidate.interviewStatus === "mock_started"
-              ? "bg-green-100 text-green-700"
-              : candidate.interviewStatus === "pending"
-              ? "bg-red-100 text-red-700"
-              : "bg-gray-100 text-gray-700"
-          }
-        `}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold
+        ${
+          candidate.interviewStatus === "final_scheduled"
+            ? "bg-blue-300 text-blue-900"
+            : candidate.interviewStatus === "mock_started"
+            ? "bg-green-200 text-green-900"
+            : candidate.interviewStatus === "pending"
+            ? "bg-red-300 text-red-900"
+            : "bg-gray-300 text-gray-900"
+        }
+      `}
                     >
                       {candidate.interviewStatus === "pending"
                         ? "Not Scheduled"

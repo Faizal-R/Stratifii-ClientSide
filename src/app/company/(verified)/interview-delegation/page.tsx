@@ -24,6 +24,7 @@ import {
   useUpdateJob,
 } from "@/hooks/useJob";
 import { RiseLoader } from "react-spinners";
+import { ICandidateJob } from "@/types/IJob";
 
 interface Job {
   _id: string;
@@ -32,6 +33,8 @@ interface Job {
   requiredSkills: string[];
   deadline: string;
   experienceRequired: number | string;
+  interviewDuration: number | string;
+  candidates?: ICandidateJob[];
 }
 
 function InterviewDelegation() {
@@ -50,6 +53,7 @@ function InterviewDelegation() {
     requiredSkills: [],
     deadline: "",
     experienceRequired: "",
+    interviewDuration: "",
   });
 
   const handleEditJob = async (e: React.FormEvent) => {
@@ -62,6 +66,7 @@ function InterviewDelegation() {
       ...selectedJob,
       deadline: new Date(selectedJob.deadline),
       experienceRequired: Number(selectedJob.experienceRequired),
+      interviewDuration: Number(selectedJob.interviewDuration),
     });
     if (!res.success) {
       toast(res.error);
@@ -86,7 +91,8 @@ function InterviewDelegation() {
       newJob.description,
       new Date(newJob.deadline),
       Number(newJob.experienceRequired),
-      newJob.requiredSkills
+      newJob.requiredSkills,
+      Number(newJob.interviewDuration)
     );
     if (!response.success) {
       toast(response.error);
@@ -101,6 +107,7 @@ function InterviewDelegation() {
       requiredSkills: [],
       deadline: "",
       experienceRequired: "",
+      interviewDuration: "",
     });
   };
   const handleJobDelete = async (jobId: string) => {
@@ -225,56 +232,84 @@ function InterviewDelegation() {
             {jobs.map((job) => (
               <div
                 key={job._id}
-                // onClick={() => navigateToJob(job._id)}
-                className="group bg-gradient-to-br from-black via-black to-violet-950 rounded-xl shadow-md p-6 border border-violet-950 cursor-pointer hover:shadow-xl transition-all duration-200 hover:-translate-y-1 relative"
+                className="group relative bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30 transition-all duration-300 hover:-translate-y-1 w-full max-w-md"
               >
-                <div className="flex items-start justify-between">
-                  <h3 className="text-xl text-violet-400 font-semibold group-hover:text-violet-600 transition-colors flex items-center gap-1">
-                    {job?.position}
-                    <Briefcase
-                      className="text-violet-500 group-hover:text-violet-600 transition-colors"
-                      size={24}
+                {/* Accent Glow */}
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-violet-700/20 rounded-full blur-3xl z-0 group-hover:opacity-70 transition-opacity" />
+
+                {/* Header */}
+                <div className="relative z-10 flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-violet-700/20 p-3 rounded-xl">
+                      <Briefcase className="text-violet-400" size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">
+                        {job.position}
+                      </h2>
+                      <p className="text-sm text-gray-400">
+                        {job.experienceRequired}+ yrs experience
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Edit
+                      className="hover:text-yellow-400 transition"
+                      size={20}
+                      onClick={() => handleJobEdit(job._id)}
                     />
-                  </h3>
-                  <div className="flex  text-red-600 gap-1 absolute right-1 top-2">
-                    <Edit size={20} onClick={() => handleJobEdit(job._id)} />
-                    <Trash size={20} onClick={() => handleJobDelete(job._id)} />
+                    <Trash
+                      className="hover:text-red-500 transition"
+                      size={20}
+                      onClick={() => handleJobDelete(job._id)}
+                    />
                   </div>
                 </div>
-                <p>{job.experienceRequired} Years of experience</p>
+
+                {/* Description */}
                 {job.description && (
-                  <p className="mt-3 text-gray-600 line-clamp-3">
+                  <p className=" text-gray-500 leading-relaxed line-clamp-3 mb-4 text-sm font-semibold">
                     {job.description}
                   </p>
                 )}
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Tag size={16} className="text-violet-500" />
-                    Required Skills
+
+                {/* Skills */}
+                <div className="mb-4">
+                  <h4 className="text-sm text-violet-300 font-semibold flex items-center gap-2 mb-2">
+                    <Tag size={16} className="text-violet-400" />
+                    Skills Required
                   </h4>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {job.requiredSkills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 border border-violet-900 text-violet-700 rounded-full text-sm font-medium hover:bg-violet-900 hover:text-white transition-colors"
+                        className="bg-violet-800/30 border border-violet-700 text-violet-200 px-3 py-1 rounded-full text-xs font-medium hover:bg-violet-700 hover:text-white transition"
                       >
                         {skill}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar size={16} className="text-violet-500" />
-                    <span className="text-sm">
-                      {new Date(job.deadline).toLocaleDateString()}
-                    </span>
+
+                {/* Info Footer */}
+                <div className="border-t border-zinc-700 pt-4 flex items-center justify-between text-sm text-gray-400">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar size={16} className="text-violet-400" />
+                      <span>{new Date(job.deadline).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users size={16} className="text-violet-400" />
+                      <span>{job.candidates?.length} Candidates</span>
+                    </div>
                   </div>
-                  <ChevronRight
-                    size={20}
-                    className="text-violet-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                  <button
                     onClick={() => navigateToJob(job._id)}
-                  />
+                    className="flex items-center gap-1 text-violet-400 hover:text-white transition"
+                  >
+                    View
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -284,8 +319,8 @@ function InterviewDelegation() {
 
       {/* Create Job Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4  bg-black/80 backdrop-blur-sm text-violet-300">
-          <div className="w-full max-w-md p-6 bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90 rounded-xl border border-violet-500/20 shadow-2xl shadow-violet-500/10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-violet-300 ">
+          <div className="w-full max-w-md max-h-[80vh] overflow-y-auto  p-6 bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90 rounded-xl border border-violet-500/20 shadow-2xl shadow-violet-100/10 ">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
                 <Plus className="text-violet-500" size={24} />
@@ -350,6 +385,33 @@ function InterviewDelegation() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Interview Duration
+                  </label>
+                  <input
+                    name="interviewDuration"
+                    type="string"
+                    value={
+                      isJobEditing
+                        ? selectedJob.interviewDuration
+                        : newJob.interviewDuration
+                    }
+                    onChange={(e) =>
+                      isJobEditing
+                        ? setSelectedJob({
+                            ...selectedJob,
+                            interviewDuration: Number(e.target.value),
+                          })
+                        : setNewJob({
+                            ...newJob,
+                            interviewDuration: Number(e.target.value),
+                          })
+                    }
+                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                    placeholder="Enter Interview Duration for this Job"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
                   <textarea
@@ -371,6 +433,7 @@ function InterviewDelegation() {
                     placeholder="Describe the job requirements and responsibilities"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Required Skills (comma-separated)
