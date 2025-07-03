@@ -1,8 +1,8 @@
 import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
-import { IInterviewer } from "@/types/IInterviewer";
-import { IInterviewerRegistration, IInterviewerSchema } from "@/validations/InterviewerSchema";
+
+import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
 
 export interface LoginResponse {
   accessToken: string;
@@ -12,6 +12,7 @@ export interface LoginResponse {
 const AuthService = {
   // Login and store tokens
   signIn: async (email: string, password: string, role: string) => {
+    console.log("role",role)
     try {
       const response = await apiClient.post("/auth/signin", {
         email,
@@ -30,6 +31,7 @@ const AuthService = {
             error.response?.data?.message || "An error occurred during login",
         };
       }
+      console.log("Error",error)
       return {
         success: false,
         error: "Unexpected error occurred While SignIn",
@@ -53,26 +55,39 @@ const AuthService = {
       return { success: false, error: "Unknown error" };
     }
   },
+interviewerRegister: async (interviewer: IInterviewerRegistration) => {
+  console.log(interviewer);
 
-  interviewerRegister: async (interviewer: IInterviewerRegistration) => {
-    try {
-      const response = await apiClient.post(
-        "/auth/register/interviewer",
-        interviewer
-      );
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "unknow error occured while register",
-        };
+  const formData = new FormData();
+
+  
+  const { resume, ...rest } = interviewer;
+
+ 
+  if (resume instanceof File) {
+    formData.append("resume", resume);
+  }
+
+  
+  formData.append("data", JSON.stringify(rest));
+
+  try {
+    const response = await apiClient.post(
+      "/auth/register/interviewer",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
       }
-      return { success: false, error: "Unknow Error" };
-    }
-  },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Registration failed:", error);
+    throw error;
+  }
+},
+
 
   verifyOtp: async (otp: string, email: string, role: string) => {
     try {

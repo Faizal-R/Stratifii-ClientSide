@@ -25,6 +25,7 @@ import {
 } from "@/hooks/useJob";
 import { RiseLoader } from "react-spinners";
 import { ICandidateJob } from "@/types/IJob";
+import { HttpStatusCode } from "axios";
 
 interface Job {
   _id: string;
@@ -95,7 +96,16 @@ function InterviewDelegation() {
       Number(newJob.interviewDuration)
     );
     if (!response.success) {
-      toast(response.error);
+
+      toast(response.error,{
+        className:"custom-error-toast"
+      });
+      setTimeout(()=>{
+
+        if(response.status===HttpStatusCode.Forbidden){
+          router.push('/company/subscription')
+        }
+      },1500)
       return;
     }
     setJobs([...jobs, response.data]);

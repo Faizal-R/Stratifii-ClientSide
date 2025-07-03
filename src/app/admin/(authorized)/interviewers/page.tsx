@@ -11,21 +11,20 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 import { IInterviewer } from "@/types/IInterviewer";
 import InterviewerDetailsModal from "@/components/ui/modals/UserDetailsModal";
 
-
 function AdminInterviewerManagement() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedInterviewerId, setSelectedInterviewerId] = useState("");
   
   const [activeTab, setActiveTab] = useState("approved");
-  const {verifyOrRejectInterviewer}=useHandleInterveiwerVerification();
-  const [selectedInterviewerForDetails,setSelectedInterviewerForDetails]=useState<IInterviewer>({} as IInterviewer)
+  const {verifyOrRejectInterviewer} = useHandleInterveiwerVerification();
+  
+  // FIX: Initialize as null instead of empty object
+  const [selectedInterviewerForDetails, setSelectedInterviewerForDetails] = useState<IInterviewer | null>(null);
 
   const { fetchInterviewers, loading } = useAdminInterviewers();
   const [interviewers, setInterviewers] = useState<IInterviewer[] | []>([]);
   
-  const [isDetailsModalOpen,setIsDetailsModalOpen] = useState(false);
-
-
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,9 +38,12 @@ function AdminInterviewerManagement() {
     setIsConfirmModalOpen(true);
   };
 
-  const showDetailsModal=(interviewer:IInterviewer)=>{
-     setIsDetailsModalOpen(true);
-    setSelectedInterviewerForDetails(interviewer);
+  // FIX: Improved safety check and state setting
+  const showDetailsModal = (interviewer: IInterviewer) => {
+    if (interviewer && interviewer._id) {
+      setSelectedInterviewerForDetails(interviewer);
+      setIsDetailsModalOpen(true);
+    }
   }
 
   async function handleToggleBlock() {
@@ -75,29 +77,27 @@ function AdminInterviewerManagement() {
     setCurrentPage(page);
   };
 
-  const handleCompanyVerification=async(interviewerId:string,isApproved:boolean)=>{
-    const response=await verifyOrRejectInterviewer(interviewerId,isApproved);
+  const handleCompanyVerification = async(interviewerId: string, isApproved: boolean) => {
+    const response = await verifyOrRejectInterviewer(interviewerId, isApproved);
     if (!response.success) {
       toast.error(response.error);
       return;
-    
-    }  if (response.data && isApproved === true) {
-          toast.success("Company Verified successfully");
-          setInterviewers(
-            interviewers.map((interviewer) =>
-              interviewer._id === response.data._id
-                ? response.data
-                : interviewer
-            )
-          );
-    
-          setActiveTab("approved");
-        } else {
-          toast("Interviewer Verification rejected successfully.");
-          setInterviewers(interviewers.filter(interviewer=>interviewer._id! == response.data._id))
-        }
+    }  
+    if (response.data && isApproved === true) {
+      toast.success("Interviewer Verified successfully"); // FIX: Changed message
+      setInterviewers(
+        interviewers.map((interviewer) =>
+          interviewer._id === response.data._id
+            ? response.data
+            : interviewer
+        )
+      );
+      setActiveTab("approved");
+    } else {
+      toast("Interviewer Verification rejected successfully.");
+      setInterviewers(interviewers.filter(interviewer => interviewer._id !== response.data._id)); // FIX: Changed !== instead of !=
+    }
   }
-
 
   const getInterviewers = useCallback(async () => {
     const response = await fetchInterviewers(activeTab);
@@ -106,7 +106,7 @@ function AdminInterviewerManagement() {
     } else {
       setInterviewers(response.data);
     }
-  }, [fetchInterviewers,activeTab]);
+  }, [fetchInterviewers, activeTab]);
 
   useEffect(() => {
     getInterviewers();
@@ -130,12 +130,19 @@ function AdminInterviewerManagement() {
         title="Confirm Action"
       />
 
-      <InterviewerDetailsModal
-       isOpen={isDetailsModalOpen}
-       user={selectedInterviewerForDetails}
-       onClose={() => setIsDetailsModalOpen(false)}
-      />
-      <div className="min-h-screen  pl-64">
+      {/* FIX: Add safety check and proper null handling */}
+      {selectedInterviewerForDetails && (
+        <InterviewerDetailsModal
+          isOpen={isDetailsModalOpen}
+          user={selectedInterviewerForDetails}
+          onClose={() => {
+            setIsDetailsModalOpen(false);
+            setSelectedInterviewerForDetails(null); // Reset to null
+          }}
+        />
+      )}
+
+      <div className="min-h-screen pl-64 bg-gradient-to-br from-black via-black to-violet-950">
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-violet-100 mb-4">
@@ -145,13 +152,12 @@ function AdminInterviewerManagement() {
               <button
                 onClick={() => setActiveTab("approved")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  // isConfirmModalOpen === false
                   activeTab === "approved"
                     ? "bg-violet-500 text-white"
                     : "text-violet-200 hover:bg-violet-100 hover:bg-opacity-10"
                 }`}
               >
-                Verified Companies
+                Verified Interviewers {/* FIX: Changed label */}
               </button>
               <button
                 onClick={() => setActiveTab("pending")}
@@ -175,21 +181,20 @@ function AdminInterviewerManagement() {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setCurrentPage(1); // Reset to first page on search
+                    setCurrentPage(1);
                   }}
                 />
               </div>
             </div>
-            
           </div>
 
           <div className="border border-violet-900 rounded-lg shadow text-violet-200">
             <div className="overflow-x-auto">
               <table className="w-full text-violet-300">
                 <thead>
-                  <tr className=" border-b border-violet-900">
+                  <tr className="border-b border-violet-900">
                     <th className="px-6 py-4 text-left text-sm font-bold">
-                      Company
+                      Interviewer {/* FIX: Changed from "Company" */}
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-bold">
                       Email
@@ -217,17 +222,25 @@ function AdminInterviewerManagement() {
                             className="text-violet-500 mr-3"
                             size={24}
                           />
-                          <span className="font-medium ">
+                          <span className="font-medium">
                             {interviewer.name}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">{interviewer.email}</td>
-
-                      <td className="px-6 py-4 ">
-                        {new Date(interviewer.createdAt).toLocaleDateString()}
+                      <td className="px-6 py-4">
+                        {new Date(interviewer.createdAt!).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex mr-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            interviewer.isBlocked
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {interviewer.isBlocked ? "Blocked" : "Active"}
+                        </span>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             interviewer.isBlocked
@@ -235,7 +248,7 @@ function AdminInterviewerManagement() {
                               : "bg-green-100 text-green-800"
                           }`}
                         >
-                          {interviewer.isBlocked ? "Blocked" : "Active"}
+                          {activeTab === "approved" ? "verified" : "pending"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

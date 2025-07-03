@@ -14,26 +14,27 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onClose, us
   if (!isOpen) return null;
   const isCompany = "companyName" in user;
 
-  const details = isCompany
-    ? [
-        { label: "Name", value: user.companyName },
-        { label: "Email", value: user.email },
-        { label: "Website", value: user.companyWebsite },
-        { label: "Registration Number", value: user.registrationCertificateNumber },
-        { label: "LinkedIn Profile", value: user.linkedInProfile || "Not provided" },
-        { label: "Phone", value: user.phone },
-        { label: "Company Type", value: user.companyType },
-      ]
-    : [
-        { label: "Name", value: user.name },
-        { label: "Email", value: user.email },
-        { label: "Current Position", value: user.position  || "Not provided" },
-        { label: "LinkedIn Profile", value: user.linkedinProfile || "Not provided" },
-        { label: "Phone", value: user.phone  || "Not provided" },
-        { label: "Experience", value: user.experience  || "Not provided" },
-        { label: "Expertise", value: user.expertise.length>0?user.expertise  : "Not provided"},
-        { label: "Professional Summary", value: user.professionalSummary  || "Not provided" },
-      ];
+const details = isCompany
+  ? [
+      { label: "Name", value: user.companyName },
+      { label: "Email", value: user.email },
+      { label: "Website", value: user.companyWebsite },
+      { label: "Registration Number", value: user.registrationCertificateNumber },
+      { label: "LinkedIn Profile", value: user.linkedInProfile || "Not provided" },
+      { label: "Phone", value: user.phone },
+      { label: "Company Type", value: user.companyType },
+    ]
+  : [
+      { label: "Name", value: user.name },
+      { label: "Email", value: user.email },
+      { label: "Current Position", value: user.position || "Not provided" },
+      { label: "LinkedIn Profile", value: user.linkedinProfile || "Not provided" },
+      { label: "Phone", value: user.phone || "Not provided" },
+      { label: "Experience", value: user.experience || "Not provided" },
+      { label: "Expertise", value: user.expertise.length > 0 ? user.expertise : "Not provided" },
+      { label: "Professional Summary", value: user.professionalSummary || "Not provided" },
+      { label: "Resume", value: user.resume || "Not provided" }, // <-- NEW FIELD
+    ];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -52,41 +53,57 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onClose, us
             <div key={detail.label} className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-gray-500">{detail.label}</dt>
               <dd className="text-sm text-gray-900 col-span-2">
-                {detail.label === "Website" || detail.label === "LinkedIn Profile" ? (
-                  detail.value !== "Not provided" ? (
-                    <Link
-                      href={typeof detail.value === "string" ? detail.value : ""}
-                      target="_blank"
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      {detail.value}
-                    </Link>
-                  ) : (
-                    detail.value
-                  )
-                ) : (
-                  detail.value
-                )}
+{detail.label === "Website" || detail.label === "LinkedIn Profile" ? (
+  detail.value !== "Not provided" ? (
+    <Link
+      href={typeof detail.value === "string" ? detail.value : ""}
+      target="_blank"
+      className="text-blue-600 hover:text-blue-800 hover:underline"
+    >
+      {detail.value}
+    </Link>
+  ) : (
+    detail.value
+  )
+) : detail.label === "Resume" ? (
+  detail.value !== "Not provided" ? (
+    <a
+      href={`https://docs.google.com/viewer?url=${encodeURIComponent(detail.value as string)}&embedded=true`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-violet-700 text-white text-xs px-3 py-1 rounded-full hover:bg-violet-800 transition"
+    >
+      View
+    </a>
+  ) : (
+    "Not provided"
+  )
+) : (
+  detail.value
+)}
+
+
               </dd>
             </div>
           ))}
 
           {/* Handle Languages separately */}
-          {!isCompany && (user as IInterviewer).language && (
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-gray-500">Languages</dt>
-              <dd className="text-sm text-gray-900 col-span-2">
-                <ul>
-                  {Object.entries((user as IInterviewer).language).map(([key, value]) => (
-                    <li key={key} className="flex gap-1">
-                      <span className="font-medium">{key}:</span>
-                      <span>{value}</span>
-                    </li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          )}
+       {!isCompany && (user as IInterviewer).languages.length > 0 && (
+  <div className="grid grid-cols-3 gap-4">
+    <dt className="text-sm font-medium text-gray-500">Languages</dt>
+    <dd className="text-sm text-gray-900 col-span-2">
+      <ul>
+        {(user as IInterviewer).languages.map((lang, index) => (
+          <li key={index} className="flex gap-1">
+            <span className="font-medium">{lang.language}:</span>
+            <span>{lang.level}</span>
+          </li>
+        ))}
+      </ul>
+    </dd>
+  </div>
+)}
+
         </div>
 
         <div className="flex justify-end p-6 border-t border-gray-200">

@@ -14,34 +14,33 @@ import {
   FileText,
   Code,
   Star,
+  Upload,
 } from "lucide-react";
 import { useInterviewerRegister } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RiseLoader } from "react-spinners";
-import {
-  IInterviewerRegistration,
-  interviewerSchema,
-} from "@/validations/InterviewerSchema";
+
 import Link from "next/link";
 import { handleInterviewerRegistrationStep } from "@/utils/handleRegistrationStep";
 import { Roles } from "@/constants/roles";
 import {
   useSetupInterviewerAccount,
-  useUpadteInterviewerProfile,
+  // useUpadteInterviewerProfile,
 } from "@/hooks/useInterviewer";
-import { set } from "zod";
+
 import { useAuthStore } from "@/features/auth/authStore";
+import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
 
 function InterviewerRegistrationPage() {
-  const {setUser}=useAuthStore()
+  const { setUser } = useAuthStore();
   const isGoogleVerified =
     Boolean(useSearchParams().get("isGoogleVerified")) ?? false;
   const interviewerId = useSearchParams().get("id") ?? "";
   const { loading, registerInterviewer } = useInterviewerRegister();
   const { setupInterviewerAccount, loading: isSetupingAcccount } =
     useSetupInterviewerAccount();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IInterviewerRegistration>({
     name: "",
     position: "",
     email: "",
@@ -50,12 +49,12 @@ function InterviewerRegistrationPage() {
     confirmPassword: "",
     experience: 0,
     linkedinProfile: "",
-    language: {} as Record<string, string>,
+    languages: [] as { language: string; level: string }[],
     availableDays: [] as string[],
     professionalSummary: "",
     expertise: [] as string[],
-    status: "", // Add status property
-    isVerified: false, // Add isVerified property
+    isVerified: false,
+    resume: null,
   });
 
   const [registrationStep, setRegistrationStep] = useState(1);
@@ -124,12 +123,16 @@ function InterviewerRegistrationPage() {
         role: Roles.INTERVIEWER,
         token: response.data.accessToken,
         id: response.data.interviewer._id,
-      })
+      });
       toast.success("Account setup successfully");
 
       router.push(`/${Roles.INTERVIEWER}`);
     } else {
-      const response = await registerInterviewer(formData); // Set default status
+      const response = await registerInterviewer({
+        ...formData,
+        status: "pending",
+      });
+      console.log(response); // Set default status
       if (!response.success) {
         toast.error(response.error, {
           className: "custom-error-toast",
@@ -167,24 +170,38 @@ function InterviewerRegistrationPage() {
   const addLanguage = () => {
     if (languageInput.name.trim() === "") return;
 
+    // Check for duplicates
+    if (
+      formData.languages.some(
+        (lang) =>
+          lang.language.toLowerCase() ===
+          languageInput.name.trim().toLowerCase()
+      )
+    ) {
+      toast.error("Language already added");
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
-      language: {
-        ...prev.language,
-        [languageInput.name]: languageInput.level,
-      },
+      languages: [
+        ...prev.languages,
+        {
+          language: languageInput.name.trim(),
+          level: languageInput.level,
+        },
+      ],
     }));
 
     setLanguageInput({ name: "", level: "Beginner" });
   };
 
   const removeLanguage = (langName: string) => {
-    const updatedLanguages = { ...formData.language };
-    delete updatedLanguages[langName];
-
     setFormData((prev) => ({
       ...prev,
-      language: updatedLanguages,
+      languages: prev.languages.filter(
+        (lang) => lang.language.toLowerCase() !== langName.toLowerCase()
+      ),
     }));
   };
 
@@ -221,6 +238,13 @@ function InterviewerRegistrationPage() {
     setFormData((prev) => ({
       ...prev,
       availableDays: prev.availableDays.filter((item) => item !== day),
+    }));
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFormData((prev) => ({
+      ...prev,
+      resume: file!,
     }));
   };
 
@@ -376,6 +400,32 @@ function InterviewerRegistrationPage() {
                   />
                 </div>
 
+                <div className="relative ">
+                  <Upload
+                
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-300"
+                    size={20}
+                  />
+                
+                    <input
+                      type="file"
+                      id="resume"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus-within:ring-2 focus-within:ring-violet-500/50 cursor-pointer">
+                      {formData.resume ? (
+                        <span className="text-gray-400">
+                          {formData.resume.name}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">Upload Resume</span>
+                      )}
+                    </div>
+                  </div>
+               
+
                 <div className="relative">
                   <FileText
                     className="absolute left-3 top-3 text-violet-300"
@@ -460,28 +510,25 @@ function InterviewerRegistrationPage() {
                         Add
                       </button>
                     </div>
-
-                    {Object.keys(formData.language).length > 0 && (
+                    {formData.languages.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.entries(formData.language).map(
-                          ([lang, level]) => (
-                            <div
-                              key={lang}
-                              className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center"
+                        {formData.languages.map((lang) => (
+                          <div
+                            key={lang.language}
+                            className="bg-black/80 border border-violet-900/50 text-white px-3 py-1 rounded-full flex items-center"
+                          >
+                            <span>
+                              {lang.language} - {lang.level}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeLanguage(lang.language)}
+                              className="ml-2 text-violet-300 hover:text-violet-100"
                             >
-                              <span>
-                                {lang} - {level}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => removeLanguage(lang)}
-                                className="ml-2 text-violet-300 hover:text-violet-100"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          )
-                        )}
+                              ×
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

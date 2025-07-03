@@ -1,9 +1,8 @@
+import apiClient from "@/config/apiClient";
 
-import apiClient from '@/config/apiClient';
-
-import { AxiosError } from 'axios';
-import NextAuth, { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+import { AxiosError } from "axios";
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
 
 // const {setUser}=useAuthStore()
@@ -20,22 +19,25 @@ export const authOptions: NextAuthOptions = {
         token.name = profile?.name;
         token.email = profile?.email;
         token.image = profile?.image;
-        
+
         try {
           const response = await apiClient.post(`/auth/google`, {
             name: token.name,
             email: token.email,
             avatar: token.image,
           });
-           console.log(response.data.data)
-        
-            token.accessToken = response.data.data.accessToken;
-            token.id = response.data.data.user._id;
+          console.log(response.data.data);
+
+          token.accessToken = response.data.data.accessToken;
+          token.id = response.data.data.user._id;
           
         } catch (error) {
           console.error("Authentication error:", error);
           if (error instanceof AxiosError) {
-            console.error("Response data:", error.response?.data);
+            token.error = error.response?.data?.message || "Google Auth Failed";
+            console.error("Response data:", error.response?.data.message);
+          } else {
+            token.error = "Something went wrong during authentication";
           }
         }
       }
@@ -46,16 +48,16 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-       session.expires= new Date(Date.now() + 5 * 60 * 1000).toISOString();
+        session.expires = new Date(Date.now() + 5 * 60 * 1000).toISOString();
       }
-      session.accessToken = token.accessToken; 
-      
+      session.accessToken = token.accessToken;
+      session.error=token.error;
+
       return session;
-    }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
 
 const handler = NextAuth(authOptions);
 

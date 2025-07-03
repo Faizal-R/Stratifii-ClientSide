@@ -4,7 +4,7 @@ import { Mail, ArrowRight,  } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSendForgotPasswordOtpRequest } from '@/hooks/useAuth';
 import {  useSearchParams } from 'next/navigation';
-import { BeatLoader, HashLoader, RiseLoader } from 'react-spinners';
+import {  HashLoader } from 'react-spinners';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -67,7 +67,7 @@ function ForgotPasswordPage() {
 
           >
             {loading?<HashLoader size={24} color='white' className='text-center'/>:<>
-              "Send Verification Code..."
+              Send Verification Code...
               <ArrowRight size={18} />
             </> }
           </button>

@@ -6,7 +6,6 @@ import {
   EyeOff,
   ArrowRight,
   ArrowLeft,
-  CrossIcon,
   Trash2,
 } from "lucide-react";
 
@@ -30,7 +29,7 @@ function CandidatePasswordCreation() {
     confirmPassword: "",
     photo: "",
   });
-  const { setupCandidatProfile, loading } = useSetupCandidateProfile();
+  const { setupCandidatProfile } = useSetupCandidateProfile();
 
   const validatePasswordStep = () => {
     const newErrors = {
@@ -116,7 +115,9 @@ function CandidatePasswordCreation() {
         toast.success(resposne.message);
         
         router.push("/signin");
-      } catch (error) {}
+      } catch (error) {
+        console.log(error)
+      }
     }
   };
 

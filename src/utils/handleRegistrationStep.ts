@@ -3,7 +3,7 @@ import {
   CompanyRegistrationStep2Schema,
 } from "@/validations/CompanySchema";
 import { ICompanyRegistration } from "@/validations/CompanySchema";
-import { GoogleAuthInterviewerRegistrationStep1, IInterviewerRegistration, IInterviewerSchema, InterviewerRegistrationStep1, InterviewerRegistrationStep2, InterviewerRegistrationStep3 } from "@/validations/InterviewerSchema";
+import { GoogleAuthInterviewerRegistrationStep1, IInterviewerRegistration, InterviewerRegistrationStep1, InterviewerRegistrationStep2, InterviewerRegistrationStep3 } from "@/validations/InterviewerSchema";
 
 export const handleCompanyRegistrationStep = async (
   formData: ICompanyRegistration,

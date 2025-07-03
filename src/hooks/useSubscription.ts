@@ -95,5 +95,22 @@ export const useCreateSubscriptionPaymentOrder = function () {
   return { createSubscriptionPaymentOrder, loading };
 };
 
+export const useGetSubscriptionDetails = function () {
+  const [loading, setLoading] = useState(false);
+  const getSubscriptionDetails = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await SubscriptionService.getSubscriptionDetails()
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { getSubscriptionDetails, loading };
+};
 
 

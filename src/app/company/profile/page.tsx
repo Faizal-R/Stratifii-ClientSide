@@ -18,6 +18,8 @@ import {
   FileText,
   Users,
   MapPin,
+  CreditCard,
+  Crown,
 } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
 import NextImage from "next/image";
@@ -38,19 +40,25 @@ import { StatusCodes } from "@/constants/statusCodes";
 import { SelectField } from "@/components/ui/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
+import SubscriptionCard from "@/components/features/company/SubscriptionCard";
+import { useGetSubscriptionDetails
+ } from "@/hooks/useSubscription";
+import { ISubscriptionDetails } from "@/types/ISubscription";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+   const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>('profile');
   const [companyData, setCompanyData] = useState<ICompanyProfile>(
     {} as ICompanyProfile
   );
-
+ const [subscription, setSubscription] = useState<ISubscriptionDetails|null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>("");
 
   const { companyProfile, loading } = useFetchCompanyProfile();
   const { updateCompanyProfile, loading: updateLoading } =
     useUpadteCompanyProfile();
   const { logout } = useAuthStore();
+  const {getSubscriptionDetails,loading:subscriptionLoading}=useGetSubscriptionDetails()
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -126,9 +134,24 @@ function CompanyProfilePage() {
       setCompanyData(response.data);
     }
   }, [companyProfile, logout]);
+
+  const fetchSubscriptionDetails=async ()=>{
+    const response = await getSubscriptionDetails();
+    if (!response.success) {
+      toast.error(response.error, {
+        className: "custom-error-toast",
+      });
+    
+    } else {
+      setSubscription(response.data);
+    }
+  }
   useEffect(() => {
     fetchCompanyProfile();
   }, [fetchCompanyProfile]);
+  useEffect(()=>{
+fetchSubscriptionDetails()
+  },[])
 
   const companySizeOptions = ["Small", "Medium", "Startup", "Enterprise"];
   return loading ? (
@@ -136,219 +159,246 @@ function CompanyProfilePage() {
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white flex">
-      {/* Main Section */}
-      <main className="flex-1 p-6 overflow-y-auto ml-60">
-        {loading ? (
-          <RiseLoader className="m-auto" color="white" />
-        ) : (
-          <div className="max-w-6xl mx-auto space-y-8">
-            {/* Profile Header */}
-            <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
-              <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
-                <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
-                  {logoPreview ? (
-                    <NextImage
-                      src={logoPreview}
-                      alt="Company Logo"
-                      className="w-full h-full object-cover"
-                      width={160}
-                      height={144}
-                    />
-                  ) : (
-                    <ImageIcon className="text-gray-400 w-10 h-10" />
-                  )}
-                  {isEditing && !companyData?.companyLogo && (
-                    <div className="w-full">
-                      <label className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
-                        <Upload size={18} />
-                        Upload Logo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoChange}
-                          className="hidden"
-                        />
-                      </label>
-                      <p className="text-xs text-gray-400 text-center mt-2">
-                        Recommended: 400x400px, Max 2MB
-                      </p>
-                    </div>
-                  )}
-                  {isEditing && companyData?.companyLogo && (
-                    <div className="absolute bottom-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-                      <label className="flex items-center justify-center gap-1 font-semibold bg-violet-600 hover:bg-violet-700 px-1 rounded-lg cursor-pointer transition-colors text-base bottom-2 absolute">
-                        <Upload size={12} />
-                        <p className="text-[10px]"> Upload New Logo</p>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoChange}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="pt-20 pb-6 px-8 bg-gray-900/60 backdrop-blur-xl rounded-b-3xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold">
-                      {companyData.companyName}
-                    </h1>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Manage your company&apos;s information and branding
-                    </p>
-                  </div>
-                  <div className="flex gap-4">
-                    {companyData?.status === "approved" && (
-                      <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                        <Check size={16} />
-                        Verified
-                      </span>
-                    )}
-                    {!isEditing ? (
-                      <button
-                        onClick={handleEdit}
-                        className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
-                      >
-                        <Edit2 size={18} />
-                        Edit Profile
-                      </button>
+       <div className="min-h-screen ml-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
+      {/* Navigation Tabs */}
+      <div className="bg-gray-900/60 backdrop-blur-xl border-b border-gray-800">
+        <div className="max-w-6xl mx-auto px-6">
+          <nav className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'profile'
+                  ? 'text-violet-400 border-violet-400'
+                  : 'text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <Building className="w-4 h-4" />
+              Company Profile
+            </button>
+            <button
+              onClick={() => setActiveTab('subscription')}
+              className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'subscription'
+                  ? 'text-violet-400 border-violet-400'
+                  : 'text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <Crown className="w-4 h-4" />
+              Subscription
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="p-6 overflow-y-auto">
+        <div className="max-w-6xl mx-auto space-y-8">
+          {activeTab === 'profile' ? (
+            <>
+              {/* Profile Header */}
+              <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
+                <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
+                  <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
+                    {companyData.companyLogo ? (
+                      <img
+                        src={companyData.companyLogo}
+                        alt="Company Logo"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleCancel}
-                          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg"
-                        >
-                          <X size={18} />
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSave}
-                          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
-                        >
-                          {updateLoading ? (
-                            <SyncLoader color="white" size={12} />
-                          ) : (
-                            <>
-                              <Save size={18} />
-                              Save
-                            </>
-                          )}
-                        </button>
+                      <Building className="text-gray-400 w-10 h-10" />
+                    )}
+                    {isEditing && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <label className="flex items-center justify-center gap-1 font-semibold bg-violet-600 hover:bg-violet-700 px-2 py-1 rounded-lg cursor-pointer transition-colors text-xs">
+                          <Upload size={12} />
+                          Upload Logo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                          />
+                        </label>
                       </div>
                     )}
                   </div>
                 </div>
+                <div className="pt-20 pb-6 px-8 bg-gray-900/60 backdrop-blur-xl rounded-b-3xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h1 className="text-3xl font-bold">{companyData.companyName}</h1>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Manage your company's information and branding
+                      </p>
+                    </div>
+                    <div className="flex gap-4">
+                      {companyData.status === "approved" && (
+                        <span className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                          <Check size={16} />
+                          Verified
+                        </span>
+                      )}
+                      {!isEditing ? (
+                        <button
+                          onClick={handleEdit}
+                          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
+                        >
+                          <Edit2 size={18} />
+                          Edit Profile
+                        </button>
+                      ) : (
+                        <div className="flex gap-3">
+                          <button
+                            onClick={handleCancel}
+                            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg"
+                          >
+                            <X size={18} />
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSave}
+                            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
+                          >
+                            <Save size={18} />
+                            Save
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
+                  <InputField
+                    icon={Building}
+                    label="Company Name"
+                    placeholder="Enter company name"
+                    value={companyData.companyName}
+                    name="companyName"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={Globe}
+                    label="Company Website"
+                    placeholder="Enter website"
+                    value={companyData.companyWebsite}
+                    name="companyWebsite"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={FileCheck2}
+                    label="Registration No."
+                    placeholder="Enter reg. number"
+                    value={companyData.registrationCertificateNumber}
+                    name="registrationCertificateNumber"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={Users}
+                    label="Employees"
+                    placeholder="Total employees"
+                    value={companyData.numberOfEmployees!}
+                    name="numberOfEmployees"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                </div>
+
+                <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
+                  <InputField
+                    icon={Mail}
+                    label="Email"
+                    placeholder="Enter email"
+                    value={companyData.email}
+                    name="email"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={Phone}
+                    label="Phone"
+                    placeholder="Enter phone"
+                    value={companyData.phone}
+                    name="phone"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={Linkedin}
+                    label="LinkedIn"
+                    placeholder="Enter LinkedIn URL"
+                    value={companyData.linkedInProfile!}
+                    name="linkedInProfile"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                  <InputField
+                    icon={MapPin}
+                    label="Headquarters"
+                    placeholder="Enter location"
+                    value={companyData.headquartersLocation!}
+                    name="headquartersLocation"
+                    isEditing={isEditing}
+                    handleChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              {/* Company Description & Size */}
               <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
                 <InputField
-                  icon={Building}
-                  label="Company Name"
-                  placeholder="Enter company name"
-                  value={companyData.companyName}
-                  name="companyName"
+                  icon={FileText}
+                  label="Company Description"
+                  placeholder="Describe your company..."
+                  value={companyData.description!}
+                  name="description"
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
-                <InputField
-                  icon={Globe}
-                  label="Company Website"
-                  placeholder="Enter website"
-                  value={companyData.companyWebsite}
-                  name="companyWebsite"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
-                  icon={FileCheck2}
-                  label="Registration No."
-                  placeholder="Enter reg. number"
-                  value={companyData.registrationCertificateNumber}
-                  name="registrationCertificateNumber"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
-                  icon={Users}
-                  label="Employees"
-                  placeholder="Total employees"
-                  value={companyData.numberOfEmployees || ""}
-                  name="numberOfEmployees"
+                <SelectField
+                  icon={Building2}
+                  label="Company Size"
+                  value={companyData.companySize!}
+                  name="companySize"
+                  options={companySizeOptions}
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
               </div>
-
-              <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
-                <InputField
-                  icon={Mail}
-                  label="Email"
-                  placeholder="Enter email"
-                  value={companyData.email}
-                  name="email"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
-                  icon={Phone}
-                  label="Phone"
-                  placeholder="Enter phone"
-                  value={companyData.phone}
-                  name="phone"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
-                  icon={Linkedin}
-                  label="LinkedIn"
-                  placeholder="Enter LinkedIn URL"
-                  value={companyData.linkedInProfile || ""}
-                  name="linkedInProfile"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
-                  icon={MapPin}
-                  label="Headquarters"
-                  placeholder="Enter location"
-                  value={companyData.headquartersLocation || ""}
-                  name="headquartersLocation"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
+            </>
+          ) : (
+            /* Subscription Tab */
+            <div className="space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl font-bold mb-2">Subscription Management</h1>
+                <p className="text-gray-400">Manage your subscription plan and billing details</p>
               </div>
-            </div>
 
-            {/* Company Description & Size */}
-            <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
-              <InputField
-                icon={FileText}
-                label="Company Description"
-                placeholder="Describe your company..."
-                value={companyData.description || ""}
-                name="description"
-                isEditing={isEditing}
-                handleChange={handleChange}
-              />
-              <SelectField
-                icon={Building2}
-                label="Company Size"
-                value={companyData.companySize || ""}
-                name="companySize"
-                options={companySizeOptions}
-                isEditing={isEditing}
-                handleChange={handleChange}
-              />
+              {subscriptionLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                </div>
+              ) : subscription ? (
+                <SubscriptionCard subscription={subscription} />
+              ) : (
+                <div className="bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-800 text-center">
+                  <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold mb-2">No Active Subscription</h3>
+                  <p className="text-gray-400 mb-6">Choose a plan to get started with premium features</p>
+                  <button className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg transition-colors">
+                    View Plans
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );

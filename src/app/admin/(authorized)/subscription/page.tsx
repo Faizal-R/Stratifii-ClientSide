@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Check,
-  CrossIcon,
+
   Edit2,
   PackagePlus,
-  Plus,
+
   Smile,
   X,
 } from "lucide-react";
@@ -30,7 +30,7 @@ export default function SubscriptionPage() {
 
   const { getSubscriptions, loading: isFetchingSubscription } =
     useGetAllSubscriptions();
-  const { createSubscription, loading } = useCreateSubscription();
+  const { createSubscription } = useCreateSubscription();
   const { updateSubscription } = useUpdateSubscription();
 
   const handleSaveSubscription = async (subscription: ISubscription) => {
@@ -93,7 +93,7 @@ export default function SubscriptionPage() {
           <h1 className="text-3xl font-bold text-violet-100">
             Subscription Plans
           </h1>
-          {subscriptions.length !== 0 && subscriptions.length < 3 && (
+          {subscriptions.length !== 0 && (
             <div className="flex justify-end w-[94%]">
               <button
                 onClick={() => setIsModalOpen(true)}

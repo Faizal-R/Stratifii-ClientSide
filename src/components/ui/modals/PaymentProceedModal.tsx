@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+
 import { 
   X, 
   Shield, 
@@ -59,7 +59,7 @@ const PaymentProceedModal: React.FC<PaymentProceedModalProps> = ({ isOpen, onClo
             
             <div className="space-y-6">
               <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
-                <p className="text-lg font-semibold mb-2">What's Included:</p>
+                <p className="text-lg font-semibold mb-2">Whats Included:</p>
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 size={18} className="text-green-300" />

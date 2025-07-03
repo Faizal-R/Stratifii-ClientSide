@@ -14,3 +14,20 @@ export interface ISubscription {
   isActive: boolean;
   features: ISubscriptionFeatures;
 }
+
+
+export interface ISubscriptionDetails {
+  subscriberId: string;
+  planId: string;
+  status: "active" | "expired" | "canceled" | "pending";
+  planDetails: {
+    name: string;
+    price: number;
+    currency: string;
+    interval: "monthly" | "yearly";
+    features: string[];
+  };
+  startDate: Date;
+  endDate: Date;
+  transactionId: string;
+}

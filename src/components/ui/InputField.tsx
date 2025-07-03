@@ -6,14 +6,17 @@ export const InputField = ({
   isEditing,
   handleChange,
   placeholder,
+  type
 }: {
   icon: React.ComponentType<{ size: number }>;
   label: string;
-  value: string;
+  value: string|number;
   name: string;
   isEditing: boolean;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
+  type?:string
+
 }) => {
   return (
     <div className="mb-6">
@@ -23,7 +26,7 @@ export const InputField = ({
       </label>
       {isEditing ? (
         <input
-          type="text"
+          type={type}
           name={name}
           value={value}
           placeholder={placeholder}
@@ -32,7 +35,7 @@ export const InputField = ({
         />
       ) : (
         <div className="text-white bg-gray-900 rounded-lg px-4 py-2">
-          {value?.length > 1 ? value : placeholder}
+          {(value as string)?.length > 1 ? value : placeholder}
         </div>
       )}
     </div>

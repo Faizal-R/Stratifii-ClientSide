@@ -2,7 +2,7 @@ import React from 'react'
 
 const PaymentPage = () => {
   return (
-    <div>PaymentPage</div>
+    <div className='text-4xl text-white'>PaymentPage</div>
   )
 }
 

@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems, handleModalState }) => {
           <Building2 className="text-violet-500" size={32} />
           <span className="font-bold text-lg text-white">Stratifii</span>
         </div>
-        {/* <button
+        <button
           onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors border border-violet-900 text-white"
         >
@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems, handleModalState }) => {
           ) : (
             <ChevronLeft size={20} />
           )}
-        </button> */}
+        </button>
       </div>
 
       <nav className="flex-1 p-4">

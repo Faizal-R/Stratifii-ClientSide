@@ -1,4 +1,4 @@
-interface ICandidate {
+export interface ICandidate {
   _id: string;
   name: string;
   resume:string
@@ -8,7 +8,7 @@ interface ICandidate {
   avatar?:string
 }
 
-interface ICandidateJob{
+export interface ICandidateJob{
     candidate: ICandidate;
     interviewStatus:
         | "pending"

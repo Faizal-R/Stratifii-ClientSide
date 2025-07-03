@@ -56,14 +56,16 @@ apiClient.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       const user = JSON.parse(localStorage.getItem("user") || "null");
-      console.log(user.role)
-      const newAccessToken = await refreshAccessToken(user.role!);
-      console.log("newAccessToken", newAccessToken); // Backend call
-
-      if (newAccessToken) {
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
-        return apiClient(originalRequest);
+      // console.log(user.role)
+      if(user){
+        const newAccessToken = await refreshAccessToken(user.role!);
+        console.log("newAccessToken", newAccessToken); // Backend call
+  
+        if (newAccessToken) {
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+  
+          return apiClient(originalRequest);
+        }
       }
     }
 

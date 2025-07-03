@@ -42,7 +42,7 @@ export const JobService = {
         return {
           success: false,
           status: error.status,
-          error: "Unexpected error occurred While Creating Job",
+          error: error.response?.data.message,
         };
     }
   },

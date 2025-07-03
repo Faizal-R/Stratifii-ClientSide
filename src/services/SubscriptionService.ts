@@ -104,5 +104,25 @@ export const SubscriptionService = {
         error: "Unexpected error occurred While Verifying Subscriptions.",
       };
     }
+  },
+  getSubscriptionDetails: async () => {
+    try {
+      const response = await apiClient.get(`/company/subscription/plan`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          status:error.status,
+          error:
+            error.response?.data.message ||
+            "An Error occured While Fetching Subscription By Company Id",
+        };
+      }
+      return {
+        success: false,
+        error: "Unexpected error occurred While Fetching Subscription By Company Id.",
+      };
+    }
   }
 };

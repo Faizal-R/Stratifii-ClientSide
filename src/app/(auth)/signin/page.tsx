@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { setTimeout } from "timers";
+// import { setTimeout } from "timers";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,7 +56,7 @@ function App() {
     useState(false);
   const { signIn, loading } = useSignIn();
 
-  const { verifyUserAccount, loading: verifyLoading } = useVerifyUserAccount();
+  const { verifyUserAccount } = useVerifyUserAccount();
   const router = useRouter();
   const { setUser, user } = useAuthStore();
 

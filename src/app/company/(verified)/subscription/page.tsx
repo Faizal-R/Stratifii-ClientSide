@@ -9,8 +9,9 @@ import {
 } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { IRazorpayResponse } from "@/types/IRazorpay";
+// import { IRazorpayResponse } from "@/types/IRazorpay";
 import { initiateRazorpayPayment, loadRazorpayScript } from "@/utils/razorpay";
+import useSubscriptionStore from "@/features/company/subscriberStore";
 const CompanySubscriptionPage = () => {
   const { getSubscriptions, loading } = useGetAllSubscriptions();
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -18,6 +19,8 @@ const CompanySubscriptionPage = () => {
     useCreateSubscriptionPaymentOrder();
   const { verfiySubscriptionPaymentAndPurchaseSubscription } =
     useVerfiySubscriptionPaymentAndPurchaseSubscription();
+
+    const {setSubscription,subscription:premium}=useSubscriptionStore()
 
   const processSubscriptionPurchase = async (subscription: ISubscription) => {
     const response = await createSubscriptionPaymentOrder(subscription.price);
@@ -44,7 +47,7 @@ const CompanySubscriptionPage = () => {
           response,
           subscription._id!
         );
-
+       console.log(res)
         if (!res.success) {
           toast.error(res.error, {
             className: "custom-error-toast",
@@ -55,6 +58,12 @@ const CompanySubscriptionPage = () => {
         toast.success(res.message, {
           className: "custom-toast",
         });
+      setSubscription({
+        planId:res.data.planId,
+        status:"active",
+        subscriberId:res.data.subscriberId
+      })
+        
       },
       onFailure: (error) => {
         toast.error("Something went wrong during payment!", {
@@ -189,12 +198,20 @@ const CompanySubscriptionPage = () => {
                   </ul>
                 </ul>
               </div>
-              <button
-                onClick={() => processSubscriptionPurchase(subscription)}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 bg-violet-800 text-white font-medium rounded-lg shadow-md hover:bg-violet-700 transition duration-300"
-              >
-                Subscribe Now
-              </button>
+<button
+  onClick={() => subscription._id !== premium?.planId && processSubscriptionPurchase(subscription)}
+  className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out 
+    ${
+      subscription._id === premium?.planId
+        ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white cursor-default'
+        : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-700 text-white hover:brightness-110'
+    }`}
+  disabled={subscription._id === premium?.planId}
+>
+  {subscription._id === premium?.planId ? 'Current Plan' : 'Select Plan'}
+</button>
+
+
             </div>
           ))}
         </div>

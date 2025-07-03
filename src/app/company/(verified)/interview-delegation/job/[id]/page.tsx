@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Upload,
-  X,
   FileText,
   Users,
   PlayCircle,
@@ -17,17 +16,18 @@ import {
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { Modal } from "@/components/ui/modals/ConfirmationModal";
+// import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import PaymentProceedModal from "@/components/ui/modals/PaymentProceedModal";
 import {
   usePaymentOrderCreation,
   usePaymentVerificationAndCreatePaymentRecord,
 } from "@/hooks/usePayment";
 import { initiateRazorpayPayment } from "@/utils/razorpay";
+import { ICandidateJob } from "@/types/ICandidate";
 
-interface FileWithPreview extends File {
-  preview?: string;
-}
+// interface FileWithPreview extends File {
+//   preview?: string;
+// }
 
 function JobManagementPage() {
   const { paymentOrderCreation } = usePaymentOrderCreation();
@@ -133,11 +133,11 @@ function JobManagementPage() {
   }, [getCandidatesByJob]);
 
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="w-screen h-screen flex items-center justify-center ">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className="min-h-screen  ml-64">
+    <div className="min-h-screen  ml-64 overflow-x-hidden">
       {/* Header */}
       <div className="text-violet-300 shadow">
         <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
@@ -188,7 +188,7 @@ function JobManagementPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {candidates.map((candidate) => (
               <div
-                key={candidate.candidate._id}
+                key={candidate.candidate?._id}
                 className="relative group bg-gradient-to-br from-violet-950 via-gray-950 to-black/90 backdrop-blur-xl border border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 {/* Glow background */}
@@ -198,18 +198,18 @@ function JobManagementPage() {
                 <div className="relative z-10 flex items-center gap-4 mb-4">
                   <img
                     src={
-                      candidate.candidate.avatar ||
+                      candidate.candidate?.avatar ||
                       "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
                     }
-                    alt={candidate.candidate.name}
+                    alt={candidate.candidate?.name}
                     className="h-16 w-16 rounded-full object-cover border-2 border-violet-600 shadow-md"
                   />
                   <div>
                     <h2 className="text-lg font-bold text-white">
-                      {candidate.candidate.name}
+                      {candidate.candidate?.name}
                     </h2>
                     <p className="text-sm text-gray-400">
-                      {candidate.candidate.email}
+                      {candidate.candidate?.email}
                     </p>
                   </div>
                 </div>
@@ -225,13 +225,13 @@ function JobManagementPage() {
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold
         ${
-          candidate.candidate.status === "pending"
+          candidate.candidate?.status === "pending"
             ? "bg-yellow-200 text-yellow-900"
             : "bg-green-300 text-green-900"
         }
       `}
                     >
-                      {candidate.candidate.status}
+                      {candidate.candidate?.status}
                     </span>
                   </div>
 
@@ -241,9 +241,9 @@ function JobManagementPage() {
                       <FileText size={16} className="text-violet-400" />
                       Resume
                     </div>
-                    {candidate.candidate.resume ? (
+                    {candidate.candidate?.resume ? (
                       <a
-                        href={`https://docs.google.com/viewer?url=${candidate.candidate.resume}&embedded=true`}
+                        href={`https://docs.google.com/viewer?url=${candidate.candidate?.resume}&embedded=true`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-violet-700 text-white text-xs px-3 py-1 rounded-full hover:bg-violet-800 transition"

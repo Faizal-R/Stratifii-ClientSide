@@ -15,46 +15,57 @@ export default function VerifyPage() {
   // Get the setUser function from your store
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "loading") {
-      return; // Still loading, show the loading screen
-    }
+useEffect(() => {
+  if (status === "loading") return;
 
-    if (status === "unauthenticated") {
-      // Redirect to login page if the user is not authenticated
-      router.push("/signin");
+  if (status === "unauthenticated") {
+    router.push("/signin");
+    return;
+  }
+
+  if (status === "authenticated") {
+    // ⚠️ Show toast and sign out if there's a session error from backend
+    if (session.error) {
+      toast.error(session.error,{
+        className:"custom-error-toast"
+      });
+      setTimeout(() => {
+        signOut({ callbackUrl: "/signin" }); // Sign out and redirect
+      }, 4000);
       return;
     }
 
-    if (status === "authenticated") {
-      // Store the user in the state management system
-      setUser({
-        id: session.user.id,
-        email: session.user.email!,
-        name: session.user.name!,
-        token: session.accessToken!,
-        role: Roles.INTERVIEWER,
-      });
-      const fetchInterviewer = async () => {
-        const response = await interviewerProfile();
-        if (!response.success) {
-          toast(response.error);
-          return;
-        }
+    setUser({
+      id: session.user.id,
+      email: session.user.email!,
+      name: session.user.name!,
+      token: session.accessToken!,
+      role: Roles.INTERVIEWER,
+    });
 
-        const data = response.data;
-        // setInterviewer(data);
+    const fetchInterviewer = async () => {
+      const response = await interviewerProfile();
 
-        if (data.isVerified) {
-          router.push("/interviewer");
-        }
-      };
-      router.push(
-        `/register/interviewer?isGoogleVerified=true&&id=${session.user.id}`
-      );
-      fetchInterviewer();
-    }
-  }, [status, session, router, setUser, interviewerProfile]);
+      if (!response.success) {
+        toast.error(response.error);
+        return;
+      }
+
+      const data = response.data;
+
+      if (data.isVerified) {
+        router.push("/interviewer");
+      } else {
+        router.push(
+          `/register/interviewer?isGoogleVerified=true&&id=${session.user.id}`
+        );
+      }
+    };
+
+    fetchInterviewer();
+  }
+}, [status, session, router, setUser, interviewerProfile]);
+
 
   // Show a loading screen while verifying the session
   return (

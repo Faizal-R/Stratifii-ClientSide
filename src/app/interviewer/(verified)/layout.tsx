@@ -4,9 +4,10 @@ import { IInterviewer } from "@/types/IInterviewer";
 
 import { CheckCircle, Hourglass, Info } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { RiseLoader } from "react-spinners";
 import { toast } from "sonner";
-const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
-  const { interviewerProfile } = useFetchInterviewerProfile();
+const InterviewerVerifiedLayout = ({ children }: { children: ReactNode }) => {
+  const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const [interviewer, setInterviewer] = useState({} as IInterviewer);
 
   const hasFetched = useRef(false);
@@ -18,16 +19,23 @@ const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
 
     const fetchInterviewer = async () => {
       const response = await interviewerProfile();
+      console.log(response);
       if (!response.success) {
         toast(response.error);
         return;
       }
       setInterviewer(response.data);
+      console.log("Interviewer in Layout", response.data);
     };
 
     fetchInterviewer();
   }, [interviewerProfile]);
-  return interviewer.status === "approved" ? (
+  console.log(interviewer);
+  return loading ? (
+    <div className="w-screen h-screen flex items-center justify-center">
+      <RiseLoader className="" color="white" />
+    </div>
+  ) : interviewer.status === "approved" ? (
     <div>{children}</div>
   ) : (
     <div className="flex items-center justify-center min-h-screen">
@@ -73,4 +81,4 @@ const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default ComanyVerfiedLayout;
+export default InterviewerVerifiedLayout;
