@@ -124,7 +124,7 @@ const CompanySubscriptionPage = () => {
               <div className="p-6 ">
                 <div className="mb-6 text-center">
                   <span className="text-4xl  font-bold text-violet-600">
-                    ${subscription.price}
+                    ₹{subscription.price}
                   </span>
                   <span className="text-gray-500">/month</span>
                 </div>

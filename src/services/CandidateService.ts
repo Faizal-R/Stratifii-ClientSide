@@ -20,4 +20,15 @@ export const CandidateService = {
       }
     }
   },
+
+  getCandidateProfile: async (candidateId: string) => {
+    try {
+      const response = await apiClient.get(`/candidate/profile/${candidateId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return { success: false, error: error.response?.data.message || "An Error Occured while fetching candidate profile" };
+      }
+    }
+  }
 };

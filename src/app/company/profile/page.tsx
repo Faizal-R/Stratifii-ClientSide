@@ -175,6 +175,8 @@ fetchSubscriptionDetails()
               <Building className="w-4 h-4" />
               Company Profile
             </button>
+            {
+              subscription&&subscription.status==="active" && (
             <button
               onClick={() => setActiveTab('subscription')}
               className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
@@ -186,6 +188,8 @@ fetchSubscriptionDetails()
               <Crown className="w-4 h-4" />
               Subscription
             </button>
+              )
+            }
           </nav>
         </div>
       </div>

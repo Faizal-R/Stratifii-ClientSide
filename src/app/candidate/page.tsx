@@ -14,7 +14,7 @@ const CandidateDashboard = () => {
       }
   },[router,user])
   return (
-    <div className="text-white text-4xl">CandidateDashboard</div>
+    <div className="text-white text-4xl ml-64">CandidateDashboard</div>
   )
 }
 
