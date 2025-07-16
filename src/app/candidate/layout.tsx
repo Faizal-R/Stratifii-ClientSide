@@ -1,12 +1,14 @@
-"use client"
-import { Modal } from "@/components/ui/modals/ConfirmationModal";
+"use client";
+import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import Sidebar from "@/components/layout/Sidebar";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useSignoutUser } from "@/hooks/useAuth";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
-import { CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
+import { CalendarSearchIcon, CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
+import withProtectedRoute from "@/lib/withProtectedRoutes";
+import { Roles } from "@/constants/roles";
 
 const navItems = [
   {
@@ -20,7 +22,13 @@ const navItems = [
     label: "Profile",
     icon: UserCircle,
     route: "/candidate/profile",
-},
+  },
+  {
+    id: "interviews",
+    label: "Interviews",
+    icon:CalendarSearchIcon,
+    route: "/candidate/interviews",
+  },
 ];
 
 const CandidateLayout = ({ children }: { children: ReactNode }) => {
@@ -63,4 +71,4 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default CandidateLayout;
+export default withProtectedRoute(CandidateLayout,[Roles.CANDIDATE]);

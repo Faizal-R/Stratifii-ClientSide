@@ -1,4 +1,5 @@
 export interface IJob {
+  _id?:string;
   companyId?: string;
   position: string;
   description: string;
@@ -7,23 +8,29 @@ export interface IJob {
   status?: "open" | "in-progress" | "completed";
   experienceRequired: number;
   interviewDuration: number;
-  candidates?: ICandidateJob[];
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface ICandidateJob {
-  candidateId: string;
-  interviewStatus:
-    | "pending"
-    | "mock_started"
-    | "mock_completed"
-    | "shortlisted"
-    | "final_scheduled"
-    | "final_completed"
-    | "rejected";
-  interviewerId?: string | null;
-  interviewTimeZone?: string; 
-  scheduledTime?: Date;
 
+
+
+export interface DelegatedJob {
+  delegatedCandidateId: string;
+  jobId: string;
+  jobTitle: string;
+  companyName: string;
+  mockStatus: "mock_pending" | "mock_started"|"mock_failed" | "mock_completed" | "shortlisted" | "final_scheduled" | "final_completed" | "rejected";
+  interviewDateTime?: string; // ISO string for scheduled interview
+  interviewType?: "video" | "in_person" | "phone";
+  interviewLocation?: string; // Meeting link or physical address
+  interviewDuration?: number; // Duration in minutes
+  isQualifiedForFinal?:boolean
+}
+
+
+export interface JobsApiResponse {
+  jobs: DelegatedJob[];
+  success: boolean;
+  message?: string;
 }

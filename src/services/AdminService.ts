@@ -22,9 +22,10 @@ export const AdminService = {
       return {
         success: false,
         error: "Unexpected error occurred While SignIn",
+     
       };
     }
-  },
+  },    
 
   getCompanies: async function (status: string) {
     try {
@@ -134,12 +135,15 @@ export const AdminService = {
       };
     }
   },
-  handleInterviewerVerification: async (interviewerId: string, isApproved: boolean) => {
+  handleInterviewerVerification: async (interviewerId: string, isApproved: boolean,interviewerName:string,interviewerEmail:string,reasonForRejection?:string) => {
     try {
       const response = await apiClient.patch(
         `/admin/interviewers/${interviewerId}/verify`,
         {
           isApproved,
+          interviewerName,
+          interviewerEmail,
+          reasonForRejection
         }
       );
       return response.data;

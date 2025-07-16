@@ -102,10 +102,10 @@ export const useHandleCompanyVerification=()=>{
 }
 export const useHandleInterveiwerVerification=()=>{
   const [loading, setLoading] = useState(false);
-  const verifyOrRejectInterviewer = useCallback(async (interviewerId:string,isApproved:boolean) => {
+  const verifyOrRejectInterviewer = useCallback(async (interviewerId:string,isApproved:boolean,interviewerName:string,interviewerEmail:string,reasonForRejection?:string) => {
     setLoading(true);
     try {
-      const response = await AdminService.handleInterviewerVerification(interviewerId,isApproved);
+      const response = await AdminService.handleInterviewerVerification(interviewerId,isApproved,interviewerName,interviewerEmail,reasonForRejection);
       return response;
     } finally {
       setLoading(false);

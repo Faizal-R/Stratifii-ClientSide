@@ -1,16 +1,13 @@
 
+import { ISubscriptionDetails } from '@/types/ISubscription';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface SubscriptionRecord {
-  subscriberId: string;
-  planId: string;
-  status: "active" | "expired" | "canceled" | "pending";
-}
+
 
 interface SubscriptionState {
-  subscription: SubscriptionRecord | null;
-  setSubscription: (sub: SubscriptionRecord) => void;
+  subscription: ISubscriptionDetails | null;
+  setSubscription: (sub: ISubscriptionDetails) => void;
   clearSubscription: () => void;
 }
 

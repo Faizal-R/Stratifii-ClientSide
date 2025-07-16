@@ -6,10 +6,10 @@ import { Roles } from "@/constants/roles";
 import { useAdminInterviewers, useHandleInterveiwerVerification, useInterviewerUpdate } from "@/hooks/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-import { Modal } from "@/components/ui/modals/ConfirmationModal";
+import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { IInterviewer } from "@/types/IInterviewer";
-import InterviewerDetailsModal from "@/components/ui/modals/UserDetailsModal";
+import InterviewerDetailsModal from "@/components/ui/Modals/UserDetailsModal";
 
 function AdminInterviewerManagement() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -78,7 +78,8 @@ function AdminInterviewerManagement() {
   };
 
   const handleCompanyVerification = async(interviewerId: string, isApproved: boolean) => {
-    const response = await verifyOrRejectInterviewer(interviewerId, isApproved);
+    let matchedInterviewer=interviewers.find(i=>i._id===interviewerId)
+    const response = await verifyOrRejectInterviewer(interviewerId, isApproved,matchedInterviewer?.name!,matchedInterviewer?.email!);
     if (!response.success) {
       toast.error(response.error);
       return;

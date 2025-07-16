@@ -3,11 +3,12 @@ import { IJob } from "@/types/IJob";
 import { isAxiosError } from "axios";
 
 export const JobService = {
-  getJobs: async () => {
+  getJobs: async (status:string|number=1) => {
     try {
-      const response = await apiClient.get("/company/jobs");
+      const response = await apiClient.get(`/company/jobs/${status}`);
       return response.data;
     } catch (error) {
+      console.log(error)
       if (isAxiosError(error))
         return {
           success: false,
@@ -15,6 +16,7 @@ export const JobService = {
           error:
             error.response?.data.message ||
             "Unexpected error occurred While Fetching Jobs",
+           
         };
     }
   },

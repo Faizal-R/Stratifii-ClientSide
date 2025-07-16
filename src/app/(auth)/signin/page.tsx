@@ -19,14 +19,15 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "../../../validations/AuthSchema";
-import { GoogleAuthButton } from "../../../components/ui/GoogleAuthButton";
+import { GoogleAuthButton } from "../../../components/ui/Buttons/GoogleAuthButton";
 // import Link from "next/link";
-import { Modal } from "../../../components/ui/modals/ConfirmationModal";
+import { Modal } from "../../../components/ui/Modals/ConfirmationModal";
 
 import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/roles";
 import Link from "next/link";
 import { StatusCodes } from "@/constants/statusCodes";
+import useSubscriptionStore from "@/features/company/subscriberStore";
 
 const roles = [
   {
@@ -55,6 +56,7 @@ function App() {
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
     useState(false);
   const { signIn, loading } = useSignIn();
+  const {setSubscription}=useSubscriptionStore()
 
   const { verifyUserAccount } = useVerifyUserAccount();
   const router = useRouter();
@@ -87,12 +89,16 @@ function App() {
 
       return;
     }
+    console.log(response)
     toast(response.message);
     const { email, _id: id, phone } = response.data.user;
     const name =
       selectedRole === "company"
         ? response.data.user.companyName
         : response.data.user.name;
+        if(selectedRole===Roles.COMPANY){
+          setSubscription(response.data.subscription)
+        }
 
     setUser({
       email,
@@ -102,6 +108,7 @@ function App() {
       name,
       phone,
     });
+    
   };
   const handleModalConfirm = () => {
     router.push(`/forgot-password?role=${selectedRole}`);

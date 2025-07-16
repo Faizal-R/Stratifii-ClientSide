@@ -6,7 +6,7 @@ export const CandidateService = {
     try {
       const response = await apiClient.post(
         `/candidate/setup`,
-      candidateCredentials,
+        candidateCredentials,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -16,7 +16,12 @@ export const CandidateService = {
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message || "An Error Occured while setting up candidate" };
+        return {
+          success: false,
+          error:
+            error.response?.data.message ||
+            "An Error Occured while setting up candidate",
+        };
       }
     }
   },
@@ -27,8 +32,44 @@ export const CandidateService = {
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message || "An Error Occured while fetching candidate profile" };
+        return {
+          success: false,
+          error:
+            error.response?.data.message ||
+            "An Error Occured while fetching candidate profile",
+        };
       }
     }
-  }
+  },
+  getDelegatedJobs: async () => {
+    try {
+      const response = await apiClient.get("/candidate/delegated-jobs");
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          error:
+            error.response?.data.message ||
+            "An Error Occured while fetching delegated jobs "
+        };
+      }
+    }
+  },
+
+  getMockInterviewQuestions: async (delegationId:string) => {
+    try {
+      const response = await apiClient.get(`/candidate/mock-interview/questions/${delegationId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          error:
+            error.response?.data.message ||
+            "An Error Occured while fetching delegated jobs "
+        };
+      }
+    }
+  },
 };

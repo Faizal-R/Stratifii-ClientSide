@@ -25,8 +25,8 @@ function AdminSignIn() {
     e.preventDefault();
     const response = await signIn({ email, password });
     if (!response.success) {
-      toast.error(response.error,{
-        className:"custom-error-toast"
+      toast.error(response.error, {
+        className: "custom-error-toast",
       });
       return;
     } else {
@@ -73,7 +73,6 @@ function AdminSignIn() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-violet-950 bg-violet-900 text-white rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent placeholder-gray-300"
                 placeholder="admin@example.com"
-                
               />
             </div>
           </div>

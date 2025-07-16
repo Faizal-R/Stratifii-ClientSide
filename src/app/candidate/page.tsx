@@ -1,21 +1,32 @@
-"use client"
-import { Roles } from '@/constants/roles'
-import { useAuthStore } from '@/features/auth/authStore'
-import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+"use client";
+import React, { useState } from 'react';
+import { Clock, User, BookOpen, Award, Play } from 'lucide-react';
+import { Timer } from '@/components/features/common/Timer';
+import RulesModal from '@/components/features/candidate/RulesAndGuidanceModal';
+import { useRouter } from 'next/navigation';
+import GuidanceSection from '@/components/features/candidate/GuidanceSection';
 
-const CandidateDashboard = () => {
+
+
+const CandidateDashboard: React.FC = () => {
+  const [showRulesModal, setShowRulesModal] = useState(false);
   const router=useRouter()
-  const user=useAuthStore((state)=>state.user)
-  useEffect(()=>{
-      if(!user || user.role!==Roles.CANDIDATE){
-        router.push('/signin')
-        return
-      }
-  },[router,user])
-  return (
-    <div className="text-white text-4xl ml-64">CandidateDashboard</div>
-  )
-}
 
-export default CandidateDashboard
+  const handleStartInterview = () => {
+    setShowRulesModal(true);
+  };
+
+  const handleAcceptRules = () => {
+    setShowRulesModal(false);
+     router.push('/candidate/mock-interview');
+  };
+
+  return (
+    <div className='ml-64 bg-gradient-to-br from-black via-black to-violet-950'>
+
+      <GuidanceSection/>
+    </div>
+  );
+};
+
+export default CandidateDashboard;

@@ -12,6 +12,7 @@ import { RiseLoader } from "react-spinners";
 // import { IRazorpayResponse } from "@/types/IRazorpay";
 import { initiateRazorpayPayment, loadRazorpayScript } from "@/utils/razorpay";
 import useSubscriptionStore from "@/features/company/subscriberStore";
+import SubscriptionCard from "@/components/features/company/SubscriptionCard";
 const CompanySubscriptionPage = () => {
   const { getSubscriptions, loading } = useGetAllSubscriptions();
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -20,7 +21,7 @@ const CompanySubscriptionPage = () => {
   const { verfiySubscriptionPaymentAndPurchaseSubscription } =
     useVerfiySubscriptionPaymentAndPurchaseSubscription();
 
-    const {setSubscription,subscription:premium}=useSubscriptionStore()
+  const { setSubscription, subscription: premium } = useSubscriptionStore();
 
   const processSubscriptionPurchase = async (subscription: ISubscription) => {
     const response = await createSubscriptionPaymentOrder(subscription.price);
@@ -47,7 +48,7 @@ const CompanySubscriptionPage = () => {
           response,
           subscription._id!
         );
-       console.log(res)
+        console.log(res);
         if (!res.success) {
           toast.error(res.error, {
             className: "custom-error-toast",
@@ -58,12 +59,15 @@ const CompanySubscriptionPage = () => {
         toast.success(res.message, {
           className: "custom-toast",
         });
-      setSubscription({
-        planId:res.data.planId,
-        status:"active",
-        subscriberId:res.data.subscriberId
-      })
-        
+        setSubscription({
+          planId: res.data.planId,
+          status: "active",
+          subscriberId: res.data.subscriberId,
+          planDetails: res.data.planDetails,
+          startDate: res.data.startDate,
+          endDate: res.data.endDate,
+          transactionId: res.data.transactionId,
+        });
       },
       onFailure: (error) => {
         toast.error("Something went wrong during payment!", {
@@ -108,7 +112,7 @@ const CompanySubscriptionPage = () => {
           </p>
         </div>
 
-        <div className="flex justify-center  gap-6 w-full ">
+        {/* <div className="flex justify-center  gap-6 w-full ">
           {subscriptions.map((subscription) => (
             <div
               key={subscription._id}
@@ -135,7 +139,7 @@ const CompanySubscriptionPage = () => {
                       Can Post {subscription.features.jobPostLimitPerMonth}{" "}
                       Job(s) Per Month
                     </li>
-                   
+
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                       {subscription.features.candidateSlotPerMonth} Candidate
@@ -168,7 +172,6 @@ const CompanySubscriptionPage = () => {
                       )}
                     </li>
                     <li className="flex items-start gap-2">
-                    
                       {subscription.features.finalInterviewAccess ? (
                         <>
                           <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -182,7 +185,6 @@ const CompanySubscriptionPage = () => {
                       )}
                     </li>
                     <li className="flex items-start gap-2">
-                   
                       {subscription.features.interviewRecordingAccess ? (
                         <>
                           <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -198,23 +200,38 @@ const CompanySubscriptionPage = () => {
                   </ul>
                 </ul>
               </div>
-<button
-  onClick={() => subscription._id !== premium?.planId && processSubscriptionPurchase(subscription)}
-  className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out 
+              <button
+                onClick={() =>
+                  subscription._id !== premium?.planId &&
+                  processSubscriptionPurchase(subscription)
+                }
+                className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out 
     ${
       subscription._id === premium?.planId
-        ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white cursor-default'
-        : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-700 text-white hover:brightness-110'
+        ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white cursor-default"
+        : "bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-700 text-white hover:brightness-110"
     }`}
-  disabled={subscription._id === premium?.planId}
->
-  {subscription._id === premium?.planId ? 'Current Plan' : 'Select Plan'}
-</button>
-
-
+                disabled={subscription._id === premium?.planId}
+              >
+                {subscription._id === premium?.planId
+                  ? "Current Plan"
+                  : "Select Plan"}
+              </button>
             </div>
           ))}
+        </div> */}
+        <div className="flex justify-center  gap-6 w-full ">
+          {subscriptions.map((subscription) => (
+            <SubscriptionCard
+              key={subscription._id}
+              subscription={subscription}
+              premium={premium}
+              processSubscriptionPurchase={processSubscriptionPurchase}
+            />
+          ))}
         </div>
+
+        {/* <SubscriptionCard sub/> */}
       </div>
     </div>
   );

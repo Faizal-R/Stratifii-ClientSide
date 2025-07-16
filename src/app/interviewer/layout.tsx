@@ -9,7 +9,7 @@ import {
   CalendarCheck
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-import { Modal } from "@/components/ui/modals/ConfirmationModal";
+import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 
 import withProtectedRoute from "@/lib/withProtectedRoutes";

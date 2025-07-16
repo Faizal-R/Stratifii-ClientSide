@@ -4,6 +4,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { ReactNode, useState } from "react";
 import {
   Calendar,
+  CalendarSearchIcon,
   CreditCard,
   LayoutDashboard,
   Receipt,
@@ -13,7 +14,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/authStore";
-import { Modal } from "@/components/ui/modals/ConfirmationModal";
+import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
 import { useSignoutUser } from "@/hooks/useAuth";
@@ -40,10 +41,10 @@ const navItems = [
     route: "/company/interview-delegation",
   },
   {
-    id: "interviewers",
-    label: "Interviewers",
-    icon: Users,
-    route: "/company/interviewer",
+id:"schedule-interview",
+label:"Schedule Interviews",
+icon:CalendarSearchIcon,
+route:"/company/schedule-interview",
   },
   {
     id: "subscription",

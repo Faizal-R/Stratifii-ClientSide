@@ -35,10 +35,10 @@ export const useCreateJob = function () {
 
 export const useGetJobs = function () {
   const [loading, setLoading] = useState(false);
-  const getJobs = useCallback(async () => {
+  const getJobs = useCallback(async (status?:string) => {
     try {
       setLoading(true);
-      const response = await JobService.getJobs();
+      const response = await JobService.getJobs(status);
       return response;
     } finally {
       setLoading(false);
@@ -113,3 +113,4 @@ export const useGetCandidatesByJob = function () {
 
   return { loading, getCandidatesByJob };
 };
+

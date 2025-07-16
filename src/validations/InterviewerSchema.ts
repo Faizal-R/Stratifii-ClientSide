@@ -44,7 +44,7 @@ export const InterviewerProfileSchema = z.object({
  resume: z
   .custom<File|null>((file) => file instanceof File, {
     message: "Resume file is required",
-  }),
+  }).optional(),
 });
 
 const statusEnum = z.enum(["pending", "approved", "rejected"]);

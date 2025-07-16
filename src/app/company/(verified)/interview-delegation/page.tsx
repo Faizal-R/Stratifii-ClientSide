@@ -24,7 +24,7 @@ import {
   useUpdateJob,
 } from "@/hooks/useJob";
 import { RiseLoader } from "react-spinners";
-import { ICandidateJob } from "@/types/IJob";
+// import { ICandidateJob } from "@/types/IJob";
 import { HttpStatusCode } from "axios";
 
 interface Job {
@@ -35,7 +35,6 @@ interface Job {
   deadline: string;
   experienceRequired: number | string;
   interviewDuration: number | string;
-  candidates?: ICandidateJob[];
 }
 
 function InterviewDelegation() {
@@ -140,6 +139,7 @@ function InterviewDelegation() {
   };
 
   const navigateToJob = (jobId: string) => {
+    alert("entered here")
     router.push(`/company/interview-delegation/job/${jobId}`);
   };
 
@@ -167,6 +167,7 @@ function InterviewDelegation() {
         return;
       }
       setJobs(response.data);
+      console.log(response.data)
     };
 
     fetchJobs();
@@ -310,7 +311,7 @@ function InterviewDelegation() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Users size={16} className="text-violet-400" />
-                      <span>{job.candidates?.length} Candidates</span>
+                      <span> Candidates</span>
                     </div>
                   </div>
                   <button

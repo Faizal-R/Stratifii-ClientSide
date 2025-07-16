@@ -21,8 +21,7 @@ import {
   CreditCard,
   Crown,
 } from "lucide-react";
-import { InputField } from "@/components/ui/InputField";
-import NextImage from "next/image";
+import { InputField } from "@/components/ui/FormFields/InputField";
 import {
   useFetchCompanyProfile,
   useUpadteCompanyProfile,
@@ -37,10 +36,10 @@ import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
 import { StatusCodes } from "@/constants/statusCodes";
 
-import { SelectField } from "@/components/ui/SelectField";
+import { SelectField } from "@/components/ui/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
-import SubscriptionCard from "@/components/features/company/SubscriptionCard";
+import SubscriptionCard from "@/components/features/company/ProfileSubscriptionCard";
 import { useGetSubscriptionDetails
  } from "@/hooks/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
@@ -137,14 +136,12 @@ function CompanyProfilePage() {
 
   const fetchSubscriptionDetails=async ()=>{
     const response = await getSubscriptionDetails();
-    if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+    // if (!response.success) {
+    //   toast.error(response.error, {
+    //     className: "custom-error-toast",
+    //   });
+    if(response.success) setSubscription(response.data);
     
-    } else {
-      setSubscription(response.data);
-    }
   }
   useEffect(() => {
     fetchCompanyProfile();

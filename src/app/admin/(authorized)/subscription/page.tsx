@@ -10,7 +10,7 @@ import {
   Smile,
   X,
 } from "lucide-react";
-import SubscriptionModal from "@/components/ui/modals/SubscriptionModal";
+import SubscriptionModal from "@/components/ui/Modals/SubscriptionModal";
 import {
   useCreateSubscription,
   useGetAllSubscriptions,

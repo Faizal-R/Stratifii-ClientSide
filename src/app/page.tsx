@@ -3,7 +3,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from "next/image";
 import { 
   BrainCog, 
@@ -20,8 +20,16 @@ import {
   Users
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/features/auth/authStore';
+import { useRouter } from 'next/navigation';
 function LandingPage() {
-
+const {user}=useAuthStore();
+const router=useRouter();
+useEffect(()=>{
+  if(user){
+    router.push(`/${user.role}`);
+  }
+},[user,router])
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

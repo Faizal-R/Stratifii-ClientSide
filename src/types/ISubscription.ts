@@ -24,8 +24,7 @@ export interface ISubscriptionDetails {
     name: string;
     price: number;
     currency: string;
-    interval: "monthly" | "yearly";
-    features: string[];
+    features: ISubscriptionFeatures;
   };
   startDate: Date;
   endDate: Date;
