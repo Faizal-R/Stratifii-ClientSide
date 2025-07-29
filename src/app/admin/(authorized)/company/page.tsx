@@ -20,6 +20,9 @@ import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import CompanyDetailsModal from "@/components/ui/Modals/UserDetailsModal";
 import { ICompany } from "@/validations/CompanySchema";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { GenericTable } from "@/components/reusable/table/GenericTable";
+import { getAdminCompanyColumns } from "@/constants/table-columns/companyColumn";
+import { date } from "zod";
 
 function AdminCompanyManagement() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -27,7 +30,7 @@ function AdminCompanyManagement() {
   const [selectedCompanyForDetails, setSelectedCompanyForDetails] =
     useState<ICompany | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
- 
+
   const { companies: getCompanies, loading } = useAdminCompany();
   const { verifyOrRejectCompany } = useHandleCompanyVerification();
   const [companies, setCompanies] = useState<ICompany[] | []>([]);
@@ -49,26 +52,25 @@ function AdminCompanyManagement() {
       toast.error(response.error);
       return;
     }
-    console.log(response)
+    console.log(response);
     if (response.data && isApproved === true) {
       toast.success("Company Verified successfully");
       setCompanies(
         companies.map((company) =>
-          company._id === response.data._id
-            ? response.data
-            : company
+          company._id === response.data._id ? response.data : company
         )
       );
 
       setActiveTab("approved");
     } else {
       toast("Company verification rejected successfully.");
-      setCompanies(companies.filter(company=>company._id!==response.data._id));
+      setCompanies(
+        companies.filter((company) => company._id !== response.data._id)
+      );
     }
   };
 
   const showConfirmModal = async (companyId: string) => {
-   
     setSelectedCompanyId(companyId);
     setIsConfirmModalOpen(true);
   };
@@ -120,6 +122,14 @@ function AdminCompanyManagement() {
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
+
+  const columns = getAdminCompanyColumns({
+  onView: showDetailsModal,
+  onBlockToggle: showConfirmModal,
+  onVerify: (id) => handleCompanyVerification(id, true),
+  onReject: (id) => handleCompanyVerification(id, false),
+  activeTab,
+});
 
   return loading ? (
     <div className="w-screen h-screen flex items-center justify-center">
@@ -191,121 +201,14 @@ function AdminCompanyManagement() {
             </div>
           </div>
 
-          <div className="border border-violet-900 rounded-lg shadow text-violet-200">
+          <div className="rounded-lg shadow text-violet-200">
             <div className="overflow-x-auto">
-              <table className="w-full text-violet-300">
-                <thead>
-                  <tr className=" border-b border-violet-900">
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Company
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Email
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Joined Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-right text-sm font-bold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedCompanies.map((company) => (
-                    <tr
-                      key={company._id}
-                      className="border-b text-violet-200 border-violet-900 hover:bg-slate-950"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <Building2
-                            className="text-violet-500 mr-3"
-                            size={24}
-                          />
-                          <span className="font-medium ">
-                            {company.companyName}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{company.email}</td>
-
-                      <td className="px-6 py-4 ">
-                        {new Date(company.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex mr-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            company.isBlocked
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {company.isBlocked ? "Blocked" : "Active"}
-                        </span>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            company.isBlocked
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {activeTab === "approved" ? "verified" : "pending"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-4">
-                          <button
-                            onClick={() => showDetailsModal(company)}
-                            className="text-violet-300 hover:text-violet-100 transition-colors"
-                            title="View Details"
-                          >
-                            <EyeIcon size={20} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              showConfirmModal(company._id!);
-                            }}
-                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                              company.isBlocked
-                                ? "bg-green-50 text-green-700 hover:bg-green-100"
-                                : "bg-red-50 text-red-700 hover:bg-red-100"
-                            } transition-colors`}
-                          >
-                            {company.isBlocked ? "Unblock" : "Block"}
-                          </button>
-                          {activeTab === "pending" && (
-                            <div className="flex gap-2">
-                              <button
-                                className="hover:text-violet-400"
-                                onClick={() =>
-                                  handleCompanyVerification(company._id!, false)
-                                }
-                              >
-                                <FaTimes />
-                              </button>
-                              <button
-                                className="hover:text-violet-400"
-                                onClick={() =>
-                                  handleCompanyVerification(company._id!, true)
-                                }
-                              >
-                                <FaCheck />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              
+              <GenericTable columns={columns} data={companies}/>
             </div>
 
             {/* Pagination Controls */}
-            <div className="px-6 py-4 border-t border-gray-200">
+            {/* <div className="px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
                   Showing {startIndex + 1} to{" "}
@@ -355,7 +258,7 @@ function AdminCompanyManagement() {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

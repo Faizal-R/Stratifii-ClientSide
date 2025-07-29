@@ -35,7 +35,7 @@ import { RiseLoader, SyncLoader } from "react-spinners";
 import ChangePasswordButton from "@/components/ui/Buttons/ChangePasswordButton";
 import PasswordResetFormModal from "@/components/ui/Modals/PasswordResetFormModal";
 import { Roles } from "@/constants/roles";
-import { InputField } from "@/components/ui/FormFields/InputField";
+import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
 
 function InterviewerProfilePage() {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);

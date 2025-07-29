@@ -11,7 +11,7 @@ interface IPasswordRestFormModalProps {
     confirmNewPassword: string;
   }) => void;
 }
-import { Input } from "../FormFields/FormInput";
+import { Input } from "../Buttons/FormFields/FormInput";
 import { toast } from "sonner";
 
 export default function PasswordResetFormModal({

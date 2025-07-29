@@ -3,6 +3,7 @@ const statusEnum = z.enum(["pending", "approved", "rejected"]);
 
 export const CompanyProfileSchema = z.object({
   _id: z.string().optional(),
+  password: z.string().optional(),
   companyName: z.string().min(1, "Company name is required").trim(),
   email: z
     .string()
@@ -29,6 +30,15 @@ export const CompanyProfileSchema = z.object({
   headquartersLocation: z.string().optional(),
   companySize: z.string().optional(),
   companyLogo: z.string().optional(),
+  isVerified: z.boolean().optional(),
+  isBlocked: z.boolean().optional(),
+  activePlan: z.string().nullable().optional(),
+  usage: z
+    .object({
+      jobPostsThisMonth: z.number().nonnegative().default(0),
+      candidatesAddedThisMonth: z.number().nonnegative().default(0),
+    })
+    .optional(),
 });
 
 export type ICompanyProfile = z.infer<typeof CompanyProfileSchema>;
@@ -61,6 +71,7 @@ export const companySchema = z.object({
   status: statusEnum.optional().default("pending"),
   createdAt: z.date(),
   isBlocked: z.boolean(),
+  description: z.string().optional(),
 });
 
 export type ICompany = z.infer<typeof companySchema>;
