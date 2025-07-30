@@ -39,7 +39,7 @@ import { StatusCodes } from "@/constants/statusCodes";
 import { SelectField } from "@/components/ui/Buttons/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
-import SubscriptionCard from "@/components/features/company/ProfileSubscriptionCard";
+import SubscriptionCard from "@/components/features/company/profile/ProfileSubscriptionCard";
 import { useGetSubscriptionDetails
  } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";

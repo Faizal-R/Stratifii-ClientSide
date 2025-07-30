@@ -139,7 +139,7 @@ function InterviewDelegation() {
   };
 
   const navigateToJob = (jobId: string) => {
-    alert("entered here")
+
     router.push(`/company/interview-delegation/job/${jobId}`);
   };
 

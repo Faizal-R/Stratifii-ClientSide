@@ -1,6 +1,6 @@
 export interface IJob {
   _id?:string;
-  companyId?: string;
+  company?: string;
   position: string;
   description: string;
   requiredSkills: string[];

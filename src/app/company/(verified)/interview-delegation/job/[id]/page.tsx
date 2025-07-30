@@ -53,7 +53,6 @@ function JobManagementPage() {
     useUploadResumesAndCreateCandidates();
 
   const handleModalConfirmation = async (totalAmount: number) => {
-    alert("Interview Process Initiated");
     const response = await paymentOrderCreation(totalAmount);
     if (!response.success) {
       toast.error(response.error, {

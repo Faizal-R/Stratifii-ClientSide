@@ -83,9 +83,9 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
     }
   }, [formData]);
 
-  const handleInputChange = (
-    field: keyof ISlotGenerationRequest,
-    value: any
+  const handleInputChange = <K extends keyof ISlotGenerationRequest>(
+    field: K,
+    value: ISlotGenerationRequest[K]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
@@ -106,7 +106,9 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
 
     if (validationErrors.length > 0) {
       setErrors({ general: validationErrors.join(", ") });
-      alert(validationErrors[0]);
+      toast(validationErrors[0],{
+        className:"custom-error-toast"
+      });
       return false;
     }
 
@@ -122,7 +124,9 @@ console.log("Form Data:", formData);
     const response = await generateSlots(formData);
 
     if (!response.success) {
-      alert(response.error || "Failed to generate slots. Please try again.");
+      toast(response.error || "Failed to generate slots. Please try again.",{
+        className:"custom-error-toast"
+      });
       return;
     }
     console.log("Generated Slots:", response);

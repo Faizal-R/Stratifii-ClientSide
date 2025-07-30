@@ -1,4 +1,7 @@
 import { IRazorpayResponse, RazorpayPaymentError } from "@/types/IRazorpay";
+import { toast } from "sonner";
+
+
 
 export const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -41,7 +44,9 @@ export const initiateRazorpayPayment = async ({
   const isScriptLoaded = await loadRazorpayScript();
 
   if (!isScriptLoaded) {
-    alert("Razorpay SDK failed to load. Are you online?");
+    toast("Razorpay SDK failed to load. Are you online?",{
+      className:"custom-error-toast"
+    });
     return;
   }
 
