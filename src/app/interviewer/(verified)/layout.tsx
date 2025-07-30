@@ -1,5 +1,5 @@
 "use client";
-import { useFetchInterviewerProfile } from "@/hooks/useInterviewer";
+import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
 import { IInterviewer } from "@/types/IInterviewer";
 
 import { CheckCircle, Hourglass, Info } from "lucide-react";

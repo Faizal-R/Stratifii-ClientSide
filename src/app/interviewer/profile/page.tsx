@@ -1,5 +1,5 @@
 "use client";
-import  {  useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   X,
   User,
@@ -16,6 +16,7 @@ import {
   ImageIcon,
   Clock,
   Check,
+  FileText,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -27,9 +28,8 @@ import {
   useChangeInterviewerPassword,
   useFetchInterviewerProfile,
   useUpadteInterviewerProfile,
-} from "@/hooks/useInterviewer";
+} from "@/hooks/api/useInterviewer";
 import { toast } from "sonner";
-
 
 import { RiseLoader, SyncLoader } from "react-spinners";
 import ChangePasswordButton from "@/components/ui/Buttons/ChangePasswordButton";
@@ -42,9 +42,9 @@ function InterviewerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
-  const { updateInterviewerProfile, loading: updateLoading } = useUpadteInterviewerProfile();
+  const { updateInterviewerProfile, loading: updateLoading } =
+    useUpadteInterviewerProfile();
   const { changeInterviewerPassword } = useChangeInterviewerPassword();
-
 
   const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(
     {} as IInterviewerProfile
@@ -89,11 +89,16 @@ function InterviewerProfilePage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setInterviewerData(prev => ({
+    setInterviewerData((prev) => ({
       ...prev,
-      [name]: name === 'experience' || name === 'duration' ? parseInt(value) || 0 : value
+      [name]:
+        name === "experience" || name === "duration"
+          ? parseInt(value) || 0
+          : value,
     }));
   };
 
@@ -125,7 +130,9 @@ function InterviewerProfilePage() {
   const handleRemoveExpertise = (index: number) => {
     setInterviewerData({
       ...interviewerData,
-      expertise: (interviewerData.expertise || []).filter((_, i) => i !== index),
+      expertise: (interviewerData.expertise || []).filter(
+        (_, i) => i !== index
+      ),
     });
   };
 
@@ -172,7 +179,7 @@ function InterviewerProfilePage() {
       <RiseLoader color="white" />
     </div>
   ) : (
-   <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white flex">
       <PasswordResetFormModal
         isOpen={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
@@ -180,7 +187,7 @@ function InterviewerProfilePage() {
         userId={interviewerData._id!}
         handleSubmit={onHandlePasswordReset}
       />
-      
+
       {/* Main Section */}
       <main className="flex-1 p-6 overflow-y-auto ml-60">
         {loading ? (
@@ -394,6 +401,33 @@ function InterviewerProfilePage() {
                 type="textarea"
               />
             </div>
+            {/* Resume Upload */}
+            <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-4">
+              <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <FileText className="text-violet-400" size={20} />
+                Upload Resume (PDF or DOCX)
+              </label>
+              {isEditing ? (
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  name="resume"
+                  // onChange={handleFileUpload}
+                  className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-600/20 file:text-violet-400 hover:file:bg-violet-600/30"
+                />
+              ) : (
+                interviewerData.resume && (
+                  <a
+                    // href={interviewerData.resume!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-violet-400 hover:underline"
+                  >
+                    View Uploaded Resume
+                  </a>
+                )
+              )}
+            </div>
 
             {/* Languages & Expertise */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -447,8 +481,7 @@ function InterviewerProfilePage() {
                                 const updatedLanguages = [
                                   ...(interviewerData.languages || []),
                                 ];
-                                updatedLanguages[index].level =
-                                  e.target.value;
+                                updatedLanguages[index].level = e.target.value;
                                 setInterviewerData({
                                   ...interviewerData,
                                   languages: updatedLanguages,
@@ -554,8 +587,9 @@ function InterviewerProfilePage() {
                     <button
                       key={day}
                       onClick={() => {
-                        const isSelected =
-                          (interviewerData.availableDays || []).includes(day);
+                        const isSelected = (
+                          interviewerData.availableDays || []
+                        ).includes(day);
                         setInterviewerData({
                           ...interviewerData,
                           availableDays: isSelected

@@ -111,6 +111,7 @@ export const SubscriptionService = {
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
+        console.log("Subcription Details Error",error)
         return {
           success: false,
           status:error.status,

@@ -2,7 +2,7 @@
 import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
 import SlotGeneratorPage from "@/components/features/interviewer/SlotGeneratorPage";
 import { useAuthStore } from "@/features/auth/authStore";
-import { useGetSlotsByInterviewerId } from "@/hooks/useSlot";
+import { useGetSlotsByInterviewerId } from "@/hooks/api/useSlot";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import { get } from "http";
 import { Sparkles } from "lucide-react";

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/roles";
-import { useFetchInterviewerProfile } from "@/hooks/useInterviewer";
+import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
 import { toast } from "sonner";
 
 export default function VerifyPage() {

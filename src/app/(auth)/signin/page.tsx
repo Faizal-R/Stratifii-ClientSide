@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSignIn, useVerifyUserAccount } from "@/hooks/useAuth";
+import { useSignIn, useVerifyUserAccount } from "@/hooks/api/useAuth";
 import {
   Mail,
   Lock,

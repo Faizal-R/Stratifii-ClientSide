@@ -9,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { useSetupCandidateProfile } from "@/hooks/useCandidate";
+import { useSetupCandidateProfile } from "@/hooks/api/useCandidate";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 

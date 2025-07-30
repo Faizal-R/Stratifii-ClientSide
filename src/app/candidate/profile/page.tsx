@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect } from "react"
 import { User, Mail, FileText, CheckCircle, XCircle, Clock, Calendar, Eye } from "lucide-react"
-import { useGetCandidateProfile } from "@/hooks/useCandidate"
+import { useGetCandidateProfile } from "@/hooks/api/useCandidate"
 import { useAuthStore } from "@/features/auth/authStore"
 import type { ICandidateProfile } from "@/types/ICandidate"
 

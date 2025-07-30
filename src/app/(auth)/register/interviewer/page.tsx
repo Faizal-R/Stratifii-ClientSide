@@ -16,7 +16,7 @@ import {
   Star,
   Upload,
 } from "lucide-react";
-import { useInterviewerRegister } from "@/hooks/useAuth";
+import { useInterviewerRegister } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RiseLoader } from "react-spinners";
@@ -27,7 +27,7 @@ import { Roles } from "@/constants/roles";
 import {
   useSetupInterviewerAccount,
   // useUpadteInterviewerProfile,
-} from "@/hooks/useInterviewer";
+} from "@/hooks/api/useInterviewer";
 
 import { useAuthStore } from "@/features/auth/authStore";
 import { IInterviewerRegistration } from "@/validations/InterviewerSchema";

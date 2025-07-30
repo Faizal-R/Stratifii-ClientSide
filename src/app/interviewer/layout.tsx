@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
-import { useSignoutUser } from "@/hooks/useAuth";
+import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
 

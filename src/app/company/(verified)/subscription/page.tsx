@@ -6,7 +6,7 @@ import {
   useCreateSubscriptionPaymentOrder,
   useGetAllSubscriptions,
   useVerfiySubscriptionPaymentAndPurchaseSubscription,
-} from "@/hooks/useSubscription";
+} from "@/hooks/api/useSubscription";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 // import { IRazorpayResponse } from "@/types/IRazorpay";

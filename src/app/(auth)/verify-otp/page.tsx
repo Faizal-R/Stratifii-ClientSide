@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTriggerOtpResend, useVerifyOtp } from "@/hooks/useAuth";
+import { useTriggerOtpResend, useVerifyOtp } from "@/hooks/api/useAuth";
 import { RiseLoader } from "react-spinners";
 
 function OtpVerificationPage() {

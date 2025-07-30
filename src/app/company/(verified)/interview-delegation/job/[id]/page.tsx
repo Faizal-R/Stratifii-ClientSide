@@ -12,7 +12,7 @@ import FileUploadModal from "@/components/ui/Modals/FileUploadModal";
 import {
   useGetCandidatesByJob,
   useUploadResumesAndCreateCandidates,
-} from "@/hooks/useJob";
+} from "@/hooks/api/useJob";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
@@ -21,7 +21,7 @@ import PaymentProceedModal from "@/components/ui/Modals/PaymentProceedModal";
 import {
   usePaymentOrderCreation,
   usePaymentVerificationAndCreatePaymentRecord,
-} from "@/hooks/usePayment";
+} from "@/hooks/api/usePayment";
 import { initiateRazorpayPayment } from "@/utils/razorpay";
 import {
   ICandidateJob,
@@ -235,7 +235,7 @@ function JobManagementPage() {
                   <div className="relative z-10 flex items-center gap-4 mb-4">
                     <img
                       src={
-                        profile.avatar ||
+                        profile?.avatar ||
                         "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
                       }
                       alt={profile.name || "Candidate"}
@@ -243,7 +243,7 @@ function JobManagementPage() {
                     />
                     <div>
                       <h2 className="text-lg font-bold text-white">
-                        {profile.name}
+                        {profile?.name}
                       </h2>
                       <p className="text-sm text-gray-400">{profile.email}</p>
                     </div>

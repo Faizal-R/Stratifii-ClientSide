@@ -3,7 +3,7 @@ import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import Sidebar from "@/components/layout/Sidebar";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/authStore";
-import { useSignoutUser } from "@/hooks/useAuth";
+import { useSignoutUser } from "@/hooks/api/useAuth";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { CalendarSearchIcon, CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
@@ -71,4 +71,4 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default withProtectedRoute(CandidateLayout,[Roles.CANDIDATE]);
+export default withProtectedRoute(CandidateLayout,[Roles.CANDIDATE,Roles.INTERVIEWER]);

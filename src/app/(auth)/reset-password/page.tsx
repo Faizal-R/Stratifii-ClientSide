@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import {  useSearchParams } from "next/navigation";
-import { useResetPassword } from "@/hooks/useAuth";
+import { useResetPassword } from "@/hooks/api/useAuth";
 import { RiseLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 

@@ -22,7 +22,7 @@ import {
   useDeleteJob,
   useGetJobs,
   useUpdateJob,
-} from "@/hooks/useJob";
+} from "@/hooks/api/useJob";
 import { RiseLoader } from "react-spinners";
 // import { ICandidateJob } from "@/types/IJob";
 import { HttpStatusCode } from "axios";

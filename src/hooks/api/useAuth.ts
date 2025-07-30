@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import AuthService from "../services/AuthService";
+import AuthService from "@/services/AuthService";
 import { ICompany } from "@/types/ICompany";
 import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
 

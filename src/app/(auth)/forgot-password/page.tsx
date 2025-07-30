@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowRight,  } from 'lucide-react';
 import { toast } from 'sonner';
-import { useSendForgotPasswordOtpRequest } from '@/hooks/useAuth';
+import { useSendForgotPasswordOtpRequest } from '@/hooks/api/useAuth';
 import {  useSearchParams } from 'next/navigation';
 import {  HashLoader } from 'react-spinners';
 

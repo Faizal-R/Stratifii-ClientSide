@@ -13,7 +13,7 @@ import {
   useAdminCompany,
   useAdminCompanyUpdate,
   useHandleCompanyVerification,
-} from "@/hooks/useAdmin";
+} from "@/hooks/api/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";

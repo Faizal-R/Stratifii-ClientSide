@@ -12,14 +12,21 @@ import {
 import {
   useGenerateMockInterviewQuestions,
   useGetDelegatedJobs,
-} from "@/hooks/useCandidate";
+} from "@/hooks/api/useCandidate";
 import { useRouter } from "next/navigation";
 import MockInterview from "@/components/features/candidate/MockInterview";
 import { IQuestion } from "@/types/IInterview";
-import { useSubmitMockResultAndUpdateQualificationStatus } from "@/hooks/useInterview";
+import { useSubmitMockResultAndUpdateQualificationStatus } from "@/hooks/api/useInterview";
+import { useSocketStore } from "@/features/socket/Socket";
+import { useAuthStore } from "@/features/auth/authStore";
 ;
 
 const CandidateInterviewsPage = () => {
+
+  //socket 
+  const {socket} =useSocketStore()
+  const {user} =useAuthStore()
+
   const [isMockInitiated, setIsMockInitiated] = useState(false);
   const [activeTab, setActiveTab] = useState<"mock" | "upcoming">("mock");
   const [delegatedJobs, setDelegatedJobs] = useState<DelegatedJob[]>([]);
@@ -73,7 +80,22 @@ const CandidateInterviewsPage = () => {
       setIsMockInitiated(true);
     }
   };
+ 
+ 
 
+
+  const handleJoinRoom=()=>{
+   socket.emit('room:join',{user:{name:user?.name,role:user?.role},room:"INT-H42KH"})
+  }
+  useEffect(()=>{
+    const handleRoomJoined=(data:{user:{name:string,role:string},room:string})=>{
+      router.push(`interviews/${data.room}`)
+    }
+    socket.on("room:join",handleRoomJoined)
+    return()=>{
+socket.off("room:join",handleJoinRoom)
+    }
+  },[socket])
    
 
   return isMockInitiated ? (
@@ -151,28 +173,31 @@ const CandidateInterviewsPage = () => {
           )}
 
           {activeTab === "upcoming" && (
-            <div className="space-y-6">
-              {upcomingInterviews.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400">
-                    No upcoming interviews scheduled
-                  </p>
-                </div>
-              ) : (
-                upcomingInterviews.map((job) => (
-                  <JobCard
-                    key={job.jobId}
-                    job={job}
-                    onStartMock={handleStartMock}
-                    getStatusColor={getStatusColor}
-                    getStatusIcon={getStatusIcon}
-                    formatStatus={formatStatus}
+            // <div className="space-y-6">
+            //   {upcomingInterviews.length === 0 ? (
+            //     <div className="text-center py-12">
+            //       <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            //       <p className="text-gray-400">
+            //         No upcoming interviews scheduled
+            //       </p>
+            //     </div>
+            //   ) : (
+            //     // upcomingInterviews.map((job) => (
+            //     //   <JobCard
+            //     //     key={job.jobId}
+            //     //     job={job}
+            //     //     onStartMock={handleStartMock}
+            //     //     getStatusColor={getStatusColor}
+            //     //     getStatusIcon={getStatusIcon}
+            //     //     formatStatus={formatStatus}
                     
-                  />
-                ))
-              )}
-            </div>
+            //     //   />
+            //     // ))
+            //   )}
+            // </div>
+                <button onClick={handleJoinRoom} className="bg-green-700  text-white px-10 py-4">
+                      Join Room
+                </button>
           )}
         </div>
 

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Search, Building2, ChevronLeft, ChevronRight, EyeIcon } from "lucide-react";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/roles";
-import { useAdminInterviewers, useHandleInterveiwerVerification, useInterviewerUpdate } from "@/hooks/useAdmin";
+import { useAdminInterviewers, useHandleInterveiwerVerification, useInterviewerUpdate } from "@/hooks/api/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";

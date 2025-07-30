@@ -1,5 +1,5 @@
 "use client";
-import { useFetchCompanyProfile } from "@/hooks/useCompany";
+import { useFetchCompanyProfile } from "@/hooks/api/useCompany";
 import { ICompany } from "@/validations/CompanySchema";
 import { CheckCircle, Hourglass, Info } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";

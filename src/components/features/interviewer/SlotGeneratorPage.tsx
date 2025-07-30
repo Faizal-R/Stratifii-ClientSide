@@ -11,7 +11,7 @@ import {
   calculateSlotPreview,
   validateSlotRequest,
 } from "@/utils/slotCalculator";
-import { useSlotGeneration } from "@/hooks/useSlot";
+import { useSlotGeneration } from "@/hooks/api/useSlot";
 import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
 import { toast } from "sonner";
 

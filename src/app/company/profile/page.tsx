@@ -25,7 +25,7 @@ import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
 import {
   useFetchCompanyProfile,
   useUpadteCompanyProfile,
-} from "@/hooks/useCompany";
+} from "@/hooks/api/useCompany";
 import {
   CompanyProfileSchema,
   ICompanyProfile,
@@ -41,7 +41,7 @@ import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
 import SubscriptionCard from "@/components/features/company/ProfileSubscriptionCard";
 import { useGetSubscriptionDetails
- } from "@/hooks/useSubscription";
+ } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
 
 function CompanyProfilePage() {
@@ -80,45 +80,49 @@ function CompanyProfilePage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
+    console.log(file)
     if (file) {
       const imageFile = URL.createObjectURL(file);
       setLogoPreview(imageFile);
     }
   };
 
-  const handleSave = async () => {
-    console.log("handle save", companyData);
-    const validatedCompany = CompanyProfileSchema.safeParse(companyData);
-    if (!validatedCompany.success) {
-      const errors = validatedCompany.error;
-      console.log(errors);
-      for (const issue of errors.issues) {
-        toast.error(issue.message, {
-          className: "custom-error-toast",
-        });
-      }
-
-      return;
-    }
-    const formData = new FormData();
-    if (logoPreview) {
-      const file = await convertBlobUrlToFile(logoPreview);
-      console.log("file: " + file);
-      formData.append("companyLogo", file!);
-      formData.append("company", JSON.stringify(companyData));
-      setCompanyData((prev) => ({ ...prev, ...formData }));
-    }
-    const response = await updateCompanyProfile(formData);
-    if (!response.success) {
-      toast.error(response.error, {
+const handleSave = async () => {
+  console.log("handle save", companyData);
+  const validatedCompany = CompanyProfileSchema.safeParse(companyData);
+  if (!validatedCompany.success) {
+    const errors = validatedCompany.error;
+    for (const issue of errors.issues) {
+      toast.error(issue.message, {
         className: "custom-error-toast",
       });
-      return;
-    } else {
-      toast.success(response.message);
-      setIsEditing(false);
     }
-  };
+    return;
+  }
+
+  const formData = new FormData();
+
+  // Always append the company JSON
+  formData.append("company", JSON.stringify(companyData));
+
+  // Append logo if available
+  if (logoPreview) {
+    const file = await convertBlobUrlToFile(logoPreview);
+    formData.append("companyLogo", file!);
+  }
+
+  const response = await updateCompanyProfile(formData);
+  if (!response.success) {
+    toast.error(response.error, {
+      className: "custom-error-toast",
+    });
+    return;
+  } else {
+    toast.success(response.message);
+    setIsEditing(false);
+  }
+};
+
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
@@ -140,7 +144,10 @@ function CompanyProfilePage() {
     //   toast.error(response.error, {
     //     className: "custom-error-toast",
     //   });
-    if(response.success) setSubscription(response.data);
+    if(response.success) {
+      setSubscription(response.data);
+      console.log(response.data)
+    }
     
   }
   useEffect(() => {
@@ -200,7 +207,7 @@ fetchSubscriptionDetails()
               <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
                 <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
                   <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
-                    {companyData.companyLogo ? (
+                    {logoPreview ? (
                       <img
                         src={companyData.companyLogo}
                         alt="Company Logo"
@@ -218,6 +225,7 @@ fetchSubscriptionDetails()
                             type="file"
                             accept="image/*"
                             className="hidden"
+                            onChange={handleLogoChange}
                           />
                         </label>
                       </div>
