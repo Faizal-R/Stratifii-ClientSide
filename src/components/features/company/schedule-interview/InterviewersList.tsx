@@ -1,21 +1,91 @@
+"use client"
 import React from 'react';
-import { Star, Calendar, Clock, MapPin, Mail } from 'lucide-react';
-// import { IInterviewerListProps } from '@/';
-import { formatDate, formatTime, formatDuration, isSlotAvailable } from '@/utils/dateHelper';
+import {
+  Star,
+  MapPin,
+  Mail,
+  Calendar,
+  Clock,
+} from 'lucide-react';
+import { IJob } from '@/types/IJob';
 
-const InterviewerList: React.FC<any> = ({
-  interviewers,
-  selectedJob,
-  selectedCandidate,
-  onBookSlot
-}) => {
+const formatDate = (date: Date) => new Date(date).toDateString();
+const formatTime = (date: Date) => new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const formatDuration = (minutes: number) => `${minutes} mins`;
+const isSlotAvailable = (slot: any) => slot.isAvailable && slot.status === 'available';
+
+const InterviewerList: React.FC<{selectedJob:IJob}> = ({selectedJob}) => {
+  // const selectedJob = {
+  //   requiredSkills: ['React', 'Node.js', 'MongoDB'],
+  // };
+
+  const selectedCandidate = {
+    name: 'Alice Johnson',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+  };
+
+  const onBookSlot = (interviewer: any, slot: any) => {
+    console.log('Booking slot:', slot, 'with interviewer:', interviewer.name);
+  };
+
+  const interviewers = [
+    {
+      _id: 'i1',
+      name: 'John Doe',
+      position: 'Senior Frontend Engineer',
+      email: 'john@example.com',
+      phone: '+1 234 567 890',
+      password: 'hashed_password',
+      experience: 6,
+      linkedinProfile: 'https://linkedin.com/in/johndoe',
+      location: 'San Francisco, CA',
+      languages: [
+        { language: 'English', level: 'Fluent' },
+        { language: 'Spanish', level: 'Intermediate' },
+      ],
+      availableDays: ['Monday', 'Wednesday', 'Friday'],
+      availability: [
+        { day: 'Monday', startTime: '10:00', endTime: '16:00' },
+        { day: 'Wednesday', startTime: '12:00', endTime: '18:00' },
+      ],
+      professionalSummary:
+        'Experienced frontend engineer with strong knowledge in React and UI/UX design.',
+      expertise: ['React', 'JavaScript', 'TypeScript', 'CSS'],
+      scheduleInterviews: [],
+      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      isVerified: true,
+      rating: 4.8,
+      reviews: [],
+      status: 'active',
+      isBlocked: false,
+      resume: 'https://example.com/johndoe_resume.pdf',
+      availableSlots: [
+        {
+          _id: 'slot1',
+          startTime: new Date(),
+          endTime: new Date(Date.now() + 60 * 60000),
+          duration: 60,
+          isAvailable: true,
+          status: 'available',
+          meetingLink: 'https://meet.example.com/john-slot1',
+        },
+        {
+          _id: 'slot2',
+          startTime: new Date(Date.now() + 2 * 60 * 60000),
+          endTime: new Date(Date.now() + 3 * 60 * 60000),
+          duration: 60,
+          isAvailable: false,
+          status: 'booked',
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Matched Interviewers
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">Matched Interviewers</h2>
           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
             {interviewers.length} available
           </span>
@@ -29,21 +99,22 @@ const InterviewerList: React.FC<any> = ({
                 className="w-6 h-6 rounded-full object-cover"
               />
               <p className="text-sm text-blue-700">
-                Booking slots for: <span className="font-medium">{selectedCandidate.name}</span>
+                Booking slots for:{' '}
+                <span className="font-medium">{selectedCandidate.name}</span>
               </p>
             </div>
           </div>
         )}
       </div>
+
       <div className="p-6 space-y-6 max-h-96 overflow-y-auto">
         {interviewers.length === 0 ? (
           <div className="text-center py-8">
             <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">
-              {selectedJob 
+              {selectedJob
                 ? 'No matched interviewers found for this job'
-                : 'Select a job to view matched interviewers'
-              }
+                : 'Select a job to view matched interviewers'}
             </p>
           </div>
         ) : (
@@ -66,9 +137,11 @@ const InterviewerList: React.FC<any> = ({
                       <span className="text-sm text-gray-600">{interviewer.rating}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">{interviewer.title}</p>
-                  <p className="text-sm text-gray-500 mb-2">{interviewer.company} • {interviewer.experience}</p>
-                  
+                  <p className="text-sm text-gray-600 mb-1">{interviewer.position}</p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {interviewer.isVerified ?? 'Independent'} • {interviewer.experience} yrs
+                  </p>
+
                   <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
@@ -81,26 +154,21 @@ const InterviewerList: React.FC<any> = ({
                   </div>
 
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {interviewer.skills.slice(0, 4).map((skill) => (
+                    {interviewer.expertise.slice(0, 4).map((skill: string) => (
                       <span
                         key={skill}
                         className={`px-2 py-1 text-xs rounded ${
-                          selectedJob?.requiredSkills.includes(skill)
+                          selectedJob.requiredSkills.includes(skill)
                             ? 'bg-blue-100 text-blue-700 border border-blue-300'
                             : 'bg-gray-100 text-gray-700'
                         }`}
                       >
                         {skill}
-                        {selectedJob?.requiredSkills.includes(skill) && ' ✓'}
+                        {selectedJob.requiredSkills.includes(skill) && ' ✓'}
                       </span>
                     ))}
-                    {interviewer.skills.length > 4 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                        +{interviewer.skills.length - 4} more
-                      </span>
-                    )}
                   </div>
-                  
+
                   <div className="space-y-3">
                     <h4 className="text-sm font-medium text-gray-700 flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
@@ -110,7 +178,7 @@ const InterviewerList: React.FC<any> = ({
                       <p className="text-sm text-gray-500 italic">No available slots</p>
                     ) : (
                       <div className="grid grid-cols-1 gap-2">
-                        {interviewer.availableSlots.map((slot) => {
+                        {interviewer.availableSlots.map((slot: any) => {
                           const available = isSlotAvailable(slot);
                           return (
                             <div
@@ -125,7 +193,9 @@ const InterviewerList: React.FC<any> = ({
                                 <div className="flex items-center space-x-3">
                                   <div className="flex items-center space-x-1">
                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span className="font-medium">{formatDate(slot.startTime)}</span>
+                                    <span className="font-medium">
+                                      {formatDate(slot.startTime)}
+                                    </span>
                                   </div>
                                   <div className="flex items-center space-x-1">
                                     <Clock className="h-4 w-4 text-gray-400" />
@@ -143,25 +213,27 @@ const InterviewerList: React.FC<any> = ({
                                     Book Slot
                                   </button>
                                 ) : (
-                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                    available
-                                      ? selectedCandidate 
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-yellow-100 text-yellow-700'
-                                      : 'bg-gray-100 text-gray-500'
-                                  }`}>
-                                    {available 
-                                      ? selectedCandidate 
-                                        ? 'Available' 
+                                  <span
+                                    className={`px-2 py-1 rounded text-xs font-medium ${
+                                      available
+                                        ? selectedCandidate
+                                          ? 'bg-green-100 text-green-700'
+                                          : 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-gray-100 text-gray-500'
+                                    }`}
+                                  >
+                                    {available
+                                      ? selectedCandidate
+                                        ? 'Available'
                                         : 'Select candidate first'
-                                      : 'Not Available'
-                                    }
+                                      : 'Not Available'}
                                   </span>
                                 )}
                               </div>
                               {slot.meetingLink && (
                                 <div className="mt-2 text-xs text-gray-600">
-                                  <span className="font-medium">Meeting:</span> {slot.meetingLink}
+                                  <span className="font-medium">Meeting:</span>{' '}
+                                  {slot.meetingLink}
                                 </div>
                               )}
                             </div>
