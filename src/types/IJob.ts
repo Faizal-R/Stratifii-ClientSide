@@ -34,3 +34,9 @@ export interface JobsApiResponse {
   success: boolean;
   message?: string;
 }
+export 
+interface IJobWithQualifiedCandidatesCount {
+  job: IJob;
+  qualifiedCandidatesCount: number;
+}
+

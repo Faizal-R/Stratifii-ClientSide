@@ -3,12 +3,12 @@ import { IJob } from "@/types/IJob";
 import { isAxiosError } from "axios";
 
 export const JobService = {
-  getJobs: async (status:string|number=1) => {
+  getJobs: async () => {
     try {
-      const response = await apiClient.get(`/company/jobs/${status}`);
+      const response = await apiClient.get(`/company/jobs`);
       return response.data;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       if (isAxiosError(error))
         return {
           success: false,
@@ -16,7 +16,22 @@ export const JobService = {
           error:
             error.response?.data.message ||
             "Unexpected error occurred While Fetching Jobs",
-           
+        };
+    }
+  },
+  getInProgressJobs: async () => {
+    try {
+      const response = await apiClient.get(`/company/jobs/in-progress`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (isAxiosError(error))
+        return {
+          success: false,
+          status: error.status,
+          error:
+            error.response?.data.message ||
+            "Unexpected error occurred While Fetching Jobs",
         };
     }
   },
@@ -110,6 +125,49 @@ export const JobService = {
   getCandidatesByJobId: async (jobId: string) => {
     try {
       const response = await apiClient.get(`/company/jobs/${jobId}/candidates`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          status: error.status,
+          error: "An Error occurred While Fetching Candidates",
+        };
+      }
+      return {
+        success: false,
+        error: "Unexpected error occurred While Fetching Candidates",
+      };
+    }
+  },
+  getQualifiedCandidatesByJobId: async (jobId: string) => {
+    try {
+      const response = await apiClient.get(
+        `/company/jobs/${jobId}/qualified-candidates`
+      );
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          success: false,
+          status: error.status,
+          error: "An Error occurred While Fetching Candidates",
+        };
+      }
+      return {
+        success: false,
+        error: "Unexpected error occurred While Fetching Candidates",
+      };
+    }
+  },
+
+  getMatchedInterviewersByJobDescription: async (
+    jobId: string,
+  ) => {
+    try {
+      const response = await apiClient.get(
+        `company/jobs/${jobId}/matched-interviewers`
+      );
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {

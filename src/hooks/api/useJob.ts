@@ -35,10 +35,10 @@ export const useCreateJob = function () {
 
 export const useGetJobs = function () {
   const [loading, setLoading] = useState(false);
-  const getJobs = useCallback(async (status?:string) => {
+  const getJobs = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await JobService.getJobs(status);
+      const response = await JobService.getJobs();
       return response;
     } finally {
       setLoading(false);
@@ -46,6 +46,21 @@ export const useGetJobs = function () {
   }, []);
   return { getJobs, loading };
 };
+
+export const useGetInProgressJobs = function () {
+  const [loading, setLoading] = useState(false);
+  const getInProgressJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await JobService.getInProgressJobs();
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { getInProgressJobs, loading };
+};
+
 
 export const useUpdateJob = function () {
   const [loading, setLoading] = useState(false);
@@ -114,3 +129,35 @@ export const useGetCandidatesByJob = function () {
   return { loading, getCandidatesByJob };
 };
 
+export const useGetQualifiedCandidatesByJob = function () {
+  const [loading, setLoading] = useState(false);
+
+  const getQualifiedCandidatesByJob = useCallback(async (jobId: string) => {
+    try {
+      setLoading(true);
+      const response = await JobService.getQualifiedCandidatesByJobId(jobId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, getQualifiedCandidatesByJob };
+};
+
+
+export const useGetMatchedInterviewersByJobDescription = function () {
+  const [loading, setLoading] = useState(false);
+
+  const getMatchedInterviewersByJobDescription = useCallback(async (jobId: string) => {
+    try {
+      setLoading(true);
+      const response = await JobService.getMatchedInterviewersByJobDescription(jobId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, getMatchedInterviewersByJobDescription };
+};
