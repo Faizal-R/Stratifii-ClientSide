@@ -8,7 +8,7 @@ import { ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { CalendarSearchIcon, CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 
 const navItems = [
   {

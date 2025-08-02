@@ -71,7 +71,7 @@ export const useChangeInterviewerPassword = () => {
     async (currentPassword: string, newPassword: string) => {
       try {
         setLoading(true);
-        const response = await InterviewerService.changeCompanyPassword(
+        const response = await InterviewerService.changeInterviewerPassword(
           {
             currentPassword,
             newPassword,

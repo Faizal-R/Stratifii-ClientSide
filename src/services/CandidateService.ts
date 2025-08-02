@@ -1,11 +1,12 @@
 import apiClient from "@/config/apiClient";
-import { isAxiosError } from "axios";
+import { CandidateRoutes } from "@/constants/routes/api/CandidateRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export const CandidateService = {
   setupCandidatePasswordAndAvatar: async (candidateCredentials: FormData) => {
     try {
       const response = await apiClient.post(
-        `/candidate/setup`,
+        CandidateRoutes.SETUP,
         candidateCredentials,
         {
           headers: {
@@ -15,61 +16,41 @@ export const CandidateService = {
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while setting up candidate",
-        };
-      }
+      return parseAxiosError(error, "An error occurred while setting up candidate");
     }
   },
 
   getCandidateProfile: async (candidateId: string) => {
     try {
-      const response = await apiClient.get(`/candidate/profile/${candidateId}`);
+      const response = await apiClient.get(
+        `${CandidateRoutes.PROFILE}/${candidateId}`
+      );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while fetching candidate profile",
-        };
-      }
-    }
-  },
-  getDelegatedJobs: async () => {
-    try {
-      const response = await apiClient.get("/candidate/delegated-jobs");
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while fetching delegated jobs "
-        };
-      }
+      return parseAxiosError(error, "An error occurred while fetching candidate profile");
     }
   },
 
-  getMockInterviewQuestions: async (delegationId:string) => {
+  getDelegatedJobs: async () => {
     try {
-      const response = await apiClient.get(`/candidate/mock-interview/questions/${delegationId}`);
+      const response = await apiClient.get(CandidateRoutes.DELEGATED_JOBS);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while fetching delegated jobs "
-        };
-      }
+      return parseAxiosError(error, "An error occurred while fetching delegated jobs");
+    }
+  },
+
+  getMockInterviewQuestions: async (delegationId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${CandidateRoutes.MOCK_INTERVIEW_QUESTIONS}/${delegationId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching mock interview questions"
+      );
     }
   },
 };

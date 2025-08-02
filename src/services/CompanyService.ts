@@ -1,49 +1,36 @@
 import apiClient from "@/config/apiClient";
-
-import { isAxiosError } from "axios";
+import { CompanyRoutes } from "@/constants/routes/api/CompanyRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export const CompanyService = {
   getCompanyProfile: async () => {
     try {
-      const response = await apiClient.get("/company/profile");
+      const response = await apiClient.get(CompanyRoutes.PROFILE);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Fetching Company Profile",
-        };
-      }
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching company profile"
+      );
     }
   },
 
   updateCompanyProfile: async (company: FormData) => {
     try {
-      const response = await apiClient.put("/company/profile", company, {
+      const response = await apiClient.put(CompanyRoutes.PROFILE, company, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "An error occurred while updating the company profile. Please try again later.",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Company Profile",
-      };
+      return parseAxiosError(
+        error,
+        "An error occurred while updating the company profile. Please try again later."
+      );
     }
   },
+
   changeCompanyPassword: async ({
     currentPassword,
     newPassword,
@@ -52,25 +39,16 @@ export const CompanyService = {
     newPassword: string;
   }) => {
     try {
-      const response = await apiClient.put("/company/change-password", {
+      const response = await apiClient.put(CompanyRoutes.CHANGE_PASSWORD, {
         currentPassword,
         newPassword,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "An error occurred while updating the company password. Please try again later.",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Company Password",
-      };
+      return parseAxiosError(
+        error,
+        "An error occurred while updating the company password. Please try again later."
+      );
     }
   },
 };

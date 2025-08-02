@@ -13,7 +13,7 @@ import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 
 import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";

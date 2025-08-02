@@ -1,24 +1,22 @@
 import apiClient from "@/config/apiClient";
-import { isAxiosError } from "axios";
+import { InterviewRoutes } from "@/constants/routes/api/InterviewRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export const InterviewService = {
   getMockInterviewQuestions: async (delegationId: string) => {
     try {
       const response = await apiClient.get(
-        `/candidate/mock-interview/questions/${delegationId}`
+        `${InterviewRoutes.GET_MOCK_QUESTIONS}/${delegationId}`
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while fetching delegated jobs ",
-        };
-      }
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching mock interview questions."
+      );
     }
   },
+
   submitMockResultAndUpdateQualificationStatus: async (
     delegationId: string,
     resultData: {
@@ -27,23 +25,17 @@ export const InterviewService = {
       total: number;
     }
   ) => {
-    console.log(resultData)
     try {
       const response = await apiClient.put(
-        "candidate/mock-interview/submit-result",
+        InterviewRoutes.SUBMIT_MOCK_RESULT,
         { delegationId, resultData }
       );
-      console.log(response.data)
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error Occured while fetching delegated jobs ",
-        };
-      }
+      return parseAxiosError(
+        error,
+        "An error occurred while submitting mock interview results."
+      );
     }
   },
 };

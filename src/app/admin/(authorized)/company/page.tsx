@@ -8,7 +8,7 @@ import {
   EyeIcon,
 } from "lucide-react";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import {
   useAdminCompany,
   useAdminCompanyUpdate,

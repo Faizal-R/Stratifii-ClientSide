@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth/authStore";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
 import { toast } from "sonner";
 

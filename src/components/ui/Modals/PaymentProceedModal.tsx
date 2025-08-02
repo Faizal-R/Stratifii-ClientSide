@@ -9,7 +9,7 @@ import {
   CheckCircle2, 
   Sparkles 
 } from 'lucide-react';
-import { PaymentConfig } from '@/constants/AppPayment';
+import { PaymentConfig } from '@/constants/enums/AppPayment';
 
 interface PaymentProceedModalProps {
   isOpen: boolean;

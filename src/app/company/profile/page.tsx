@@ -33,8 +33,8 @@ import {
 import { toast } from "sonner";
 import { RiseLoader, SyncLoader } from "react-spinners";
 import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
-import { StatusCodes } from "@/constants/statusCodes";
+import { Roles } from "@/constants/enums/roles";
+import { StatusCodes } from "@/constants/enums/statusCodes";
 
 import { SelectField } from "@/components/ui/Buttons/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";

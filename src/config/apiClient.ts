@@ -1,4 +1,4 @@
-import { StatusCodes } from "@/constants/statusCodes";
+import { StatusCodes } from "@/constants/enums/statusCodes";
 import axios from "axios";
 
 const apiClient = axios.create({

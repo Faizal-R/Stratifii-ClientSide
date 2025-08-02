@@ -1,129 +1,69 @@
 import { ISubscription } from "@/types/ISubscription";
-import apiClient from "@/config/apiClient";
-import { isAxiosError } from "axios";
 import { IRazorpayResponse } from "@/types/IRazorpay";
+import apiClient from "@/config/apiClient";
+import { parseAxiosError } from "@/utils/parseAxiosError";
+import { SubscriptionRoutes } from "@/constants/routes/api/SubscriptionRoutes";
 
 export const SubscriptionService = {
-   createSubscription:async (subscription :ISubscription)=>{
+  createSubscription: async (subscription: ISubscription) => {
     try {
-        const response = await apiClient.post("/subscription",subscription);
-        return response.data;
-      } catch (error) {
-        if (isAxiosError(error)) {
-          return {
-            success: false,
-            status:error.status,
-            error:
-              error.response?.data.message ||
-              "An Error occured During Fetching Interviewer ",
-          };
-        }
-        return {
-          success: false,
-          error: "Unexpected error occurred While Creating Subscription.",
-        };
-      }
-   },
-   getSubscriptions: async () => {
-    try {
-      const response = await apiClient.get("/subscription");
+      const response = await apiClient.post(SubscriptionRoutes.BASE, subscription);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Fetching Subscriptions",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Subscriptions.",
-      };
+      return parseAxiosError(error, "An error occurred while creating the subscription.");
     }
   },
-  updateSubscription: async (subscriptionId:string,updatedSubscription :ISubscription) => {
+
+  getSubscriptions: async () => {
     try {
-      const response = await apiClient.put(`/subscription/${subscriptionId}`,{updatedSubscription});
+      const response = await apiClient.get(SubscriptionRoutes.BASE);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured While Updating Subscriptions",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Subscriptions.",
-      };
+      return parseAxiosError(error, "An error occurred while fetching subscriptions.");
     }
   },
-  createPaymentOrder:async (amount:number)=>{
+
+  updateSubscription: async (subscriptionId: string, updatedSubscription: ISubscription) => {
     try {
-      const response = await apiClient.post(`/company/subscription/payment-order`,{amount});
+      const response = await apiClient.put(`${SubscriptionRoutes.BASE}/${subscriptionId}`, {
+        updatedSubscription,
+      });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured While Create Subscriptions Payment Order",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While  Subscriptions.",
-      };
+      return parseAxiosError(error, "An error occurred while updating the subscription.");
     }
   },
-  verifySubscriptionPaymentAndCreateSubscriptionRecord:async (razorpay_response:IRazorpayResponse,subscriptionId:string)=>{
+
+  createPaymentOrder: async (amount: number) => {
     try {
-      const response = await apiClient.post(`/company/subscription/payment-verify`,{...razorpay_response,subscriptionId});
+      const response = await apiClient.post(SubscriptionRoutes.PAYMENT_ORDER, { amount });
       return response.data;
     } catch (error) {
-      console.log(error)
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured While Verifying Subscriptions Payment",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Verifying Subscriptions.",
-      };
+      return parseAxiosError(error, "An error occurred while creating the payment order.");
     }
   },
+
+  verifySubscriptionPaymentAndCreateSubscriptionRecord: async (
+    razorpay_response: IRazorpayResponse,
+    subscriptionId: string
+  ) => {
+    try {
+      const response = await apiClient.post(SubscriptionRoutes.PAYMENT_VERIFY, {
+        ...razorpay_response,
+        subscriptionId,
+      });
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while verifying the subscription payment.");
+    }
+  },
+
   getSubscriptionDetails: async () => {
     try {
-      const response = await apiClient.get(`/company/subscription/plan`);
+      const response = await apiClient.get(SubscriptionRoutes.COMPANY_PLAN);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        console.log("Subcription Details Error",error)
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured While Fetching Subscription By Company Id",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Subscription By Company Id.",
-      };
+      return parseAxiosError(error, "An error occurred while fetching the subscription details.");
     }
-  }
+  },
 };

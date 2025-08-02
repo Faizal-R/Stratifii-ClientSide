@@ -1,50 +1,31 @@
 import apiClient from "@/config/apiClient";
 import { IRazorpayResponse } from "@/types/IRazorpay";
-import { isAxiosError } from "axios";
+import { parseAxiosError } from "@/utils/parseAxiosError";
+import { PaymentRoutes } from "@/constants/routes/api/PaymentRoutes";
 
 export const PaymentService = {
   calculatePayment: async (candidatesCount: number) => {
     try {
-      const response = await apiClient.post("/payment/calculate", {
+      const response = await apiClient.post(PaymentRoutes.CALCULATE, {
         candidatesCount,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An error occurred While Fetching Payment",
-        };
-      }
-      return {
-        success: false,
-
-        error: "Unexpected error occurred While Fetching Payment",
-      };
+      return parseAxiosError(error, "An error occurred while fetching payment");
     }
   },
+
   createPaymentOrder: async (totalAmount: number) => {
     try {
-      const response = await apiClient.post("/payment/order", {
+      const response = await apiClient.post(PaymentRoutes.CREATE_ORDER, {
         totalAmount,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An error occurred While Creating Payment Order",
-        };
-      }
-      return {
-        success: false,
-
-        error: "Unexpected error occurred While Creating Payment Order",
-      };
+      return parseAxiosError(error, "An error occurred while creating payment order");
     }
   },
+
   verifyPaymentAndCreatePaymentRecord: async ({
     razorpay_response,
     jobId,
@@ -55,25 +36,14 @@ export const PaymentService = {
     candidatesCount: number;
   }) => {
     try {
-      const response = await apiClient.post("/payment/verify", {
+      const response = await apiClient.post(PaymentRoutes.VERIFY, {
         ...razorpay_response,
         jobId,
         candidatesCount,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An error occurred While Verifying Payment ",
-        };
-      }
-      return {
-        success: false,
-
-        error: "Unexpected error occurred While Verifying Payment ",
-      };
+      return parseAxiosError(error, "An error occurred while verifying payment");
     }
   },
 };

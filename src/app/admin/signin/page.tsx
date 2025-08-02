@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAdminSignIn } from "@/hooks/api/useAdmin";
 import { useAuthStore } from "@/features/auth/authStore";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import { RiseLoader } from "react-spinners";
 
 function AdminSignIn() {

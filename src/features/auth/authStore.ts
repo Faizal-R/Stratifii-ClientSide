@@ -1,4 +1,4 @@
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import { create } from "zustand";
 
 interface User {
@@ -31,4 +31,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("user");
     set({ user: null });
   },
-})); 
+}));   

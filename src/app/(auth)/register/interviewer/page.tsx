@@ -23,7 +23,7 @@ import { RiseLoader } from "react-spinners";
 
 import Link from "next/link";
 import { handleInterviewerRegistrationStep } from "@/utils/handleRegistrationStep";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import {
   useSetupInterviewerAccount,
   // useUpadteInterviewerProfile,

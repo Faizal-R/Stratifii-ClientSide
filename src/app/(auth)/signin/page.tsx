@@ -24,9 +24,9 @@ import { GoogleAuthButton } from "../../../components/ui/Buttons/GoogleAuthButto
 import { Modal } from "../../../components/ui/Modals/ConfirmationModal";
 
 import { useAuthStore } from "@/features/auth/authStore";
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import Link from "next/link";
-import { StatusCodes } from "@/constants/statusCodes";
+import { StatusCodes } from "@/constants/enums/statusCodes";
 import useSubscriptionStore from "@/features/company/subscriberStore";
 
 const roles = [
