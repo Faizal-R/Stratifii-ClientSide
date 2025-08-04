@@ -1,11 +1,9 @@
 export interface ISlotGenerationRequest {
-  fromDate: string;
-  toDate: string;
   availableDays: number[];
   startHour: number;
   endHour: number;
   slotDuration: number;
-  bufferRate: number;
+  bufferRate: number|string|undefined;
   timezone?: string;
 }
 
@@ -15,12 +13,10 @@ export interface SlotPreview {
   hoursPerDay: number;
   slotsPerDay: number;
   bufferTime: number;
-  effectiveSlots: number;
+  // effectiveSlots: number;
 }
 
 export interface FormErrors {
-  fromDate?: string;
-  toDate?: string;
   availableDays?: string;
   startHour?: string;
   endHour?: string;

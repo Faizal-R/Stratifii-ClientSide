@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, Users, TrendingUp, CheckCircle, XCircle,Sparkles } from 'lucide-react';
+import { Calendar, TrendingUp, CheckCircle, XCircle,Sparkles } from 'lucide-react';
 import { IInterviewSlot } from '@/types/ISlotTypes';
 import { formatDate } from '@/utils/slotCalculator';
 import SlotCard from '@/components/features/common/SlotCard';
@@ -35,32 +35,6 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
 
   return (
     <div className="mt-8 space-y-6 ml-64 px-8 bg-gradient-to-br from-black via-black to-violet-950 pb-3">
-        {/* <div className="text-center mb-8">
-  <div className="flex justify-center mb-4">
-    <div
-      className="p-3 rounded-full animate-pulse"
-      style={{
-        background: "rgba(139, 92, 246, 0.2)",
-        border: "2px solid rgba(139, 92, 246, 0.4)",
-      }}
-    >
-      <Sparkles className="w-8 h-8 text-violet-300" />
-    </div>
-  </div>
-  <h1 className="text-4xl font-bold text-white mb-2">
-    My Interview Slots
-  </h1>
-  <p className="text-gray-300 text-lg">
-    View all your upcoming and available interview slots in one place
-  </p>
-<button
-  // onClick={}
-  className="absolute right-5 top-40 px-4 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 transition"
->
-  + Generate New Slots
-</button>
-
-</div> */}
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -147,7 +121,7 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {groupedSlots[date].map((slot, index) => (
-                <SlotCard key={slot._id} slot={slot} index={index} />
+                <SlotCard key={slot._id|| `${date}-${index}`} slot={slot} index={index} />
               ))}
             </div>
           </div>

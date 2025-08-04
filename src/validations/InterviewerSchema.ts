@@ -95,7 +95,8 @@ export const interviewerSchema = z.object({
   rating: z.number().min(0).max(5).optional(),
   reviews: z.array(z.string()).optional(), // Array of ObjectIds (strings)
   status: statusEnum.default("pending"),
-  resume:z.any()
+  resume:z.any(),
+  createdAt: z.date().optional(),
 });
 
 export const InterviewerRegistrationSchema = z.object({

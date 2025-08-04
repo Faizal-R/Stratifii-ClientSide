@@ -2,36 +2,45 @@
 import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
 import SlotGeneratorPage from "@/components/features/interviewer/SlotGeneratorPage";
 import { useAuthStore } from "@/features/auth/authStore";
-import { useGetSlotsByInterviewerId } from "@/hooks/api/useSlot";
+import {
+  useGetAllSlotsByRule,
+} from "@/hooks/api/useSlot";
 import { IInterviewSlot } from "@/types/ISlotTypes";
-import { get } from "http";
+
 import { Sparkles } from "lucide-react";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { RiseLoader } from "react-spinners";
 import { toast } from "sonner";
 
 const ScheduleManagmentPage = () => {
   const [slots, setSlots] = useState<IInterviewSlot[]>([]);
   const [isShownSlots, setIsShownSlots] = useState<boolean>(false);
+  const hasFetched = useRef(false);
   const { user } = useAuthStore();
-  const { getSlotsByInterviewerId, loading } = useGetSlotsByInterviewerId();
+  const { getSlotsByRule, loading } = useGetAllSlotsByRule();
+
   function updateSlotsFromChild(newSlots: IInterviewSlot[]) {
     setSlots((prev) => [...prev, ...newSlots]);
   }
-  async function getAllSlotsFromServer() {
-    const response = await getSlotsByInterviewerId(user?.id as string);
-    if (response.success) {
-      setSlots(response.data);
-      setIsShownSlots(true);
-    } else {
-      toast.error(response.error, {
-        className: "custom-toast-error",
-      });
-    }
-  }
 
   useEffect(() => {
-    getAllSlotsFromServer();
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
+    async function getAllSlotsBasedOnRule() {
+      setIsShownSlots(true);
+      const response = await getSlotsByRule(user?.id as string);
+      console.log(response);
+      if (response.success) {
+        setSlots(response.data);
+      } else {
+        toast.error(response.error, {
+          className: "custom-toast-error",
+        });
+      }
+    }
+    getAllSlotsBasedOnRule();
   }, []);
 
   return loading ? (

@@ -8,5 +8,5 @@ export enum AdminRoutes {
   WALLET = "/admin/wallet",
   UPDATE_COMPANY_STATUS = "/admin/companies",
   GET_INTERVIEWERS = "/admin/interviewers?status=",
-  COMPANY = "COMPANY",
+ 
 }

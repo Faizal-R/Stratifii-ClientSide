@@ -16,7 +16,7 @@ export const SlotService = {
     }
   },
 
-  getAllSlotsByInterviewerId: async (interviewerId: string) => {
+  getAllSlotsByRule: async (interviewerId: string) => {
     try {
       const response = await apiClient.get(
         `${SlotRoutes.GET_INTERVIEWER_SLOTS}/${interviewerId}`
@@ -24,6 +24,17 @@ export const SlotService = {
       return response.data;
     } catch (error) {
       return parseAxiosError(error, "An error occurred while fetching slots.");
+    }
+  },
+
+  getInterviewerSlotGenerationRule: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${SlotRoutes.GET_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching slot generation rule.");
     }
   },
 };
