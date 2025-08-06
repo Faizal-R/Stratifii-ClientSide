@@ -24,10 +24,10 @@ export const getAdminCompanyColumns = ({
       return (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-            {company.companyName.charAt(0).toUpperCase()}
+            {company.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <div className="font-medium text-violet-100">{company.companyName}</div>
+            <div className="font-medium text-violet-100">{company.name}</div>
             <div className="text-xs text-violet-400">Company</div>
           </div>
         </div>

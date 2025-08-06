@@ -12,11 +12,11 @@ interface UserDetailsModalProps {
 
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onClose, user }) => {
   if (!isOpen) return null;
-  const isCompany = "companyName" in user;
+  const isCompany = "name" in user;
 
 const details = isCompany
   ? [
-      { label: "Name", value: user.companyName },
+      { label: "Name", value: user.name },
       { label: "Email", value: user.email },
       { label: "Website", value: user.companyWebsite },
       { label: "Registration Number", value: user.registrationCertificateNumber },

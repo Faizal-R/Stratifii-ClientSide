@@ -4,7 +4,7 @@ const statusEnum = z.enum(["pending", "approved", "rejected"]);
 export const CompanyProfileSchema = z.object({
   _id: z.string().optional(),
   password: z.string().optional(),
-  companyName: z.string().min(1, "Company name is required").trim(),
+  name: z.string().min(1, "Company name is required").trim(),
   email: z
     .string()
     .regex(
@@ -46,7 +46,7 @@ export type ICompanyProfile = z.infer<typeof CompanyProfileSchema>;
 // Define the Zod schema for ICompany
 export const companySchema = z.object({
   _id: z.string().optional(),
-  companyName: z.string().min(1, "Company name is required").trim(),
+  name: z.string().min(1, "Company name is required").trim(),
   email: z
     .string()
     .regex(
@@ -77,7 +77,7 @@ export const companySchema = z.object({
 export type ICompany = z.infer<typeof companySchema>;
 
 export const CompanyRegistrationSchema = z.object({
-  companyName: z.string().min(3, "Company name must be at least 3 characters."),
+  name: z.string().min(3, "Company name must be at least 3 characters."),
   companyWebsite: z.string().url("Invalid website URL."),
   registrationCertificateNumber: z
     .string()
@@ -109,7 +109,7 @@ export const CompanyRegistrationSchema = z.object({
 export type ICompanyRegistration = z.infer<typeof CompanyRegistrationSchema>;
 
 export const CompanyRegistrationStep1Schema = z.object({
-  companyName: z.string().min(3, "Company name must be at least 3 characters."),
+  name: z.string().min(3, "Company name must be at least 3 characters."),
   companyWebsite: z.string().url("Invalid website URL."),
   registrationCertificateNumber: z
     .string()

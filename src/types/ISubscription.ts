@@ -23,7 +23,7 @@ export interface ISubscriptionDetails {
   planDetails: {
     name: string;
     price: number;
-    currency: string;
+    currency?: string;
     features: ISubscriptionFeatures;
   };
   startDate: Date;

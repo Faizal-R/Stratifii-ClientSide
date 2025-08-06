@@ -41,7 +41,7 @@ const JobCard: React.FC<JobCardProps> = ({
           </h3>
           <div className="flex items-center text-gray-300 mb-3">
             <Building className="w-4 h-4 mr-2" />
-            <span>{job.companyName}</span>
+            <span>{job.name}</span>
           </div>
           <div
             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(

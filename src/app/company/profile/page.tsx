@@ -235,7 +235,7 @@ fetchSubscriptionDetails()
                 <div className="pt-20 pb-6 px-8 bg-gray-900/60 backdrop-blur-xl rounded-b-3xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h1 className="text-3xl font-bold">{companyData.companyName}</h1>
+                      <h1 className="text-3xl font-bold">{companyData.name}</h1>
                       <p className="text-sm text-gray-400 mt-1">
                         Manage your company's information and branding
                       </p>
@@ -285,8 +285,8 @@ fetchSubscriptionDetails()
                     icon={Building}
                     label="Company Name"
                     placeholder="Enter company name"
-                    value={companyData.companyName}
-                    name="companyName"
+                    value={companyData.name}
+                    name="name"
                     isEditing={isEditing}
                     handleChange={handleChange}
                   />

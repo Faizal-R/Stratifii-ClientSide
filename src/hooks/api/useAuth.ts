@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import AuthService from "@/services/AuthService";
 import { ICompany } from "@/types/ICompany";
-import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration } from "@/validations/AuthSchema";
 
 export const useSignIn = () => {
   const [loading, setLoading] = useState(false);

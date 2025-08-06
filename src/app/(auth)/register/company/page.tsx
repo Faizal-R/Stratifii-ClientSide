@@ -26,7 +26,7 @@ function CompanyRegistrationPage() {
     const router=useRouter()
 
   const [formData, setFormData] = useState({
-    companyName: "",
+    name: "",
     email: "",
     companyWebsite: "",
     registrationCertificateNumber: "",
@@ -151,8 +151,8 @@ function CompanyRegistrationPage() {
                   />
                   <input
                     type="text"
-                    name="companyName"
-                    value={formData.companyName}
+                    name="name"
+                    value={formData.name}
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Company Name"

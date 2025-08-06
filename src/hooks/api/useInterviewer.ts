@@ -45,7 +45,7 @@ export const useSetupInterviewerAccount = () => {
   const [loading, setLoading] = useState(false);
 
   const setupInterviewerAccount = useCallback(
-    async ( updatedInterviewer: IInterviewerProfile,interviewerId:string) => {
+    async ( updatedInterviewer: any,interviewerId:string) => {
       try {
         setLoading(true);
         const response = await InterviewerService.setupInterviewerAccount(

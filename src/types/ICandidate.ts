@@ -10,7 +10,7 @@ export interface ICandidateProfile {
   resume: string;
   status: "active" | "pending" | "deactive";
   isBlocked: boolean;
-  companyName?: string;
+  name?: string;
   createdAt: string; // ISO 8601 datetime string
   updatedAt: string; // ISO 8601 datetime string
 }

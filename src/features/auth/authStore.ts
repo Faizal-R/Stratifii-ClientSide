@@ -4,8 +4,7 @@ import { create } from "zustand";
 interface User {
   id?: string;
   email: string;
-  name?:string;
-  phone?:string;
+  name:string;
   role: Roles;
   token:string
 }
