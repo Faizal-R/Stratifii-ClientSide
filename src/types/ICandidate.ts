@@ -4,15 +4,14 @@ import { IJob } from "./IJob";
 
 export interface ICandidateProfile {
   _id: string;
-  name: string;
   email: string;
   avatar: string;
   resume: string;
   status: "active" | "pending" | "deactive";
-  isBlocked: boolean;
+  isBlocked?: boolean;
   name?: string;
-  createdAt: string; // ISO 8601 datetime string
-  updatedAt: string; // ISO 8601 datetime string
+  createdAt?: string; // ISO 8601 datetime string
+  updatedAt?: string; // ISO 8601 datetime string
 }
 
 export interface ICandidate {

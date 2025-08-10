@@ -7,20 +7,18 @@ export const useCreateJob = function () {
     async (
       position: string,
       description: string,
-      deadline: Date,
+
       experienceRequired: number,
       requiredSkills: string[],
-      interviewDuration: number
+    
     ) => {
       try {
         setLoading(true);
         const response = await JobService.createJob({
           position,
-          deadline,
           experienceRequired,
           requiredSkills,
           description,
-          interviewDuration,
         });
         return response;
       } finally {
@@ -129,20 +127,20 @@ export const useGetCandidatesByJob = function () {
   return { loading, getCandidatesByJob };
 };
 
-export const useGetQualifiedCandidatesByJob = function () {
+export const useGetMockQualifiedCandidates = function () {
   const [loading, setLoading] = useState(false);
 
-  const getQualifiedCandidatesByJob = useCallback(async (jobId: string) => {
+  const mockQualifiedCandidatesByJob = useCallback(async (jobId:string) => {
     try {
       setLoading(true);
-      const response = await JobService.getQualifiedCandidatesByJobId(jobId);
+      const response = await JobService.getMockQualifiedCandidatesByJob(jobId);
       return response;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { loading, getQualifiedCandidatesByJob };
+  return { loading, mockQualifiedCandidatesByJob };
 };
 
 

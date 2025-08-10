@@ -90,16 +90,7 @@ export const JobService = {
     }
   },
 
-  getQualifiedCandidatesByJobId: async (jobId: string) => {
-    try {
-      const response = await apiClient.get(
-        `${JobRoutes.QUALIFIED_CANDIDATES}/${jobId}/qualified-candidates`
-      );
-      return response.data;
-    } catch (error) {
-      return parseAxiosError(error, "Fetching Qualified Candidates");
-    }
-  },
+
 
   getMatchedInterviewersByJobDescription: async (jobId: string) => {
     try {
@@ -111,4 +102,12 @@ export const JobService = {
       return parseAxiosError(error, "Fetching Matched Interviewers");
     }
   },
+   getMockQualifiedCandidatesByJob:async (jobId:string)=>{
+    try {
+      const response = await apiClient.get(`${JobRoutes.MOCK_QUALIFIED_CANDIDATES}/${jobId}/qualified-candidates`);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching mock qualified candidates");
+    }
+  }
 };

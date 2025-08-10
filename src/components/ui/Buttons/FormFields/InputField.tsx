@@ -18,6 +18,7 @@ export const InputField = ({
   type?:string
 
 }) => {
+  
   return (
     <div className="mb-6">
       <label className="text-gray-400 text-sm font-medium mb-2 flex items-center gap-2">
@@ -35,7 +36,8 @@ export const InputField = ({
         />
       ) : (
         <div className="text-white bg-gray-900 rounded-lg px-4 py-2">
-          {(value as string)?.length > 1 ? value : placeholder}
+          {/* {(value as string)?.length > 1 ? value : placeholder} */}
+          {value}
         </div>
       )}
     </div>

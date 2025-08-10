@@ -105,7 +105,8 @@ function JobManagementPage() {
       });
       return;
     }
-    setCandidates(response.data);
+    console.log(response.data);
+    setCandidates(prev=>([...prev, ...response.data]));
     toast.success(response.message);
     setIsModalOpen(false);
   };
@@ -139,12 +140,12 @@ function JobManagementPage() {
         });
         return;
       }
-      setCandidates(response.data);
-       if(response.data[0]&&response.data[0]?.job&&response.data[0]?.job.paymentTransaction?.status)
-      if (response.data[0].job.paymentTransaction?.status === "PAID") {
-        setIsInterviewProcessInitiated(true);
-      }
-
+      if(response.data[0]&&response.data[0]?.job&&response.data[0]?.job.paymentTransaction?.status)
+        if (response.data[0].job.paymentTransaction?.status === "PAID") {
+          setIsInterviewProcessInitiated(true);
+        }
+        
+        setCandidates(response.data);
       console.log(response.data);
     };
 
@@ -219,7 +220,7 @@ function JobManagementPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {candidates.map((candidateWrapper) => {
+            {(candidates||[]).map((candidateWrapper) => {
               const profile = candidateWrapper.candidate as ICandidateProfile;
 
               return (
@@ -237,14 +238,14 @@ function JobManagementPage() {
                         profile?.avatar ||
                         "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
                       }
-                      alt={profile.name || "Candidate"}
+                      alt={profile?.name || "Candidate"}
                       className="h-16 w-16 rounded-full object-cover border-2 border-violet-600 shadow-md"
                     />
                     <div>
                       <h2 className="text-lg font-bold text-white">
                         {profile?.name}
                       </h2>
-                      <p className="text-sm text-gray-400">{profile.email}</p>
+                      <p className="text-sm text-gray-400">{profile?.email}</p>
                     </div>
                   </div>
 
@@ -258,12 +259,12 @@ function JobManagementPage() {
                       </div>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          profile.status === "pending"
+                          profile?.status === "pending"
                             ? "bg-yellow-200 text-yellow-900"
                             : "bg-green-300 text-green-900"
                         }`}
                       >
-                        {profile.status}
+                        {profile?.status}
                       </span>
                     </div>
 
@@ -308,7 +309,7 @@ function JobManagementPage() {
                             : "bg-gray-300 text-gray-900"
                         }`}
                       >
-                        {candidateWrapper.status === "mock_pending"
+                        {candidateWrapper?.status === "mock_pending"
                           ? "Not Scheduled"
                           : candidateWrapper.status}
                       </span>
@@ -333,7 +334,7 @@ function JobManagementPage() {
         isOpen={isConfirmationModalOpen}
         onClosed={() => setIsConfirmationModalOpen(false)}
         onProceed={handleModalConfirmation}
-        candidatesCount={candidates.length}
+        candidatesCount={candidates?.length}
       />
     </div>
   );

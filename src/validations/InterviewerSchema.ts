@@ -1,109 +1,10 @@
 import { z } from "zod";
 
-export const InterviewerProfileSchema = z.object({
-  _id: z.string().optional(),
-  name: z.string().min(1, "Name is required"),
-  position: z.string().min(1, "Position is required"),
-  email: z.string().email("Invalid email format"),
-  phone: z.string().min(10, "Invalid phone number"),
-  experience: z.number().min(0, "Experience must be a positive number"),
-  linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
-  duration: z.number().optional(),
-  location: z.string().optional(),
-  languages: z
-    .array(
-      z.object({
-        language: z.string().min(1, "Language name is required"),
-        level: z.string().min(1, "Language level is required"),
-      })
-    )
-    .optional(),
-
-  availableDays: z
-    .array(z.string())
-    .min(1, "At least one available day is required"),
-  availability: z
-    .array(
-      z.object({
-        day: z.string(),
-        timeSlot: z.array(
-          z.object({
-            startTime: z.string(),
-            endTime: z.string(),
-          })
-        ),
-      })
-    )
-    .optional(),
-  professionalSummary: z.string().min(1, "Professional summary is required"),
-  expertise: z.array(z.string()).min(1, "At least one expertise is required"),
-  avatar: z.string().url("Invalid avatar URL").optional(),
-  rating: z.number().min(0).max(5).optional(),
-  status: z.enum(["approved", "pending", "rejected"]),
-  isVerified: z.boolean().optional(),
- resume: z
-  .custom<File|null>((file) => file instanceof File, {
-    message: "Resume file is required",
-  }).optional(),
-});
-
-
-// export const interviewerSchema = z.object({
-//   name: z.string().min(2, "Name must be at least 2 characters long"),
-//   position: z.string().min(2, "Position must be at least 2 characters long"),
-//   email: z.string().email("Invalid email format"),
-//   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-//   password: z.string().min(6, "Password must be at least 6 characters long"),
-//   experience: z.number().min(0, "Experience cannot be negative"),
-//   linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
-//   location: z.string().optional(),
-//   languages: z
-//     .array(
-//       z.object({
-//         language: z.string().min(1, "Language name is required"),
-//         level: z.string().min(1, "Language level is required"),
-//       })
-//     )
-//     .optional(),
-
-//   availableDays: z
-//     .array(z.string())
-//     .nonempty("At least one available day is required"),
-//   availability: z
-//     .array(
-//       z.object({
-//         day: z.string(),
-//         timeSlot: z.array(
-//           z.object({
-//             startTime: z.string(),
-//             endTime: z.string(),
-//           })
-//         ),
-//       })
-//     )
-//     .optional(),
-//   isBlocked: z.boolean().optional(),
-//   professionalSummary: z
-//     .string()
-//     .min(10, "Professional summary must be at least 10 characters"),
-//   expertise: z
-//     .array(z.string())
-//     .nonempty("At least one expertise area is required"),
-//   scheduleInterviews: z.array(z.string()).optional(), // Array of ObjectIds (strings)
-//   avatar: z.string().optional(),
-//   isVerified: z.boolean().default(false),
-//   rating: z.number().min(0).max(5).optional(),
-//   reviews: z.array(z.string()).optional(), // Array of ObjectIds (strings)
-//   status: statusEnum.default("pending"),
-//   resume:z.any(),
-//   createdAt: z.date().optional(),
-// });
-
 // Enums
-const SkillProficiencyLevels = ["beginner", "intermediate", "advanced", "expert"] as const;
-const SkillSources = ["professional", "academic", "personal", "certification"] as const;
+export const SkillProficiencyLevels = ["beginner", "intermediate", "advanced", "expert"] as const;
+export const SkillSources = ["professional", "academic", "personal", "certification"] as const;
 
-// Skill Expertise Zod schema
+// Skill Expertise Schema
 export const SkillExpertiseSchema = z.object({
   skill: z.string().min(1, "Skill name is required"),
   proficiencyLevel: z.enum(SkillProficiencyLevels, {
@@ -115,8 +16,33 @@ export const SkillExpertiseSchema = z.object({
     .min(1, "At least one skill source is required"),
 });
 
+// Main Interviewer Profile Schema
+export const InterviewerProfileSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  position: z.string().min(1, "Position is required"),
+  email: z.string().email("Invalid email format"),
+  phone: z.string().min(10, "Invalid phone number"),
+  experience: z.number().min(0, "Experience must be a positive number"),
+  linkedinProfile: z.string().url("Invalid LinkedIn profile URL"),
+  avatar: z.string().url("Invalid avatar URL").or(z.null()).optional(),
+  rating: z.number().min(0).max(5).optional(),
+  status: z.enum(["approved", "pending", "rejected"]),
+  isVerified: z.boolean().optional(),
+  resume: z
+    .custom<File | string | null>((file) => {
+      return typeof file === "string" || file instanceof File || file === null;
+    }, {
+      message: "Invalid resume file",
+    })
+    .optional(),
 
+  // ✅ Use structured expertise schema
+  expertise: z
+    .array(SkillExpertiseSchema)
+    .min(1, "At least one expertise is required"),
+});
 
-
-// export type IInterviewerSchema = z.infer<typeof interviewerSchema>;
+// Type export
 export type IInterviewerProfile = z.infer<typeof InterviewerProfileSchema>;
+export type ISkillExpertise = z.infer<typeof SkillExpertiseSchema>;

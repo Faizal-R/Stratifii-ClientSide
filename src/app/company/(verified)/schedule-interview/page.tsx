@@ -4,7 +4,7 @@ import JobSelection from "@/components/features/company/schedule-interview/JobSe
 
 const Page = () => {
  return(
-  <div className="">
+  <div className="bg-gradient-to-br from-black via-black to-violet-950">
     <InterviewScheduling/>
   </div>
  )

@@ -4,10 +4,8 @@ export interface IJob {
   position: string;
   description: string;
   requiredSkills: string[];
-  deadline: Date;
   status?: "open" | "in-progress" | "completed";
-  experienceRequired: number;
-  interviewDuration: number;
+  experienceRequired: number|string;
   createdAt?: Date;
   updatedAt?: Date;
 }

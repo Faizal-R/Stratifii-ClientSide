@@ -1,5 +1,5 @@
 import { SlotService } from "@/services/SlotService";
-import { ISlotGenerationRequest } from "@/types/ISlotTypes";
+import { IInterviewSlot, ISlotGenerationRequest } from "@/types/ISlotTypes";
 import { useCallback, useState } from "react";
 
 export const useSlotGeneration = () => {
@@ -59,5 +59,30 @@ export const useGetInterviewerSlotGenerationRule = () => {
 
   return { getInterviewerSlotGenerationRule, loading };
 };
+
+
+export const useScheduleInterviewForCandidate=()=>{
+  const [loading, setLoading] = useState(false);
+
+  const scheduleInterview = useCallback(
+    async (payloadForSlotBooking:{
+        interviewer: string;
+        slot: IInterviewSlot;
+        candidate: string;
+        job: string;
+      }) => {
+      setLoading(true);
+      try {
+        const response = await SlotService.scheduleInterviewForCandidate(payloadForSlotBooking);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { scheduleInterview, loading };
+}
 
 

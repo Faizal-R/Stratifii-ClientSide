@@ -67,3 +67,5 @@ export const useGenerateMockInterviewQuestions = function () {
 
   return { loading, generateMockInterviewQuestions };
 };
+
+
