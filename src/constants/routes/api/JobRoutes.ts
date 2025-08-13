@@ -6,5 +6,6 @@ export enum JobRoutes {
   CANDIDATES = "/company/jobs", 
   MOCK_QUALIFIED_CANDIDATES = "/company/jobs", 
   MATCHED_INTERVIEWERS = "/company/jobs", 
+  FINAL_INTERVIEW_COMPLETED_CANDIDATES= "/company/jobs",
   
 }

@@ -159,3 +159,20 @@ export const useGetMatchedInterviewersByJobDescription = function () {
 
   return { loading, getMatchedInterviewersByJobDescription };
 };
+
+
+export const useGetFinalInterviewCompletedCandidatesByJob= function () {
+  const [loading, setLoading] = useState(false);
+
+  const getFinalInterviewCompletedCandidatesByJob = useCallback(async (jobId: string) => {
+    try {
+      setLoading(true);
+      const response = await JobService.getFinalInterviewCompletedCandidatesByJob(jobId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, getFinalInterviewCompletedCandidatesByJob };
+}

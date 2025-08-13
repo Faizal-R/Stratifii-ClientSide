@@ -109,5 +109,16 @@ export const JobService = {
     } catch (error) {
       return parseAxiosError(error, "An error occurred while fetching mock qualified candidates");
     }
+  },
+
+  getFinalInterviewCompletedCandidatesByJob: async (jobId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${JobRoutes.FINAL_INTERVIEW_COMPLETED_CANDIDATES}/${jobId}/final-completed`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "Fetching Final Interview Completed Candidates");
+    }
   }
 };
