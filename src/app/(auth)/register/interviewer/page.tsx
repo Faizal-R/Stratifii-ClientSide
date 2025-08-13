@@ -31,7 +31,7 @@ import { handleInterviewerRegistrationStep } from "@/utils/handleRegistrationSte
 import { Roles } from "@/constants/enums/roles";
 import {
   useSetupInterviewerAccount,
-  // useUpadteInterviewerProfile,
+  // useUpdateInterviewerProfile,
 } from "@/hooks/api/useInterviewer";
 
 import { useAuthStore } from "@/features/auth/authStore";

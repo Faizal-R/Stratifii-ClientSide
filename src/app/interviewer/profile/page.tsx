@@ -31,7 +31,7 @@ import {
 import {
   useChangeInterviewerPassword,
   useFetchInterviewerProfile,
-  useUpadteInterviewerProfile,
+  useUpdateInterviewerProfile,
 } from "@/hooks/api/useInterviewer";
 import { toast } from "sonner";
 
@@ -49,7 +49,7 @@ function InterviewerProfilePage() {
   const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile, loading: updateLoading } =
-    useUpadteInterviewerProfile();
+    useUpdateInterviewerProfile();
   const { changeInterviewerPassword } = useChangeInterviewerPassword();
 
   const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(

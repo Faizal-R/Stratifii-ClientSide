@@ -3,6 +3,8 @@ import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  // baseURL:"http://192.168.1.91:8000/api/v1",
+
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
@@ -58,7 +60,7 @@ apiClient.interceptors.response.use(
       const user = JSON.parse(localStorage.getItem("user") || "null");
       // console.log(user.role)
       if(user){
-        const newAccessToken = await refreshAccessToken(user.role!);
+        const newAccessToken = await refreshAccessToken(user.role);
         console.log("newAccessToken", newAccessToken); // Backend call
   
         if (newAccessToken) {

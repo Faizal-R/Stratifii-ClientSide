@@ -24,7 +24,7 @@ import {
 import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
 import {
   useFetchCompanyProfile,
-  useUpadteCompanyProfile,
+  useUpdateCompanyProfile,
 } from "@/hooks/api/useCompany";
 import {
   CompanyProfileSchema,
@@ -55,7 +55,7 @@ function CompanyProfilePage() {
 
   const { companyProfile, loading } = useFetchCompanyProfile();
   const { updateCompanyProfile, loading: updateLoading } =
-    useUpadteCompanyProfile();
+    useUpdateCompanyProfile();
   const { logout } = useAuthStore();
   const {getSubscriptionDetails,loading:subscriptionLoading}=useGetSubscriptionDetails()
 

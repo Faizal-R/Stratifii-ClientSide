@@ -1,4 +1,5 @@
 import { IInterviewer } from "@/types/IInterviewer";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   EyeIcon,
@@ -26,11 +27,11 @@ export const getAdminInterviewerColumns = ({
   activeTab,
   onOpenVerificationModal
 }: {
-  onView: (interviewer: IInterviewer) => void;
+  onView: (interviewer: IInterviewerProfile) => void;
   onBlockToggle: (id: string) => void;
   activeTab: string;
   onOpenVerificationModal: (interviewer: string,isVerifyOrReject:boolean) => void
-}): ColumnDef<IInterviewer>[] => [
+}): ColumnDef<IInterviewerProfile>[] => [
   {
     accessorKey: "name",
     header: "Interviewer",

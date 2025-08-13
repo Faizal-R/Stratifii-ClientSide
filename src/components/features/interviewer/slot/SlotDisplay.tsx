@@ -1,21 +1,26 @@
-import React from 'react';
-import { Calendar, TrendingUp, CheckCircle, XCircle,Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 import { IInterviewSlot } from '@/types/ISlotTypes';
 import { formatDate } from '@/utils/slotCalculator';
 import SlotCard from '@/components/features/common/SlotCard';
 
 interface SlotDisplayProps {
   slots: IInterviewSlot[];
-  
 }
 
 const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
-  if (slots.length === 0) {
+  const [filter, setFilter] = useState<'all' | 'booked' | 'available'>('all');
+
+  // Apply filter
+  const displayedSlots =
+    filter === 'all' ? slots : slots.filter((slot) => slot.status === filter);
+
+  if (displayedSlots.length === 0) {
     return null;
   }
 
   // Group slots by date
-  const groupedSlots = slots.reduce((acc, slot) => {
+  const groupedSlots = displayedSlots.reduce((acc, slot) => {
     const date = new Date(slot.startTime).toDateString();
     if (!acc[date]) {
       acc[date] = [];
@@ -24,25 +29,30 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
     return acc;
   }, {} as Record<string, IInterviewSlot[]>);
 
-  const sortedDates = Object.keys(groupedSlots).sort((a, b) => 
-    new Date(a).getTime() - new Date(b).getTime()
+  const sortedDates = Object.keys(groupedSlots).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
   );
 
+  // Stats
   const totalSlots = slots.length;
-  const availableSlots = slots.filter(slot => slot.status === 'available').length;
-  const bookedSlots = slots.filter(slot => slot.status === 'booked').length;
+  const availableSlots = slots.filter((slot) => slot.status === 'available').length;
+  const bookedSlots = slots.filter((slot) => slot.status === 'booked').length;
   const availabilityRate = Math.round((availableSlots / totalSlots) * 100);
 
   return (
-    <div className="mt-8 space-y-6 ml-64 px-8 bg-gradient-to-br from-black via-black to-violet-950 pb-3">
+    <div className="mt-8 space-y-6 ml-64 px-8  pb-3 bg-gradient-to-br  from-black via-black to-violet-950">
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        {/* Total */}
         <div
-          className="p-4 rounded-lg text-center"
+          className={`p-4 rounded-lg text-center ${filter === 'all' ? 'ring-2 ring-violet-400' : ''}`}
+          onClick={() => setFilter('all')}
           style={{
             background: "rgba(139, 92, 246, 0.1)",
             border: "1px solid rgba(139, 92, 246, 0.3)",
+            cursor: 'pointer'
           }}
         >
           <div className="flex items-center justify-center mb-2">
@@ -52,11 +62,14 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
           <div className="text-xs text-violet-400">Total Slots</div>
         </div>
 
+        {/* Available */}
         <div
-          className="p-4 rounded-lg text-center"
+          className={`p-4 rounded-lg text-center ${filter === 'available' ? 'ring-2 ring-emerald-400' : ''}`}
+          onClick={() => setFilter(filter === 'available' ? 'all' : 'available')}
           style={{
             background: "rgba(16, 185, 129, 0.1)",
             border: "1px solid rgba(16, 185, 129, 0.3)",
+            cursor: 'pointer'
           }}
         >
           <div className="flex items-center justify-center mb-2">
@@ -66,11 +79,14 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
           <div className="text-xs text-emerald-400">Available</div>
         </div>
 
+        {/* Booked */}
         <div
-          className="p-4 rounded-lg text-center"
+          className={`p-4 rounded-lg text-center ${filter === 'booked' ? 'ring-2 ring-red-400' : ''}`}
+          onClick={() => setFilter(filter === 'booked' ? 'all' : 'booked')}
           style={{
             background: "rgba(239, 68, 68, 0.1)",
             border: "1px solid rgba(239, 68, 68, 0.3)",
+            cursor: 'pointer'
           }}
         >
           <div className="flex items-center justify-center mb-2">
@@ -80,11 +96,12 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
           <div className="text-xs text-red-400">Booked</div>
         </div>
 
+        {/* Availability rate */}
         <div
           className="p-4 rounded-lg text-center"
           style={{
             background: "rgba(245, 158, 11, 0.1)",
-            border: "1px solid rgba(245, 158, 11, 0.3)",
+            border: "1px solid rgba(245, 158, 11, 0.3)"
           }}
         >
           <div className="flex items-center justify-center mb-2">
@@ -96,7 +113,7 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
       </div>
 
       {/* Slots by Date */}
-      <div className="space-y-6">
+      <div className="space-y-6 h-full">
         {sortedDates.map((date) => (
           <div key={date} className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -104,7 +121,7 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
                 className="p-2 rounded-lg"
                 style={{
                   background: "rgba(139, 92, 246, 0.2)",
-                  border: "1px solid rgba(139, 92, 246, 0.3)",
+                  border: "1px solid rgba(139, 92, 246, 0.3)"
                 }}
               >
                 <Calendar className="w-4 h-4 text-violet-400" />
@@ -118,10 +135,10 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
                 </p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {groupedSlots[date].map((slot, index) => (
-                <SlotCard key={slot._id|| `${date}-${index}`} slot={slot} index={index} />
+                <SlotCard key={slot._id || `${date}-${index}`} slot={slot} index={index} />
               ))}
             </div>
           </div>

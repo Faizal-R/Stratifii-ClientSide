@@ -41,6 +41,8 @@ export const InterviewerProfileSchema = z.object({
   expertise: z
     .array(SkillExpertiseSchema)
     .min(1, "At least one expertise is required"),
+    isBlocked: z.boolean().optional(),
+    createdAt: z.date().optional(),
 });
 
 // Type export

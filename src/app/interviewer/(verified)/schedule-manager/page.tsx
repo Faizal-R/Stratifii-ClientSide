@@ -1,6 +1,6 @@
 "use client";
-import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
-import SlotGeneratorPage from "@/components/features/interviewer/SlotGeneratorPage";
+import SlotDisplay from "@/components/features/interviewer/slot/SlotDisplay";
+import SlotGeneratorPage from "@/components/features/interviewer/slot/SlotGeneratorPage";
 import { useAuthStore } from "@/features/auth/authStore";
 import {
   useGetAllSlotsByRule,

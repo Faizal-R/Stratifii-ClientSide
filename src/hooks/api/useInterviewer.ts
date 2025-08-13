@@ -19,7 +19,7 @@ export const useFetchInterviewerProfile = () => {
   return { interviewerProfile, loading };
 };
 
-export const useUpadteInterviewerProfile = () => {
+export const useUpdateInterviewerProfile = () => {
   const [loading, setLoading] = useState(false);
 
   const updateInterviewerProfile = useCallback(

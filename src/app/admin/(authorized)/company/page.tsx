@@ -130,6 +130,7 @@ function AdminCompanyManagement() {
         isOpen={isDetailsModalOpen}
         user={selectedCompanyForDetails!}
         onClose={() => setIsDetailsModalOpen(false)}
+        isCompany={true}
       />
 
       <div className="min-h-screen  pl-64 bg-gradient-to-br from-black via-black to-violet-950">

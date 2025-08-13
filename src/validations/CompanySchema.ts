@@ -66,7 +66,7 @@ export const companySchema = z.object({
     .optional(),
   phone: z.string().min(1, "Phone number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  companyType: z.string().min(1, "Company type is required").trim(), // Array of ObjectIds referencing Candidate
+  companyType: z.string().min(1, "Company type is required").trim(),
   isVerified: z.boolean().optional().default(false),
   status: statusEnum.optional().default("pending"),
   createdAt: z.date(),

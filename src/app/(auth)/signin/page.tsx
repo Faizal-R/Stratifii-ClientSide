@@ -102,7 +102,7 @@ function App() {
       email,
       id,
       role: selectedRole as Roles,
-      token: response.data.token,
+      token: response.data.accessToken,
       name,
     });
   };

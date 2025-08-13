@@ -4,7 +4,7 @@ import { Star, MapPin, Mail, Calendar, Clock, Award, CheckCircle } from "lucide-
 import { IJob } from "@/types/IJob";
 import { useGetMatchedInterviewersByJobDescription } from "@/hooks/api/useJob";
 import { toast } from "sonner";
-import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import { IInterviewerProfile, ISkillExpertise } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 
 // Badge component (if not available from a UI library)
@@ -57,11 +57,11 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
 
 
 
-  const isSlotAvailable = (slot: any) =>
+  const isSlotAvailable = (slot: IInterviewSlot) =>
     slot.isAvailable && slot.status === "available";
 
   // Helper function to get top skills (you can modify the logic as needed)
-  const getTopSkills = (expertise: any[]) => {
+  const getTopSkills = (expertise: ISkillExpertise[]) => {
     return expertise?.slice(0, 6) || []; // Show top 6 skills
   };
 
@@ -184,7 +184,7 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
                       </p>
                     ) : (
                       <div className="grid grid-cols-1 gap-3">
-                        {interviewer.slots.map((slot: any) => {
+                        {interviewer.slots.map((slot: IInterviewSlot) => {
                           const available = isSlotAvailable(slot);
                           return (
                             <div

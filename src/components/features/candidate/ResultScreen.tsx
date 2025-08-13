@@ -50,7 +50,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ score, onBackToDashboard 
       <div className="max-w-5xl w-full">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <div className=" rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
             <Award className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white mb-1">Interview Completed!</h1>

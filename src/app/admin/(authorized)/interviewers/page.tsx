@@ -16,6 +16,7 @@ import InterviewerDetailsModal from "@/components/ui/Modals/UserDetailsModal";
 import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminInterviewerColumns } from "@/constants/table-columns/interviewerColumns";
 import { set } from "zod";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 const interviewerVerificationReasons = [
   {
     value: "less_experience",
@@ -65,10 +66,10 @@ function AdminInterviewerManagement() {
   const { verifyOrRejectInterviewer } = useHandleInterveiwerVerification();
 
   const [selectedInterviewerForDetails, setSelectedInterviewerForDetails] =
-    useState<IInterviewer | null>(null);
+    useState<IInterviewerProfile | null>(null);
 
   const { fetchInterviewers, loading } = useAdminInterviewers();
-  const [interviewers, setInterviewers] = useState<IInterviewer[] | []>([]);
+  const [interviewers, setInterviewers] = useState<IInterviewerProfile[] | []>([]);
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
@@ -81,7 +82,7 @@ function AdminInterviewerManagement() {
   };
 
   // FIX: Improved safety check and state setting
-  const showDetailsModal = (interviewer: IInterviewer) => {
+  const showDetailsModal = (interviewer: IInterviewerProfile) => {
     if (interviewer && interviewer._id) {
       setSelectedInterviewerForDetails(interviewer);
       setIsDetailsModalOpen(true);
@@ -92,7 +93,7 @@ function AdminInterviewerManagement() {
     if (!selectedInterviewerId) return;
     await updatedInterviewer(selectedInterviewerId);
     setInterviewers(
-      interviewers.map((interviewer: IInterviewer) =>
+      interviewers.map((interviewer: IInterviewerProfile) =>
         interviewer._id === selectedInterviewerId
           ? { ...interviewer, isBlocked: !interviewer.isBlocked }
           : interviewer
@@ -232,6 +233,7 @@ function AdminInterviewerManagement() {
             setIsDetailsModalOpen(false);
             setSelectedInterviewerForDetails(null);
           }}
+          isCompany={false}
         />
       )}
 
