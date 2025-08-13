@@ -49,14 +49,22 @@ function InterviewDelegation() {
   const handleAddSkill = () => {
     const trimmed = skillInput.trim();
     if (trimmed.length === 0) return;
-    if(isJobEditing && selectedJob.requiredSkills.includes(trimmed)) return;{
-      selectedJob.requiredSkills = [...selectedJob.requiredSkills, trimmed];
-      setSkillInput("");
-    }
-    if (trimmed && !newJob.requiredSkills.includes(trimmed)) {
-      newJob.requiredSkills = [...newJob.requiredSkills, trimmed];
-      setSkillInput(""); // clear input
-    }
+    if (isJobEditing && selectedJob.requiredSkills?.includes(trimmed)) return;
+
+if (isJobEditing) {
+  setSelectedJob({
+    ...selectedJob,
+    requiredSkills: [...(selectedJob.requiredSkills || []), trimmed],
+  });
+  setSkillInput("");
+} else {
+  setNewJob({
+    ...newJob,
+    requiredSkills: [...(newJob.requiredSkills || []), trimmed],
+  });
+  setSkillInput("");
+}
+
   };
 
   const handleDeleteSkill = (skillToRemove: string) => {
