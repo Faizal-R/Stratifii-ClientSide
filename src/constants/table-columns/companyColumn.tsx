@@ -1,7 +1,5 @@
-// components/adminCompanyColumns.tsx
 import { ColumnDef } from "@tanstack/react-table";
-import { EyeIcon } from "lucide-react";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { EyeIcon, Unlock, Lock, Shield, ShieldCheck, ShieldX, MoreHorizontal } from "lucide-react";
 import { ICompany } from "@/validations/CompanySchema";
 
 export const getAdminCompanyColumns = ({
@@ -20,50 +18,116 @@ export const getAdminCompanyColumns = ({
   {
     accessorKey: "companyName",
     header: "Company",
+    size: 200,
     cell: ({ row }) => {
       const company = row.original;
       return (
-        <div className="flex items-center gap-2">
-          <span>{company.companyName}</span>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+            {company.name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div className="font-medium text-violet-100">{company.name}</div>
+            <div className="text-xs text-violet-400">Company</div>
+          </div>
         </div>
       );
     },
   },
   {
     accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => row.original.email,
+    header: "Contact",
+    size: 180,
+    cell: ({ row }) => (
+      <div>
+        <div className="text-violet-200">{row.original.email}</div>
+        <div className="text-xs text-violet-400">Primary Email</div>
+      </div>
+    ),
   },
   {
     accessorKey: "createdAt",
-    header: "Joined Date",
-    cell: ({ row }) =>
-      new Date(row.original.createdAt).toLocaleDateString(),
+    header: "Joined",
+    size: 120,
+    cell: ({ row }) => {
+      const date = new Date(row.original.createdAt);
+      return (
+        <div>
+          <div className="text-violet-200">{date.toLocaleDateString()}</div>
+          <div className="text-xs text-violet-400">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Verification",
+    size: 140,
+    cell: ({ row }) => {
+      const { status } = row.original;
+      const getStatusConfig = (status: string) => {
+        switch (status.toLowerCase()) {
+          case 'approved':
+            return {
+              icon: ShieldCheck,
+              bg: 'bg-emerald-500/10',
+              text: 'text-emerald-400',
+              border: 'border-emerald-500/20',
+              label: 'Verified'
+            };
+          case 'pending':
+            return {
+              icon: Shield,
+              bg: 'bg-amber-500/10',
+              text: 'text-amber-400',
+              border: 'border-amber-500/20',
+              label: 'Pending'
+            };
+          case 'rejected':
+            return {
+              icon: ShieldX,
+              bg: 'bg-red-500/10',
+              text: 'text-red-400',
+              border: 'border-red-500/20',
+              label: 'Rejected'
+            };
+          default:
+            return {
+              icon: Shield,
+              bg: 'bg-gray-500/10',
+              text: 'text-gray-400',
+              border: 'border-gray-500/20',
+              label: 'Unknown'
+            };
+        }
+      };
+
+      const config = getStatusConfig(status);
+      const Icon = config.icon;
+
+      return (
+        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${config.bg} ${config.text} ${config.border}`}>
+          <Icon size={14} />
+          <span className="text-xs font-medium">{config.label}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "isBlocked",
     header: "Status",
+    size: 120,
     cell: ({ row }) => {
       const { isBlocked } = row.original;
       return (
-        <div className="flex gap-2">
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              isBlocked
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
-            }`}
-          >
+        <div className={`inline-flex items-center justify-center gap-2 px-2 py-1.5 rounded-full border ${
+          isBlocked
+            ? "bg-red-500/10 text-red-400 border-red-500/20"
+            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+        }`}>
+        
+          <span className="text-xs font-medium">
             {isBlocked ? "Blocked" : "Active"}
-          </span>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              isBlocked
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
-            }`}
-          >
-            {row.original.status}
           </span>
         </div>
       );
@@ -72,34 +136,55 @@ export const getAdminCompanyColumns = ({
   {
     id: "actions",
     header: "Actions",
+    size: 140,
     cell: ({ row }) => {
       const company = row.original;
 
       return (
-        <div className="flex gap-2 justify-end">
-          <button onClick={() => onView(company)} title="View Details">
-            <EyeIcon size={18} className="text-violet-300 hover:text-white" />
-          </button>
-          <button
-            onClick={() => onBlockToggle(company._id!)}
-            className={`text-sm px-3 py-1 rounded-lg ${
-              company.isBlocked
-                ? "bg-green-50 text-green-700 hover:bg-green-100"
-                : "bg-red-50 text-red-700 hover:bg-red-100"
-            }`}
+        <div className="flex items-center gap-1">
+          {/* View Button */}
+          <button 
+            onClick={() => onView(company)} 
+            className="p-2 rounded-lg bg-violet-600/10 hover:bg-violet-600/20 text-violet-300 hover:text-violet-200 transition-all duration-200 group"
+            title="View Details"
           >
-            {company.isBlocked ? "Unblock" : "Block"}
+            <EyeIcon size={16} className="group-hover:scale-110 transition-transform" />
           </button>
 
+          {/* Block/Unblock Button */}
+          <button
+            onClick={() => onBlockToggle(company._id!)}
+            className={`p-2 rounded-lg transition-all duration-200 group ${
+              company.isBlocked
+                ? "bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 hover:text-emerald-300"
+                : "bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300"
+            }`}
+            title={company.isBlocked ? "Unblock Company" : "Block Company"}
+          >
+            {company.isBlocked ? 
+              <Unlock size={16} className="group-hover:scale-110 transition-transform" /> : 
+              <Lock size={16} className="group-hover:scale-110 transition-transform" />
+            }
+          </button>
+
+          {/* Verification Actions (only for pending) */}
           {activeTab === "pending" && (
-            <div className="flex gap-2">
-              <button onClick={() => onReject(company._id!)}>
-                <FaTimes className="text-red-500 hover:text-red-700" />
+            <>
+              <button 
+                onClick={() => onReject(company._id!)}
+                className="p-2 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 transition-all duration-200 group"
+                title="Reject Company"
+              >
+                <ShieldX size={16} className="group-hover:scale-110 transition-transform" />
               </button>
-              <button onClick={() => onVerify(company._id!)}>
-                <FaCheck className="text-green-500 hover:text-green-700" />
+              <button 
+                onClick={() => onVerify(company._id!)}
+                className="p-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 hover:text-emerald-300 transition-all duration-200 group"
+                title="Verify Company"
+              >
+                <ShieldCheck size={16} className="group-hover:scale-110 transition-transform" />
               </button>
-            </div>
+            </>
           )}
         </div>
       );

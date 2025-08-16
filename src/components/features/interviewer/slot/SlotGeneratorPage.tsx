@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useActionState,
+  useCallback,
+  useRef,
+} from "react";
 import { Calendar, Clock, Users, Send, Sparkles } from "lucide-react";
 import {
   ISlotGenerationRequest,
@@ -9,22 +15,27 @@ import {
 } from "@/types/ISlotTypes";
 import {
   calculateSlotPreview,
-  validateSlotRequest,
+  // validateSlotRequest,
 } from "@/utils/slotCalculator";
-import { useSlotGeneration } from "@/hooks/api/useSlot";
-import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
+import {
+  useGetInterviewerSlotGenerationRule,
+  useSlotGeneration,
+} from "@/hooks/api/useSlot";
 import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth/authStore";
 
 interface ISlotGenerationProps {
-  
-sendSlotsToParent: (newSlots: IInterviewSlot[]) => void;
+  sendSlotsToParent: (newSlots: IInterviewSlot[]) => void;
 }
 
-const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent}) => {
+const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
+  sendSlotsToParent,
+}) => {
+  const { user } = useAuthStore();
+  const hasFetched = useRef(false);
+  const [isExistingRule, setIsExistingRule] = useState(false);
   const [slots, setSlots] = useState<IInterviewSlot[]>([]);
   const [formData, setFormData] = useState<ISlotGenerationRequest>({
-    fromDate: "",
-    toDate: "",
     availableDays: [],
     startHour: 9,
     endHour: 17,
@@ -32,11 +43,14 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
     bufferRate: 15,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
+  const {
+    getInterviewerSlotGenerationRule,
+  } = useGetInterviewerSlotGenerationRule();
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [preview, setPreview] = useState<SlotPreview | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  
+
   const { generateSlots, loading } = useSlotGeneration();
 
   const dayNames = [
@@ -49,31 +63,51 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
     "Saturday",
   ];
 
-  // Set default dates - only from date, leave to date empty
   useEffect(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
+    if (hasFetched.current) return;
 
-    const formattedDate = `${year}-${month}-${day}`;
-
-    setFormData((prev) => ({
-      ...prev,
-      fromDate: formattedDate,
-      toDate: "",
-    }));
-  }, []);
+    hasFetched.current = true;
+    const fetchInterviewerSlotGenerationRule = async () => {
+      const response = await getInterviewerSlotGenerationRule(
+        user?.id as string
+      );
+      if (response.success) {
+        console.log(response.data);
+        if (response.data) {
+          setFormData((prev) => ({
+            ...prev,
+            ...response.data,
+            bufferRate: response.data.buffer,
+            slotDuration: response.data.duration,
+          }));
+          setIsExistingRule(true);
+        }
+      } else {
+        toast.error(response.error, {
+          className: "custom-toast-error",
+        });
+      }
+    };
+    fetchInterviewerSlotGenerationRule();
+  }, [user?.id]);
 
   // Calculate preview
   useEffect(() => {
     if (
-      formData.fromDate &&
-      formData.toDate &&
-      formData.availableDays.length > 0
+      formData.availableDays?.length > 0 &&
+      formData.startHour !== undefined &&
+      formData.endHour !== undefined &&
+      formData.slotDuration &&
+      formData.bufferRate !== undefined
     ) {
       try {
-        const previewData = calculateSlotPreview(formData);
+        const previewData = calculateSlotPreview({
+          ...formData,
+          bufferRate:
+            typeof formData.bufferRate === "number"
+              ? formData.bufferRate
+              : Number(formData.bufferRate) || 0,
+        });
         setPreview(previewData);
       } catch {
         setPreview(null);
@@ -81,12 +115,25 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
     } else {
       setPreview(null);
     }
-  }, [formData]);
+  }, [
+    formData.availableDays,
+    formData.startHour,
+    formData.endHour,
+    formData.slotDuration,
+    formData.bufferRate,
+  ]);
 
   const handleInputChange = <K extends keyof ISlotGenerationRequest>(
     field: K,
     value: ISlotGenerationRequest[K]
   ) => {
+    if (field === "bufferRate") {
+      if (typeof value === "number" && value > 0) {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      } else {
+        setFormData((prev) => ({ ...prev, [field]: 0 }));
+      }
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -101,31 +148,22 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({ sendSlotsToParent})
     handleInputChange("availableDays", updatedDays);
   };
 
-  const validateForm = (): boolean => {
-    const validationErrors = validateSlotRequest(formData);
-
-    if (validationErrors.length > 0) {
-      setErrors({ general: validationErrors.join(", ") });
-      toast(validationErrors[0],{
-        className:"custom-error-toast"
-      });
-      return false;
-    }
-
-    setErrors({});
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
-console.log("Form Data:", formData);
+    // if (!validateForm()) return;
+    if (!formData.bufferRate) {
+      toast.error("Buffer Time cannot be emtpy", {
+        className: "custom-error-toast",
+      });
+      return;
+    }
+    console.log("Form Data:", formData);
     const response = await generateSlots(formData);
 
     if (!response.success) {
-      toast(response.error || "Failed to generate slots. Please try again.",{
-        className:"custom-error-toast"
+      toast(response.error || "Failed to generate slots. Please try again.", {
+        className: "custom-error-toast",
       });
       return;
     }
@@ -133,16 +171,15 @@ console.log("Form Data:", formData);
 
     setSlots(response.data || []);
     setShowSuccess(true);
-    setTimeout(()=>{
+    setTimeout(() => {
       sendSlotsToParent(response.data || []);
-
-    },2000)
+    }, 1000);
     toast.success("Slots generated successfully!");
     // Scroll to results
     setTimeout(() => {
-      const resultsSection = document.getElementById('results-section');
+      const resultsSection = document.getElementById("results-section");
       if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        resultsSection.scrollIntoView({ behavior: "smooth" });
       }
     }, 100);
   };
@@ -153,88 +190,13 @@ console.log("Form Data:", formData);
   };
 
   return (
-    <div className=" bg-gradient-to-br from-black via-black to-violet-950 min-h-screen py-8 px-4 ml-64 bg" >
+    <div className=" bg-gradient-to-br from-black via-black to-violet-950 min-h-screen py-8 px-4 ml-64 bg">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        {/* <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div
-              className="p-3 rounded-full animate-pulse"
-              style={{
-                background: "rgba(139, 92, 246, 0.2)",
-                border: "2px solid rgba(139, 92, 246, 0.4)",
-              }}
-            >
-              <Sparkles className="w-8 h-8 text-violet-300" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Interview Slot Generator
-          </h1>
-          <p className="text-gray-300 text-lg">
-            Create your perfect interview schedule with intelligent slot generation
-          </p>
-        </div> */}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Form */}
             <div className="lg:col-span-3 space-y-6">
               {/* Date Range */}
-              <div
-                className="p-6 rounded-xl backdrop-blur-sm"
-                style={{
-                  background: "rgba(143, 0, 187, 0.08)",
-                  border: "1px solid rgba(184, 184, 184, 0.15)",
-                }}
-              >
-                <div className="flex items-center mb-4">
-                  <Calendar className="w-5 h-5 text-violet-400 mr-3" />
-                  <h2 className="text-xl font-semibold text-white">
-                    Date Range
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-violet-300 mb-3">
-                      From Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.fromDate}
-                      min={getTodayDate()}
-                      onChange={(e) =>
-                        handleInputChange("fromDate", e.target.value)
-                      }
-                      className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                      }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-violet-300 mb-3">
-                      To Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.toDate}
-                      min={formData.fromDate || getTodayDate()}
-                      onChange={(e) =>
-                        handleInputChange("toDate", e.target.value)
-                      }
-                      className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                      }}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
 
               {/* Available Days */}
               <div
@@ -257,27 +219,27 @@ console.log("Form Data:", formData);
                       className={`
                         flex flex-col items-center p-4 rounded-lg cursor-pointer transition-all duration-200
                         ${
-                          formData.availableDays.includes(index)
+                          formData.availableDays?.includes(index)
                             ? "bg-violet-600/40 border-violet-400/60 scale-105"
                             : "bg-white/5 border-white/10 hover:bg-white/10 hover:scale-105"
                         }
                       `}
                       style={{
                         border: "1px solid",
-                        borderColor: formData.availableDays.includes(index)
+                        borderColor: formData.availableDays?.includes(index)
                           ? "rgba(139, 92, 246, 0.6)"
                           : "rgba(255, 255, 255, 0.1)",
                       }}
                     >
                       <input
                         type="checkbox"
-                        checked={formData.availableDays.includes(index)}
+                        checked={formData.availableDays?.includes(index)}
                         onChange={() => handleDayToggle(index)}
                         className="sr-only"
                       />
                       <span
                         className={`text-sm font-medium ${
-                          formData.availableDays.includes(index)
+                          formData.availableDays?.includes(index)
                             ? "text-violet-200"
                             : "text-gray-400"
                         }`}
@@ -382,12 +344,13 @@ console.log("Form Data:", formData);
                     <input
                       type="number"
                       value={formData.bufferRate}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
                         handleInputChange(
                           "bufferRate",
-                          parseInt(e.target.value)
-                        )
-                      }
+                          isNaN(val) || val < 0 ? 0 : val
+                        );
+                      }}
                       min="0"
                       max="120"
                       step="5"
@@ -476,40 +439,42 @@ console.log("Form Data:", formData);
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-center pt-6">
-            <button
-              type="submit"
-              disabled={loading || !preview}
-              className="
+              <div className="flex justify-center pt-6">
+                <button
+                  type="submit"
+                  disabled={loading || !preview}
+                  className="
                 flex items-center px-8 py-4 font-semibold rounded-xl text-white
                 disabled:opacity-50 disabled:cursor-not-allowed
                 transition-all duration-300 hover:scale-105 transform
                 shadow-lg hover:shadow-xl
               "
-              style={{
-                background: preview
-                  ? "linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(168, 85, 247, 0.9) 100%)"
-                  : "rgba(107, 114, 128, 0.5)",
-                border: "1px solid rgba(139, 92, 246, 0.5)",
-              }}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                  Generating Slots...
-                </>
-              ) : (
-                <>
-                  <Send className="w-5 h-5 mr-3" />
-                  Generate Interview Slots
-                </>
-              )}
-            </button>
+                  style={{
+                    background: preview
+                      ? "linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(168, 85, 247, 0.9) 100%)"
+                      : "rgba(107, 114, 128, 0.5)",
+                    border: "1px solid rgba(139, 92, 246, 0.5)",
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Generating Slots...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-3" />
+                      {isExistingRule
+                        ? " Update Generation Rule"
+                        : " Generate Interview Slots"}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Submit Button */}
         </form>
 
         {/* Success Message */}
@@ -530,14 +495,12 @@ console.log("Form Data:", formData);
                 Slots Generated Successfully!
               </h3>
               <p className="text-emerald-300">
-                Your interview schedule is ready. {slots.length} slots have been created.
+                Your interview schedule is ready. {slots.length} slots have been
+                created.
               </p>
             </div>
           </div>
         )}
-
-        {/* Generated Slots Display */}
-        {/* {slots.length > 0 && <SlotDisplay slots={slots} />} */}
       </div>
     </div>
   );

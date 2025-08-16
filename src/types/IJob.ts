@@ -4,10 +4,8 @@ export interface IJob {
   position: string;
   description: string;
   requiredSkills: string[];
-  deadline: Date;
   status?: "open" | "in-progress" | "completed";
-  experienceRequired: number;
-  interviewDuration: number;
+  experienceRequired: number|string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -19,7 +17,7 @@ export interface DelegatedJob {
   delegatedCandidateId: string;
   jobId: string;
   jobTitle: string;
-  companyName: string;
+  name: string;
   mockStatus: "mock_pending" | "mock_started"|"mock_failed" | "mock_completed" | "shortlisted" | "final_scheduled" | "final_completed" | "rejected";
   interviewDateTime?: string; // ISO string for scheduled interview
   interviewType?: "video" | "in_person" | "phone";

@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
-import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration } from "@/validations/AuthSchema";
 import { AuthRoutes } from "@/constants/routes/api/AuthRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
 

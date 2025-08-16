@@ -2,6 +2,7 @@ import apiClient from "@/config/apiClient";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { InterviewerRoutes } from "@/constants/routes/api/InterviewerRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
+import { convertBlobUrlToFile } from "@/utils/fileConversion";
 
 export const InterviewerService = {
   getInterviewerProfile: async () => {
@@ -16,9 +17,31 @@ export const InterviewerService = {
     }
   },
 
-  updateInterviewerProfile: async (interviewer: IInterviewerProfile) => {
+  updateInterviewerProfile: async (
+    interviewer: IInterviewerProfile,
+    avatar?: string,
+    resume?: string,
+  ) => {
+    const formData = new FormData();
     try {
-      const response = await apiClient.put(InterviewerRoutes.PROFILE, interviewer);
+      if (avatar) {
+        const avatarFile = await convertBlobUrlToFile(avatar);
+        formData.append("avatar", avatarFile!);
+      }
+      if(resume) {
+        const resumeFile = await convertBlobUrlToFile(resume);
+        formData.append("resume", resumeFile!);
+      }
+      formData.append("interviewer", JSON.stringify(interviewer));
+      const response = await apiClient.put(
+        InterviewerRoutes.PROFILE,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       return parseAxiosError(

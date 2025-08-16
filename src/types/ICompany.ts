@@ -1,5 +1,5 @@
 export interface ICompany {
-    companyName: string;
+    name: string;
     email: string;
     companyWebsite: string;
     registrationCertificateNumber?: string;

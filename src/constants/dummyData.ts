@@ -816,7 +816,7 @@ import { ICompanyProfile } from "@/validations/CompanySchema";
 
 
 export type IUser={
-  companyName:string;
+  name:string;
   email:string;
   status:string;
 
@@ -826,7 +826,7 @@ export type IUser={
 export const dummyCompanies:ICompanyProfile[]=
 [
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -849,7 +849,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -872,7 +872,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -895,7 +895,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -918,7 +918,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -941,7 +941,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -964,7 +964,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -987,7 +987,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1010,7 +1010,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1033,7 +1033,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1056,7 +1056,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1079,7 +1079,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1102,7 +1102,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1125,7 +1125,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1148,7 +1148,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1171,7 +1171,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1194,7 +1194,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "TechNova Innovations",
+    "name": "TechNova Innovations",
     "email": "contact@technova.com",
     "companyWebsite": "https://www.technova.com",
     "registrationCertificateNumber": "REG-TN-2025-001",
@@ -1217,7 +1217,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "CodeCraft Studios",
+    "name": "CodeCraft Studios",
     "email": "hr@codecraft.com",
     "companyWebsite": "https://www.codecraft.com",
     "registrationCertificateNumber": "REG-CC-2024-014",
@@ -1240,7 +1240,7 @@ export const dummyCompanies:ICompanyProfile[]=
     }
   },
   {
-    "companyName": "GlobalSoft Enterprises",
+    "name": "GlobalSoft Enterprises",
     "email": "admin@globalsoft.com",
     "companyWebsite": "https://www.globalsoft.com",
     "registrationCertificateNumber": "REG-GS-2023-872",

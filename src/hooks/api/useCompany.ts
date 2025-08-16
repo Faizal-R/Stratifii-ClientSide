@@ -19,7 +19,7 @@ export const useFetchCompanyProfile = () => {
   return { companyProfile, loading };
 };
 
-export const useUpadteCompanyProfile = () => {
+export const useUpdateCompanyProfile = () => {
   const [loading, setLoading] = useState(false);
   const updateCompanyProfile = useCallback(
     async (updatedCompany: FormData) => {

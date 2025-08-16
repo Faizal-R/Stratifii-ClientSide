@@ -14,7 +14,7 @@ export const AdminService = {
 
   getCompanies: async (status: string) => {
     try {
-      const response = await apiClient.get(`${AdminRoutes.COMPANY}${status}`);
+      const response = await apiClient.get(`${AdminRoutes.GET_COMPANIES}${status}`);
       return response.data;
     } catch (error) {
       return parseAxiosError(error, "An error occurred while fetching companies");
@@ -53,7 +53,7 @@ export const AdminService = {
   handleCompanyVerification: async (companyId: string, isApproved: boolean) => {
     try {
       const response = await apiClient.patch(
-        `${AdminRoutes.UPDATE_INTERVIEWER_STATUS}/${companyId}/verify`,
+        `${AdminRoutes.UPDATE_COMPANY_STATUS}/${companyId}/verify`,
         { isApproved }
       );
       return response.data;

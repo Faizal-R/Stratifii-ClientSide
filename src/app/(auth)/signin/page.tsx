@@ -56,7 +56,7 @@ function App() {
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
     useState(false);
   const { signIn, loading } = useSignIn();
-  const {setSubscription}=useSubscriptionStore()
+  const { setSubscription } = useSubscriptionStore();
 
   const { verifyUserAccount } = useVerifyUserAccount();
   const router = useRouter();
@@ -89,16 +89,14 @@ function App() {
 
       return;
     }
-    console.log(response)
+    console.log(response);
     toast(response.message);
-    const { email, _id: id, phone } = response.data.user;
-    const name =
-      selectedRole === "company"
-        ? response.data.user.companyName
-        : response.data.user.name;
-        if(selectedRole===Roles.COMPANY){
-          setSubscription(response.data.subscription)
-        }
+    const { email, _id: id, name } = response.data.user;
+    console.log(response.data.user);
+
+    if (selectedRole === Roles.COMPANY) {
+      setSubscription(response.data.subscription);
+    }
 
     setUser({
       email,
@@ -106,9 +104,7 @@ function App() {
       role: selectedRole as Roles,
       token: response.data.accessToken,
       name,
-      phone,
     });
-    
   };
   const handleModalConfirm = () => {
     router.push(`/forgot-password?role=${selectedRole}`);

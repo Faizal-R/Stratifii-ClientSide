@@ -26,16 +26,7 @@ import {
 import { RiseLoader } from "react-spinners";
 // import { ICandidateJob } from "@/types/IJob";
 import { HttpStatusCode } from "axios";
-
-interface Job {
-  _id: string;
-  position: string;
-  description: string;
-  requiredSkills: string[];
-  deadline: string;
-  experienceRequired: number | string;
-  interviewDuration: number | string;
-}
+import { IJob } from "@/types/IJob";
 
 function InterviewDelegation() {
   const router = useRouter();
@@ -45,16 +36,49 @@ function InterviewDelegation() {
   const { updateJob } = useUpdateJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJobEditing, setIsJobEditing] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job>({} as Job);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [newJob, setNewJob] = useState<Omit<Job, "_id">>({
+  const [selectedJob, setSelectedJob] = useState<IJob>({} as IJob);
+  const [jobs, setJobs] = useState<IJob[]>([]);
+  const [newJob, setNewJob] = useState<Omit<IJob, "_id">>({
     position: "",
     description: "",
     requiredSkills: [],
-    deadline: "",
     experienceRequired: "",
-    interviewDuration: "",
   });
+  const [skillInput, setSkillInput] = useState("");
+
+  const handleAddSkill = () => {
+    const trimmed = skillInput.trim();
+    if (trimmed.length === 0) return;
+    if (isJobEditing && selectedJob.requiredSkills?.includes(trimmed)) return;
+
+if (isJobEditing) {
+  setSelectedJob({
+    ...selectedJob,
+    requiredSkills: [...(selectedJob.requiredSkills || []), trimmed],
+  });
+  setSkillInput("");
+} else {
+  setNewJob({
+    ...newJob,
+    requiredSkills: [...(newJob.requiredSkills || []), trimmed],
+  });
+  setSkillInput("");
+}
+
+  };
+
+  const handleDeleteSkill = (skillToRemove: string) => {
+    if(isJobEditing) {
+      selectedJob.requiredSkills = selectedJob.requiredSkills.filter(
+        (skill) => skill !== skillToRemove
+      );
+    }else{
+
+      newJob.requiredSkills = newJob.requiredSkills.filter(
+        (skill) => skill !== skillToRemove
+      );
+    }
+  };
 
   const handleEditJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,9 +88,8 @@ function InterviewDelegation() {
     }
     const res = await updateJob({
       ...selectedJob,
-      deadline: new Date(selectedJob.deadline),
+
       experienceRequired: Number(selectedJob.experienceRequired),
-      interviewDuration: Number(selectedJob.interviewDuration),
     });
     if (!res.success) {
       toast(res.error);
@@ -81,7 +104,7 @@ function InterviewDelegation() {
   };
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newJob.position || !newJob.requiredSkills.length || !newJob.deadline) {
+    if (!newJob.position || !newJob.requiredSkills.length) {
       toast("Please fill all  fields");
       return;
     }
@@ -89,22 +112,19 @@ function InterviewDelegation() {
     const response = await createJob(
       newJob.position,
       newJob.description,
-      new Date(newJob.deadline),
+
       Number(newJob.experienceRequired),
-      newJob.requiredSkills,
-      Number(newJob.interviewDuration)
+      newJob.requiredSkills
     );
     if (!response.success) {
-
-      toast(response.error,{
-        className:"custom-error-toast"
+      toast(response.error, {
+        className: "custom-error-toast",
       });
-      setTimeout(()=>{
-
-        if(response.status===HttpStatusCode.Forbidden){
-          router.push('/company/subscription')
+      setTimeout(() => {
+        if (response.status === HttpStatusCode.Forbidden) {
+          router.push("/company/subscription");
         }
-      },1500)
+      }, 1500);
       return;
     }
     setJobs([...jobs, response.data]);
@@ -114,9 +134,8 @@ function InterviewDelegation() {
       position: "",
       description: "",
       requiredSkills: [],
-      deadline: "",
+
       experienceRequired: "",
-      interviewDuration: "",
     });
   };
   const handleJobDelete = async (jobId: string) => {
@@ -139,7 +158,6 @@ function InterviewDelegation() {
   };
 
   const navigateToJob = (jobId: string) => {
-
     router.push(`/company/interview-delegation/job/${jobId}`);
   };
 
@@ -167,7 +185,7 @@ function InterviewDelegation() {
         return;
       }
       setJobs(response.data);
-      console.log(response.data)
+      console.log(response.data);
     };
 
     fetchJobs();
@@ -267,12 +285,12 @@ function InterviewDelegation() {
                     <Edit
                       className="hover:text-yellow-400 transition"
                       size={20}
-                      onClick={() => handleJobEdit(job._id)}
+                      onClick={() => handleJobEdit(job._id!)}
                     />
                     <Trash
                       className="hover:text-red-500 transition"
                       size={20}
-                      onClick={() => handleJobDelete(job._id)}
+                      onClick={() => handleJobDelete(job._id!)}
                     />
                   </div>
                 </div>
@@ -304,18 +322,8 @@ function InterviewDelegation() {
 
                 {/* Info Footer */}
                 <div className="border-t border-zinc-700 pt-4 flex items-center justify-between text-sm text-gray-400">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={16} className="text-violet-400" />
-                      <span>{new Date(job.deadline).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users size={16} className="text-violet-400" />
-                      <span> Candidates</span>
-                    </div>
-                  </div>
                   <button
-                    onClick={() => navigateToJob(job._id)}
+                    onClick={() => navigateToJob(job._id!)}
                     className="flex items-center gap-1 text-violet-400 hover:text-white transition"
                   >
                     View
@@ -394,33 +402,7 @@ function InterviewDelegation() {
                     placeholder="Enter Reqired experience"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Interview Duration
-                  </label>
-                  <input
-                    name="interviewDuration"
-                    type="string"
-                    value={
-                      isJobEditing
-                        ? selectedJob.interviewDuration
-                        : newJob.interviewDuration
-                    }
-                    onChange={(e) =>
-                      isJobEditing
-                        ? setSelectedJob({
-                            ...selectedJob,
-                            interviewDuration: Number(e.target.value),
-                          })
-                        : setNewJob({
-                            ...newJob,
-                            interviewDuration: Number(e.target.value),
-                          })
-                    }
-                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    placeholder="Enter Interview Duration for this Job"
-                  />
-                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
@@ -445,47 +427,44 @@ function InterviewDelegation() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Required Skills (comma-separated)
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Required Skills
                   </label>
-                  <input
-                    type="text"
-                    value={
-                      isJobEditing
-                        ? selectedJob?.requiredSkills.join(", ")
-                        : newJob.requiredSkills.join(", ")
-                    }
-                    onChange={(e) => handleSkillsChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    placeholder="e.g., React, TypeScript, Node.js"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Deadline
-                  </label>
-                  <input
-                    type="date"
-                    value={
-                      isJobEditing
-                        ? selectedJob?.deadline
-                          ? new Date(selectedJob.deadline)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                        : newJob.deadline
-                    }
-                    onChange={(e) =>
-                      isJobEditing
-                        ? setSelectedJob({
-                            ...selectedJob,
-                            deadline: e.target.value,
-                          })
-                        : setNewJob({ ...newJob, deadline: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                  />
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-violet-dark border-none outline-none rounded-lg focus:ring-2 focus:ring-violet-500"
+                      placeholder="e.g., React"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSkill}
+                      className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {/* Skill tags */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(isJobEditing ? selectedJob : newJob).requiredSkills.map((skill, index) => (
+                      <div
+                        key={index}
+                        className="bg-violet-500 text-white px-3 py-1 rounded-full flex items-center space-x-2"
+                      >
+                        <span>{skill}</span>
+                        <button
+                          onClick={() => handleDeleteSkill(skill)}
+                          className="text-white hover:text-gray-200 text-sm"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="mt-6 flex justify-end gap-3">

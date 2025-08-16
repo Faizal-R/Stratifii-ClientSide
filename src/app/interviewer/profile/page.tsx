@@ -23,11 +23,15 @@ import Image from "next/image";
 import {
   IInterviewerProfile,
   InterviewerProfileSchema,
+  ISkillExpertise,
+  SkillProficiencyLevels,
+  SkillSources,
+  // <-- Add this import if it exists in the schema file
 } from "@/validations/InterviewerSchema";
 import {
   useChangeInterviewerPassword,
   useFetchInterviewerProfile,
-  useUpadteInterviewerProfile,
+  useUpdateInterviewerProfile,
 } from "@/hooks/api/useInterviewer";
 import { toast } from "sonner";
 
@@ -37,13 +41,15 @@ import PasswordResetFormModal from "@/components/ui/Modals/PasswordResetFormModa
 import { Roles } from "@/constants/enums/roles";
 import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
 
+type TSkillSource = "professional" | "academic" | "personal" | "certification";
+
 function InterviewerProfilePage() {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile, loading: updateLoading } =
-    useUpadteInterviewerProfile();
+    useUpdateInterviewerProfile();
   const { changeInterviewerPassword } = useChangeInterviewerPassword();
 
   const [interviewerData, setInterviewerData] = useState<IInterviewerProfile>(
@@ -55,6 +61,7 @@ function InterviewerProfilePage() {
   };
 
   const handleSave = async () => {
+    console.log(interviewerData);
     const validatedInterviewer =
       InterviewerProfileSchema.safeParse(interviewerData);
     if (!validatedInterviewer.success) {
@@ -66,7 +73,10 @@ function InterviewerProfilePage() {
       return;
     }
 
-    const respone = await updateInterviewerProfile(interviewerData);
+    const respone = await updateInterviewerProfile(
+      interviewerData,
+      logoPreview!
+    );
     if (!respone.success) {
       toast.error(respone.error);
       return;
@@ -102,38 +112,15 @@ function InterviewerProfilePage() {
     }));
   };
 
-  const handleAddLanguage = () => {
-    setInterviewerData((prev) => ({
-      ...prev,
-      languages: [...(prev.languages || []), { language: "", level: "" }],
-    }));
-  };
-
-  const handleRemoveLanguage = (indexToRemove: number) => {
-    const updatedLanguages = (interviewerData.languages || []).filter(
-      (_, index) => index !== indexToRemove
-    );
-
-    setInterviewerData({
-      ...interviewerData,
-      languages: updatedLanguages,
-    });
-  };
-
-  const handleAddExpertise = () => {
-    setInterviewerData({
-      ...interviewerData,
-      expertise: [...(interviewerData.expertise || []), ""],
-    });
-  };
-
-  const handleRemoveExpertise = (index: number) => {
-    setInterviewerData({
-      ...interviewerData,
-      expertise: (interviewerData.expertise || []).filter(
-        (_, i) => i !== index
-      ),
-    });
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const fileUrl = URL.createObjectURL(file);
+      setInterviewerData((prev) => ({
+        ...prev,
+        resume: fileUrl,
+      }));
+    }
   };
 
   const onHandlePasswordReset = async (state: {
@@ -155,6 +142,44 @@ function InterviewerProfilePage() {
     setShowChangePasswordModal(false);
   };
 
+  const handleAddExpertise = () => {
+    setInterviewerData((prev) => ({
+      ...prev,
+      expertise: [
+        ...(prev.expertise || []),
+        {
+          skill: "",
+          proficiencyLevel: SkillProficiencyLevels[0],
+          yearsOfExperience: 0,
+          skillSource: [],
+        },
+      ],
+    }));
+  };
+
+  const handleRemoveExpertise = (index: number) => {
+    setInterviewerData((prev) => {
+      const updated = [...(prev.expertise || [])];
+      updated.splice(index, 1);
+      return { ...prev, expertise: updated };
+    });
+  };
+
+  const handleExpertiseChange = (
+    index: number,
+    field: keyof ISkillExpertise,
+    value: string | string[] | number
+  ) => {
+    setInterviewerData((prev) => {
+      const updated = [...(prev.expertise || [])];
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+      return { ...prev, expertise: updated };
+    });
+  };
+
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -169,6 +194,7 @@ function InterviewerProfilePage() {
         return;
       }
       setInterviewerData(response.data);
+      setLogoPreview(response.data.avatar);
     };
 
     fetchInterviewer();
@@ -348,15 +374,6 @@ function InterviewerProfilePage() {
 
               <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-6">
                 <InputField
-                  icon={MapPin}
-                  label="Location"
-                  placeholder="Enter location"
-                  value={interviewerData.location || ""}
-                  name="location"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                />
-                <InputField
                   icon={Linkedin}
                   label="LinkedIn Profile"
                   placeholder="Enter LinkedIn URL"
@@ -365,6 +382,7 @@ function InterviewerProfilePage() {
                   isEditing={isEditing}
                   handleChange={handleChange}
                 />
+
                 <InputField
                   icon={Briefcase}
                   label="Experience (years)"
@@ -375,32 +393,9 @@ function InterviewerProfilePage() {
                   handleChange={handleChange}
                   type="number"
                 />
-                <InputField
-                  icon={Clock}
-                  label="Interview Duration (minutes)"
-                  placeholder="Enter duration"
-                  value={interviewerData.duration || ""}
-                  name="duration"
-                  isEditing={isEditing}
-                  handleChange={handleChange}
-                  type="number"
-                />
               </div>
             </div>
 
-            {/* Professional Summary */}
-            <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800">
-              <InputField
-                icon={Briefcase}
-                label="Professional Summary"
-                placeholder="Describe your professional background..."
-                value={interviewerData.professionalSummary || ""}
-                name="professionalSummary"
-                isEditing={isEditing}
-                handleChange={handleChange}
-                type="textarea"
-              />
-            </div>
             {/* Resume Upload */}
             <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-4">
               <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
@@ -408,17 +403,37 @@ function InterviewerProfilePage() {
                 Upload Resume (PDF or DOCX)
               </label>
               {isEditing ? (
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  name="resume"
-                  // onChange={handleFileUpload}
-                  className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-600/20 file:text-violet-400 hover:file:bg-violet-600/30"
-                />
+                <>
+                  {interviewerData.resume &&
+                    typeof interviewerData.resume === "string" && (
+                      <div className="mb-2">
+                        <a
+                          href={interviewerData.resume}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-violet-400 hover:underline"
+                        >
+                          View Previously Uploaded Resume
+                        </a>
+                      </div>
+                    )}
+
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Upload New Resume
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    name="resume"
+                    onChange={handleResumeUpload}
+                    className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-600/20 file:text-violet-400 hover:file:bg-violet-600/30"
+                  />
+                </>
               ) : (
-                interviewerData.resume && (
+                interviewerData.resume &&
+                typeof interviewerData.resume === "string" && (
                   <a
-                    // href={interviewerData.resume!}
+                    href={interviewerData.resume}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-violet-400 hover:underline"
@@ -429,90 +444,7 @@ function InterviewerProfilePage() {
               )}
             </div>
 
-            {/* Languages & Expertise */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Languages */}
-              <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Languages className="text-violet-400" size={20} />
-                    Languages
-                  </h2>
-                  {isEditing && (
-                    <button
-                      onClick={handleAddLanguage}
-                      className="flex items-center gap-2 px-3 py-1 bg-violet-600/20 text-violet-400 rounded-lg hover:bg-violet-600/30 transition-colors"
-                    >
-                      Add Language
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {(interviewerData.languages || []).map((langObj, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg"
-                    >
-                      {isEditing ? (
-                        <>
-                          <div className="flex gap-2 flex-1">
-                            <input
-                              type="text"
-                              value={langObj.language}
-                              onChange={(e) => {
-                                const updatedLanguages = [
-                                  ...(interviewerData.languages || []),
-                                ];
-                                updatedLanguages[index].language =
-                                  e.target.value;
-                                setInterviewerData({
-                                  ...interviewerData,
-                                  languages: updatedLanguages,
-                                });
-                              }}
-                              className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
-                              placeholder="Language"
-                            />
-
-                            <input
-                              type="text"
-                              value={langObj.level}
-                              onChange={(e) => {
-                                const updatedLanguages = [
-                                  ...(interviewerData.languages || []),
-                                ];
-                                updatedLanguages[index].level = e.target.value;
-                                setInterviewerData({
-                                  ...interviewerData,
-                                  languages: updatedLanguages,
-                                });
-                              }}
-                              className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 w-1/2"
-                              placeholder="Proficiency"
-                            />
-                          </div>
-                          <button
-                            onClick={() => handleRemoveLanguage(index)}
-                            className="ml-2 text-red-400 hover:text-red-300"
-                          >
-                            <X size={20} />
-                          </button>
-                        </>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          <span className="text-base font-medium">
-                            {langObj.language}
-                          </span>
-                          <span className="text-sm text-gray-400">
-                            {langObj.level}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+            <div className=" flex flex-col gap-6">
               {/* Expertise */}
               <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800">
                 <div className="flex justify-between items-center mb-4">
@@ -529,37 +461,129 @@ function InterviewerProfilePage() {
                     </button>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {(interviewerData.expertise || []).map((skill, index) => (
-                    <div key={index} className="flex items-center">
+
+                {/* Grid wrapper for expertise items */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(interviewerData.expertise || []).map((item, index) => (
+                    <div
+                      key={index}
+                      className="border border-gray-700 p-4 rounded-xl space-y-4 bg-black/20"
+                    >
                       {isEditing ? (
-                        <div className="flex items-center bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden">
+                        <>
+                          {/* Skill Name */}
                           <input
                             type="text"
-                            value={skill}
-                            onChange={(e) => {
-                              const newExpertise = [
-                                ...(interviewerData.expertise || []),
-                              ];
-                              newExpertise[index] = e.target.value;
-                              setInterviewerData({
-                                ...interviewerData,
-                                expertise: newExpertise,
-                              });
-                            }}
-                            className="bg-transparent px-3 py-1 focus:outline-none"
+                            placeholder="Skill"
+                            value={item.skill}
+                            onChange={(e) =>
+                              handleExpertiseChange(
+                                index,
+                                "skill",
+                                e.target.value
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white"
                           />
+
+                          {/* Proficiency Level */}
+                          <select
+                            value={item.proficiencyLevel}
+                            onChange={(e) =>
+                              handleExpertiseChange(
+                                index,
+                                "proficiencyLevel",
+                                e.target.value
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white"
+                          >
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                          </select>
+
+                          {/* Years of Experience */}
+                          <input
+                            type="number"
+                            placeholder="Years of Experience"
+                            value={item.yearsOfExperience || 0}
+                            min={0}
+                            onChange={(e) =>
+                              handleExpertiseChange(
+                                index,
+                                "yearsOfExperience",
+                                parseInt(e.target.value)
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white"
+                          />
+
+                          {/* Skill Source */}
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              "professional",
+                              "academic",
+                              "personal",
+                              "certification",
+                            ].map((source) => (
+                              <label
+                                key={source}
+                                className="flex items-center gap-2 text-sm text-white"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={item.skillSource?.includes(
+                                    source as TSkillSource
+                                  )}
+                                  onChange={(e) => {
+                                    const current = item.skillSource || [];
+                                    let updated: string[];
+                                    if (e.target.checked) {
+                                      updated = [...current, source];
+                                    } else {
+                                      updated = current.filter(
+                                        (s) => s !== source
+                                      );
+                                    }
+                                    handleExpertiseChange(
+                                      index,
+                                      "skillSource",
+                                      updated
+                                    );
+                                  }}
+                                />
+                                {source}
+                              </label>
+                            ))}
+                          </div>
+
+                          {/* Remove Button */}
                           <button
                             onClick={() => handleRemoveExpertise(index)}
-                            className="px-2 text-red-400 hover:bg-red-500/10"
+                            className="text-red-400 text-sm hover:underline"
                           >
-                            <X size={16} />
+                            Remove
                           </button>
-                        </div>
+                        </>
                       ) : (
-                        <span className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full">
-                          {skill}
-                        </span>
+                        <>
+                          <p className="text-white">
+                            <strong>Skill:</strong> {item.skill}
+                          </p>
+                          <p className="text-white">
+                            <strong>Level:</strong> {item.proficiencyLevel}
+                          </p>
+                          <p className="text-white">
+                            <strong>Years of Experience:</strong>{" "}
+                            {item.yearsOfExperience || 0}
+                          </p>
+                          <p className="text-white">
+                            <strong>Source:</strong>{" "}
+                            {item.skillSource.join(", ")}
+                          </p>
+                        </>
                       )}
                     </div>
                   ))}
@@ -568,60 +592,6 @@ function InterviewerProfilePage() {
             </div>
 
             {/* Available Days */}
-            <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Calendar className="text-violet-400" size={20} />
-                Available Days
-              </h2>
-              {isEditing ? (
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                  ].map((day) => (
-                    <button
-                      key={day}
-                      onClick={() => {
-                        const isSelected = (
-                          interviewerData.availableDays || []
-                        ).includes(day);
-                        setInterviewerData({
-                          ...interviewerData,
-                          availableDays: isSelected
-                            ? (interviewerData.availableDays || []).filter(
-                                (d) => d !== day
-                              )
-                            : [...(interviewerData.availableDays || []), day],
-                        });
-                      }}
-                      className={`px-3 py-1 rounded-full border transition-colors ${
-                        (interviewerData.availableDays || []).includes(day)
-                          ? "bg-violet-600 border-violet-500 text-white"
-                          : "bg-gray-800/50 border-gray-700 text-gray-400 hover:border-violet-500"
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {(interviewerData.availableDays || []).map((day) => (
-                    <span
-                      key={day}
-                      className="px-3 py-1 bg-violet-600/20 text-violet-400 rounded-full"
-                    >
-                      {day}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         )}
       </main>
