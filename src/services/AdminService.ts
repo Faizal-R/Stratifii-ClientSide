@@ -50,11 +50,11 @@ export const AdminService = {
     }
   },
 
-  handleCompanyVerification: async (companyId: string, isApproved: boolean) => {
+  handleCompanyVerification: async (companyId: string, isApproved: boolean,reasonForRejection?: string) => {
     try {
       const response = await apiClient.patch(
         `${AdminRoutes.UPDATE_COMPANY_STATUS}/${companyId}/verify`,
-        { isApproved }
+        { isApproved,reasonForRejection }
       );
       return response.data;
     } catch (error) {

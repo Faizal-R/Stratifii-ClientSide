@@ -142,12 +142,11 @@ function InterviewerRegistrationPage() {
         name: response.data.interviewer.name,
         email: response.data.interviewer.email,
         role: Roles.INTERVIEWER,
-        token: response.data.accessToken,
         id: response.data.interviewer._id,
       });
       toast.success("Account setup successfully");
 
-      router.push(`/${Roles.INTERVIEWER}`);
+      router.push(`/${Roles.INTERVIEWER}/dashboard`);
     } else {
       const response = await registerInterviewer({
         ...formData,

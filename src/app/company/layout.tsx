@@ -15,18 +15,15 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/authStore";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/enums/roles";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
-
 
 const navItems = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    route: "/company",
+    route: "/company/dashboard",
   },
   {
     id: "profile",
@@ -41,10 +38,10 @@ const navItems = [
     route: "/company/interview-delegation",
   },
   {
-id:"schedule-interview",
-label:"Schedule Interviews",
-icon:CalendarSearchIcon,
-route:"/company/schedule-interview",
+    id: "schedule-interview",
+    label: "Schedule Interviews",
+    icon: CalendarSearchIcon,
+    route: "/company/schedule-interview",
   },
   {
     id: "subscription",
@@ -64,8 +61,8 @@ route:"/company/schedule-interview",
 function CompanyLayout({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
- 
-  const {logout}=useAuthStore()
+
+  const { logout } = useAuthStore();
   const { signoutUser } = useSignoutUser();
 
   function handleModalState(state: boolean) {
@@ -74,13 +71,13 @@ function CompanyLayout({ children }: { children: ReactNode }) {
 
   async function handleModalConfirm() {
     setIsModalOpen(false);
-    logout()
     const response = await signoutUser();
     if (!response.success) {
       toast.error(response.error, {
         className: "custom-error-toast",
       });
     }
+    logout();
     toast.success(response.message);
     router.push("/signin");
   }
@@ -105,4 +102,4 @@ function CompanyLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export default withProtectedRoute(CompanyLayout, [Roles.COMPANY]);
+export default CompanyLayout;

@@ -178,3 +178,19 @@ export const useSignoutUser = () => {
   return { signoutUser, loading };
 };
 
+export const useGoogleAuth = () => {
+  const [loading, setLoading] = useState(false);
+  const googleAuth = useCallback(
+    async (payload: { email: string; name: string; avatar: string }) => {
+      try {
+        setLoading(true);
+        const response = await AuthService.googleAuthLogin(payload);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { googleAuth, loading };
+};

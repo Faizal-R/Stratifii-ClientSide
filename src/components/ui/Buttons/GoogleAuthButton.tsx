@@ -1,14 +1,14 @@
 "use client";
 
 import { FcGoogle } from "react-icons/fc";
-import { signIn } from "next-auth/react";
 
-export function GoogleAuthButton() {
-  async function handleGoogleAuth() {
-    // Trigger Google sign-in and specify the callback URL
-    await signIn("google", { callbackUrl: "/google/verify" });
-  }
+interface IGoogleAuthButtonProps {
+  handleGoogleAuth: () => void;
+}
 
+export const GoogleAuthButton: React.FC<IGoogleAuthButtonProps> = ({
+  handleGoogleAuth,
+}) => {
   return (
     <button
       onClick={handleGoogleAuth}
@@ -18,4 +18,4 @@ export function GoogleAuthButton() {
       <span className="text-base ">Sign in with Google</span>
     </button>
   );
-}
+};

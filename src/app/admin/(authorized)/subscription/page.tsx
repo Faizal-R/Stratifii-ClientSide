@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  Check,
-
-  Edit2,
-  PackagePlus,
-
-  Smile,
-  X,
-} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, Edit2, PackagePlus, Smile, X } from "lucide-react";
 import SubscriptionModal from "@/components/ui/Modals/SubscriptionModal";
 import {
   useCreateSubscription,
@@ -34,8 +26,7 @@ export default function SubscriptionPage() {
   const { updateSubscription } = useUpdateSubscription();
 
   const handleSaveSubscription = async (subscription: ISubscription) => {
-    
-    console.log(subscription)
+    console.log(subscription);
     console.log(subscription);
     if (isEditing) {
       await updateSubscription(subscription._id!, subscription);
@@ -46,7 +37,7 @@ export default function SubscriptionPage() {
       );
       setIsEditing(false);
     } else {
-      console.log(subscription)
+      console.log(subscription);
       const response = await createSubscription(subscription);
       if (!response.success) {
         toast(response.error);
@@ -64,20 +55,19 @@ export default function SubscriptionPage() {
   };
 
   const hasFetched = useRef(false);
+  const fetchSubscriptions = useCallback(async () => {
+    const response = await getSubscriptions();
+    if (!response.success) {
+      toast(response.error);
+      return;
+    }
+
+    setSubscriptions(response.data);
+  }, [getSubscriptions]);
   useEffect(() => {
     if (hasFetched.current) return;
 
     hasFetched.current = true;
-
-    const fetchSubscriptions = async () => {
-      const response = await getSubscriptions();
-      if (!response.success) {
-        toast(response.error);
-        return;
-      }
-    
-      setSubscriptions(response.data);
-    };
 
     fetchSubscriptions();
   }, [getSubscriptions]);
@@ -169,7 +159,7 @@ export default function SubscriptionPage() {
                         Can Post {subscription.features.jobPostLimitPerMonth}{" "}
                         Job(s) Per Month
                       </li>
-                    
+
                       <li className="flex items-start gap-2">
                         <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                         {subscription.features.candidateSlotPerMonth} Candidate

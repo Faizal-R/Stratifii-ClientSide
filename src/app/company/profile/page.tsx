@@ -31,33 +31,35 @@ import {
   ICompanyProfile,
 } from "@/validations/CompanySchema";
 import { toast } from "sonner";
-import { RiseLoader, SyncLoader } from "react-spinners";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/enums/roles";
+import { RiseLoader } from "react-spinners";
 import { StatusCodes } from "@/constants/enums/statusCodes";
 
 import { SelectField } from "@/components/ui/Buttons/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
 import SubscriptionCard from "@/components/features/company/profile/ProfileSubscriptionCard";
-import { useGetSubscriptionDetails
- } from "@/hooks/api/useSubscription";
+import { useGetSubscriptionDetails } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-   const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>('profile');
+  const [activeTab, setActiveTab] = useState<"profile" | "subscription">(
+    "profile"
+  );
   const [companyData, setCompanyData] = useState<ICompanyProfile>(
     {} as ICompanyProfile
   );
- const [subscription, setSubscription] = useState<ISubscriptionDetails|null>(null);
+  const [subscription, setSubscription] = useState<ISubscriptionDetails | null>(
+    null
+  );
   const [logoPreview, setLogoPreview] = useState<string | null>("");
 
   const { companyProfile, loading } = useFetchCompanyProfile();
   const { updateCompanyProfile, loading: updateLoading } =
     useUpdateCompanyProfile();
   const { logout } = useAuthStore();
-  const {getSubscriptionDetails,loading:subscriptionLoading}=useGetSubscriptionDetails()
+  const { getSubscriptionDetails, loading: subscriptionLoading } =
+    useGetSubscriptionDetails();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -80,48 +82,48 @@ function CompanyProfilePage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
-    console.log(file)
+    console.log(file);
     if (file) {
       const imageFile = URL.createObjectURL(file);
       setLogoPreview(imageFile);
     }
   };
 
-const handleSave = async () => {
-  console.log("handle save", companyData);
-  const validatedCompany = CompanyProfileSchema.safeParse(companyData);
-  if (!validatedCompany.success) {
-    const errors = validatedCompany.error;
-    for (const issue of errors.issues) {
-      toast.error(issue.message, {
+  const handleSave = async () => {
+    console.log("handle save", companyData);
+    const validatedCompany = CompanyProfileSchema.safeParse(companyData);
+    if (!validatedCompany.success) {
+      const errors = validatedCompany.error;
+      for (const issue of errors.issues) {
+        toast.error(issue.message, {
+          className: "custom-error-toast",
+        });
+      }
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Always append the company JSON
+    formData.append("company", JSON.stringify(companyData));
+
+    // Append logo if available
+    if (logoPreview) {
+      const file = await convertBlobUrlToFile(logoPreview);
+      formData.append("companyLogo", file!);
+    }
+
+    const response = await updateCompanyProfile(formData);
+    if (!response.success) {
+      toast.error(response.error, {
         className: "custom-error-toast",
       });
+      return;
+    } else {
+      toast.success(response.message);
+      setIsEditing(false);
     }
-    return;
-  }
-
-  const formData = new FormData();
-
-  // Always append the company JSON
-  formData.append("company", JSON.stringify(companyData));
-
-  // Append logo if available
-  if (logoPreview) {
-    const file = await convertBlobUrlToFile(logoPreview);
-    formData.append("companyLogo", file!);
-  }
-
-  const response = await updateCompanyProfile(formData);
-  if (!response.success) {
-    toast.error(response.error, {
-      className: "custom-error-toast",
-    });
-    return;
-  } else {
-    toast.success(response.message);
-    setIsEditing(false);
-  }
-};
+  };
 
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
@@ -138,24 +140,23 @@ const handleSave = async () => {
     }
   }, [companyProfile, logout]);
 
-  const fetchSubscriptionDetails=async ()=>{
+  const fetchSubscriptionDetails = async () => {
     const response = await getSubscriptionDetails();
     // if (!response.success) {
     //   toast.error(response.error, {
     //     className: "custom-error-toast",
     //   });
-    if(response.success) {
+    if (response.success) {
       setSubscription(response.data);
-      console.log(response.data)
+      console.log(response.data);
     }
-    
-  }
+  };
   useEffect(() => {
     fetchCompanyProfile();
   }, [fetchCompanyProfile]);
-  useEffect(()=>{
-fetchSubscriptionDetails()
-  },[])
+  useEffect(() => {
+    fetchSubscriptionDetails();
+  }, []);
 
   const companySizeOptions = ["Small", "Medium", "Startup", "Enterprise"];
   return loading ? (
@@ -163,37 +164,35 @@ fetchSubscriptionDetails()
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-       <div className="min-h-screen ml-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
+    <div className="min-h-screen ml-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
       {/* Navigation Tabs */}
       <div className="bg-gray-900/60 backdrop-blur-xl border-b border-gray-800">
         <div className="max-w-6xl mx-auto px-6">
           <nav className="flex gap-8">
             <button
-              onClick={() => setActiveTab('profile')}
+              onClick={() => setActiveTab("profile")}
               className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'profile'
-                  ? 'text-violet-400 border-violet-400'
-                  : 'text-gray-400 border-transparent hover:text-white'
+                activeTab === "profile"
+                  ? "text-violet-400 border-violet-400"
+                  : "text-gray-400 border-transparent hover:text-white"
               }`}
             >
               <Building className="w-4 h-4" />
               Company Profile
             </button>
-            {
-              subscription&&subscription.status==="active" && (
-            <button
-              onClick={() => setActiveTab('subscription')}
-              className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'subscription'
-                  ? 'text-violet-400 border-violet-400'
-                  : 'text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <Crown className="w-4 h-4" />
-              Subscription
-            </button>
-              )
-            }
+            {subscription && subscription.status === "active" && (
+              <button
+                onClick={() => setActiveTab("subscription")}
+                className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === "subscription"
+                    ? "text-violet-400 border-violet-400"
+                    : "text-gray-400 border-transparent hover:text-white"
+                }`}
+              >
+                <Crown className="w-4 h-4" />
+                Subscription
+              </button>
+            )}
           </nav>
         </div>
       </div>
@@ -201,7 +200,7 @@ fetchSubscriptionDetails()
       {/* Main Content */}
       <main className="p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-8">
-          {activeTab === 'profile' ? (
+          {activeTab === "profile" ? (
             <>
               {/* Profile Header */}
               <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
@@ -385,8 +384,12 @@ fetchSubscriptionDetails()
             /* Subscription Tab */
             <div className="space-y-8">
               <div className="text-center">
-                <h1 className="text-3xl font-bold mb-2">Subscription Management</h1>
-                <p className="text-gray-400">Manage your subscription plan and billing details</p>
+                <h1 className="text-3xl font-bold mb-2">
+                  Subscription Management
+                </h1>
+                <p className="text-gray-400">
+                  Manage your subscription plan and billing details
+                </p>
               </div>
 
               {subscriptionLoading ? (
@@ -398,8 +401,12 @@ fetchSubscriptionDetails()
               ) : (
                 <div className="bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-800 text-center">
                   <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold mb-2">No Active Subscription</h3>
-                  <p className="text-gray-400 mb-6">Choose a plan to get started with premium features</p>
+                  <h3 className="text-xl font-bold mb-2">
+                    No Active Subscription
+                  </h3>
+                  <p className="text-gray-400 mb-6">
+                    Choose a plan to get started with premium features
+                  </p>
                   <button className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg transition-colors">
                     View Plans
                   </button>
@@ -412,4 +419,4 @@ fetchSubscriptionDetails()
     </div>
   );
 }
-export default withProtectedRoute(CompanyProfilePage, [Roles.COMPANY]);
+export default CompanyProfilePage

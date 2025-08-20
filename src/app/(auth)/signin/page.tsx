@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSignIn, useVerifyUserAccount } from "@/hooks/api/useAuth";
+import {
+  useGoogleAuth,
+  useSignIn,
+  useVerifyUserAccount,
+} from "@/hooks/api/useAuth";
 import {
   Mail,
   Lock,
@@ -28,6 +32,8 @@ import { Roles } from "@/constants/enums/roles";
 import Link from "next/link";
 import { StatusCodes } from "@/constants/enums/statusCodes";
 import useSubscriptionStore from "@/features/company/subscriberStore";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "@/config/firebase";
 
 const roles = [
   {
@@ -57,6 +63,7 @@ function App() {
     useState(false);
   const { signIn, loading } = useSignIn();
   const { setSubscription } = useSubscriptionStore();
+  const { googleAuth } = useGoogleAuth();
 
   const { verifyUserAccount } = useVerifyUserAccount();
   const router = useRouter();
@@ -83,6 +90,12 @@ function App() {
         setIsVerifyAccountModalOpen(true);
         return;
       }
+      if (response.status === StatusCodes.LOCKED) {
+        toast.error(response.error, {
+          className: "custom-error-toast",
+        });
+        return;
+      }
       toast.error(response.error, {
         className: "custom-error-toast",
       });
@@ -102,7 +115,6 @@ function App() {
       email,
       id,
       role: selectedRole as Roles,
-      token: response.data.accessToken,
       name,
     });
   };
@@ -119,6 +131,7 @@ function App() {
   const handleForgotPassword = () => {
     setShowModal(true);
   };
+
   useEffect(() => {
     if (errors.email) {
       toast.error(errors.email.message, {
@@ -131,9 +144,42 @@ function App() {
     }
   }, [errors]);
 
+  const handleOAuthLogin = async () => {
+    const { user } = await signInWithPopup(auth, provider);
+    console.log(user);
+
+    const response = await googleAuth({
+      email: user.email!,
+      name: user.displayName!,
+      avatar: user.photoURL!,
+    });
+    if(!response.success){
+      toast.error(response.error)
+      return
+    }
+  
+
+    const authUser = response.data;
+
+    if(authUser.isVerified){
+      setUser({
+        email: authUser.email,
+        id: authUser._id,
+        role: Roles.INTERVIEWER,
+        name: authUser.name,
+      });
+      router.push(`${Roles.INTERVIEWER}/dashboard`);
+    }else{
+      router.push(
+          `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`
+        );
+    }
+    
+  };
+
   useEffect(() => {
     if (user) {
-      router.push(`/${user.role}`);
+      router.push(`/${user.role}/dashboard`);
     }
   }, [user, router]);
 
@@ -277,7 +323,9 @@ function App() {
             )}
           </div>
           <div className="mt-5">
-            {selectedRole === "interviewer" && <GoogleAuthButton />}
+            {selectedRole === "interviewer" && (
+              <GoogleAuthButton handleGoogleAuth={handleOAuthLogin} />
+            )}
           </div>
         </div>
       </div>

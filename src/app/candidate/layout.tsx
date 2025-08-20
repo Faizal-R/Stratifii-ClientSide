@@ -6,16 +6,19 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
-import { CalendarSearchIcon, CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/enums/roles";
+import {
+  CalendarSearchIcon,
+  CreditCard,
+  LayoutDashboard,
+  UserCircle,
+} from "lucide-react";
 
 const navItems = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    route: "/candidate",
+    route: "/candidate/dashboard",
   },
   {
     id: "profile",
@@ -26,7 +29,7 @@ const navItems = [
   {
     id: "interviews",
     label: "Interviews",
-    icon:CalendarSearchIcon,
+    icon: CalendarSearchIcon,
     route: "/candidate/interviews",
   },
 ];
@@ -71,4 +74,4 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default withProtectedRoute(CandidateLayout,[Roles.CANDIDATE,Roles.INTERVIEWER]);
+export default CandidateLayout;

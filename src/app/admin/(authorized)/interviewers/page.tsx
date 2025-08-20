@@ -1,7 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/enums/roles";
+
 import {
   useAdminInterviewers,
   useHandleInterveiwerVerification,
@@ -170,7 +169,6 @@ function AdminInterviewerManagement() {
     onView: showDetailsModal,
     onBlockToggle: showConfirmModal,
     onOpenVerificationModal: showConfirmVerificationModal,
-   
     activeTab,
   });
 
@@ -292,4 +290,4 @@ function AdminInterviewerManagement() {
   );
 }
 
-export default withProtectedRoute(AdminInterviewerManagement, [Roles.ADMIN]);
+export default AdminInterviewerManagement

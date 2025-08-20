@@ -12,14 +12,14 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 
-import withProtectedRoute from "@/lib/withProtectedRoutes";
+
 import { Roles } from "@/constants/enums/roles";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer" },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer/dashboard" },
   {
     id: "profile",
     label: "Profile",
@@ -89,4 +89,4 @@ const InterviewerLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default withProtectedRoute(InterviewerLayout,[Roles.INTERVIEWER]);
+export default InterviewerLayout

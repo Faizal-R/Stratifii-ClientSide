@@ -13,7 +13,8 @@ import {
 import { Modal } from '@/components/ui/Modals/ConfirmationModal';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/authStore';
-  
+  import { useSignoutUser } from "@/hooks/api/useAuth";
+import { toast } from 'sonner';
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/admin/dashboard" },
     { id: "company", label: "Company", icon: Briefcase, route: "/admin/company" },
@@ -27,14 +28,22 @@ import { useAuthStore } from '@/features/auth/authStore';
   
 export default function AdminLayout({children}:{children:ReactNode}){
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { signoutUser } = useSignoutUser();
   const router = useRouter();
   const { logout } = useAuthStore();
   function handleModalState(state: boolean) {
     setIsModalOpen(state);
   }
-  function handleModalConfirm() {
+ async function handleModalConfirm() {
     setIsModalOpen(false);
-    logout();
+    const response = await signoutUser();
+    if (!response.success) {
+      toast.error(response.error, {
+        className: "custom-error-toast",
+      });
+    }
+    logout()
+    toast.success(response.message);
     router.push("/signin");
   }
   return (

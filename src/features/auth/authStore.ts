@@ -6,7 +6,6 @@ interface User {
   email: string;
   name:string;
   role: Roles;
-  token:string
 }
 
 
