@@ -46,6 +46,7 @@ type TSkillSource = "professional" | "academic" | "personal" | "certification";
 function InterviewerProfilePage() {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [resumePreview, setResumePreview] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>("");
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile, loading: updateLoading } =
@@ -61,6 +62,7 @@ function InterviewerProfilePage() {
   };
 
   const handleSave = async () => {
+
     console.log(interviewerData);
     const validatedInterviewer =
       InterviewerProfileSchema.safeParse(interviewerData);
@@ -72,10 +74,12 @@ function InterviewerProfilePage() {
       }
       return;
     }
+    console.log(resumePreview)
 
     const respone = await updateInterviewerProfile(
       interviewerData,
-      logoPreview!
+      logoPreview!,
+      resumePreview
     );
     if (!respone.success) {
       toast.error(respone.error);
@@ -116,10 +120,7 @@ function InterviewerProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       const fileUrl = URL.createObjectURL(file);
-      setInterviewerData((prev) => ({
-        ...prev,
-        resume: fileUrl,
-      }));
+      setResumePreview(fileUrl);
     }
   };
 
@@ -224,12 +225,11 @@ function InterviewerProfilePage() {
             <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
               <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
                 <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
-                  {logoPreview || interviewerData.avatar ? (
+                  {logoPreview ? (
                     <Image
                       src={
-                        logoPreview ||
-                        interviewerData.avatar ||
-                        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
+                        logoPreview !
+                        
                       }
                       alt="Profile"
                       className="w-full h-full object-cover"
@@ -393,10 +393,6 @@ function InterviewerProfilePage() {
                   handleChange={handleChange}
                   type="number"
                 />
-              </div>
-            </div>
-
-            {/* Resume Upload */}
             <div className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 space-y-4">
               <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                 <FileText className="text-violet-400" size={20} />
@@ -408,9 +404,11 @@ function InterviewerProfilePage() {
                     typeof interviewerData.resume === "string" && (
                       <div className="mb-2">
                         <a
-                          href={interviewerData.resume}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                       href={`https://docs.google.com/viewer?url=${encodeURIComponent(
+                        interviewerData.resume as string
+                      )}&embedded=true`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                           className="text-violet-400 hover:underline"
                         >
                           View Previously Uploaded Resume
@@ -433,9 +431,11 @@ function InterviewerProfilePage() {
                 interviewerData.resume &&
                 typeof interviewerData.resume === "string" && (
                   <a
-                    href={interviewerData.resume}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`https://docs.google.com/viewer?url=${encodeURIComponent(
+                        interviewerData.resume as string
+                      )}&embedded=true`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     className="text-violet-400 hover:underline"
                   >
                     View Uploaded Resume
@@ -443,6 +443,10 @@ function InterviewerProfilePage() {
                 )
               )}
             </div>
+              </div>
+            </div>
+
+            {/* Resume Upload */}
 
             <div className=" flex flex-col gap-6">
               {/* Expertise */}
@@ -590,8 +594,6 @@ function InterviewerProfilePage() {
                 </div>
               </div>
             </div>
-
-            {/* Available Days */}
           </div>
         )}
       </main>

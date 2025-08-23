@@ -154,6 +154,7 @@ function CompanyProfilePage() {
   useEffect(() => {
     fetchCompanyProfile();
   }, [fetchCompanyProfile]);
+
   useEffect(() => {
     fetchSubscriptionDetails();
   }, []);
@@ -208,7 +209,7 @@ function CompanyProfilePage() {
                   <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
                     {logoPreview ? (
                       <img
-                        src={companyData.companyLogo}
+                        src={logoPreview!}
                         alt="Company Logo"
                         className="w-full h-full object-cover"
                       />
@@ -327,6 +328,8 @@ function CompanyProfilePage() {
                     name="email"
                     isEditing={isEditing}
                     handleChange={handleChange}
+                    disabled={true}
+                    
                   />
                   <InputField
                     icon={Phone}

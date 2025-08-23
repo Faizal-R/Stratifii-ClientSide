@@ -4,4 +4,6 @@ export enum InterviewRoutes {
   GET_ALL_UPCOMING_INTERVIEWS = "/interviewer/upcoming-interviews",
   UPDATE_INTERVIEW_WITH_FEEDBACK = "/interview/update-with-feedback",
   GET_ALL_SCHEDULED_INTERVIEWS = "/interview",
+  GET_ALL_INTERVIEWS_BY_CANDIDATE_ID = "/interview/candidate",
+
 }

@@ -20,6 +20,7 @@ import {
 import {
   useGetInterviewerSlotGenerationRule,
   useSlotGeneration,
+  useUpdateInterviewerSlotGenerationRule,
 } from "@/hooks/api/useSlot";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
@@ -43,9 +44,10 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
     bufferRate: 15,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
-  const {
-    getInterviewerSlotGenerationRule,
-  } = useGetInterviewerSlotGenerationRule();
+  const { getInterviewerSlotGenerationRule } =
+    useGetInterviewerSlotGenerationRule();
+  const { updateInterviewerSlotGenerationRule, loading: updateLoading } =
+    useUpdateInterviewerSlotGenerationRule();
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [preview, setPreview] = useState<SlotPreview | null>(null);
@@ -159,38 +161,42 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
       return;
     }
     console.log("Form Data:", formData);
-    const response = await generateSlots(formData);
-
-    if (!response.success) {
-      toast(response.error || "Failed to generate slots. Please try again.", {
-        className: "custom-error-toast",
-      });
-      return;
-    }
-    console.log("Generated Slots:", response);
-
-    setSlots(response.data || []);
-    setShowSuccess(true);
-    setTimeout(() => {
-      sendSlotsToParent(response.data || []);
-    }, 1000);
-    toast.success("Slots generated successfully!");
-    // Scroll to results
-    setTimeout(() => {
-      const resultsSection = document.getElementById("results-section");
-      if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: "smooth" });
+    if (isExistingRule) {
+      const response = await updateInterviewerSlotGenerationRule(
+        user?.id as string,
+        formData
+      );
+      if (!response.success) {
+        toast.error(
+          response.error || "Failed to update rule. Please try again.",
+          {
+            className: "custom-error-toast",
+          }
+        );
+        return;
       }
-    }, 100);
-  };
+      toast.success("Rule updated successfully!");
+    } else {
+      const response = await generateSlots(formData);
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
+      if (!response.success) {
+        toast(response.error || "Failed to generate slots. Please try again.", {
+          className: "custom-error-toast",
+        });
+        return;
+      }
+      console.log("Generated Slots:", response);
+
+      setSlots(response.data || []);
+
+      sendSlotsToParent(response.data || []);
+
+      toast.success("Slots generated successfully!");
+    }
   };
 
   return (
-    <div className=" bg-gradient-to-br from-black via-black to-violet-950 min-h-screen py-8 px-4 ml-64 bg">
+    <div className=" bg-gradient-to-br from-black via-black to-violet-950  py-8 px-4 ml-64 bg">
       <div className="max-w-7xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -461,6 +467,11 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                       Generating Slots...
                     </>
+                  ) : updateLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Updating Rule...
+                    </>
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-3" />
@@ -478,7 +489,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
         </form>
 
         {/* Success Message */}
-        {showSuccess && slots.length > 0 && (
+        {/* {showSuccess && slots.length > 0 && (
           <div
             id="results-section"
             className="mt-8 p-6 rounded-xl backdrop-blur-sm"
@@ -500,7 +511,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
               </p>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

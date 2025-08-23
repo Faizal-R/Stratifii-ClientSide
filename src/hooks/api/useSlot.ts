@@ -86,3 +86,23 @@ export const useScheduleInterviewForCandidate=()=>{
 }
 
 
+
+export const useUpdateInterviewerSlotGenerationRule = () => {
+  const [loading, setLoading] = useState(false);
+
+  const updateInterviewerSlotGenerationRule = useCallback(
+    async (interviewerId: string, ruleData: ISlotGenerationRequest) => {
+      setLoading(true);
+      try {
+        const response = await SlotService.updateInterviewerSlotGenerationRule(interviewerId, ruleData);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { updateInterviewerSlotGenerationRule, loading };
+}
+

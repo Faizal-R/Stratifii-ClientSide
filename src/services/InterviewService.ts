@@ -83,4 +83,19 @@ export const InterviewService = {
       );
     }
   },
+
+ getAllInterviewsByCandidateId: async (candidateId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${InterviewRoutes.GET_ALL_INTERVIEWS_BY_CANDIDATE_ID}/${candidateId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching interviews by candidate ID."
+      );
+    }
+  }
+
 };

@@ -37,6 +37,7 @@ import {
 } from "@/types/ICandidate";
 import { IInterview } from "@/types/IInterview";
 import FinalInterviewFeedback from "@/components/features/company/delegation/FinalInterviewFeedback";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 // interface FileWithPreview extends File {
 //   preview?: string;
@@ -59,8 +60,10 @@ function JobManagementPage() {
   const [isInterviewProcessInitiated, setIsInterviewProcessInitiated] =
     useState(false);
 
-  const { paymentVerificationAndCreatePaymentRecord } =
-    usePaymentVerificationAndCreatePaymentRecord();
+  const {
+    paymentVerificationAndCreatePaymentRecord,
+    loading: initPaymentLoading,
+  } = usePaymentVerificationAndCreatePaymentRecord();
 
   const jobId = useParams().id as string;
 
@@ -81,7 +84,6 @@ function JobManagementPage() {
       });
       return;
     }
-    setIsConfirmationModalOpen(false);
     const { id: orderId, amount } = response.data;
     initiateRazorpayPayment({
       amount: amount,
@@ -106,7 +108,10 @@ function JobManagementPage() {
           });
           return;
         }
-        toast.success(res.message, {});
+
+        setIsInterviewProcessInitiated(true);
+        setIsConfirmationModalOpen(false);
+        toast.success(res.message);
       },
     });
   };
@@ -204,7 +209,7 @@ function JobManagementPage() {
     },
   ];
 
-  const getFilteredCandidates = (tabId: TabType): IDelegatedCandidate[]  => {
+  const getFilteredCandidates = (tabId: TabType): IDelegatedCandidate[] => {
     switch (tabId) {
       case "all":
         return candidates;
@@ -214,25 +219,6 @@ function JobManagementPage() {
         return candidates.filter((c) => c.status === "final_completed");
       default:
         return candidates;
-    }
-  };
-
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case "mock_pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "mock_started":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "mock_completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "mock_failed":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "final_scheduled":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "final_completed":
-        return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -261,11 +247,6 @@ function JobManagementPage() {
 
   const filteredCandidates = getFilteredCandidates(activeTab);
   const activeTabConfig = tabs.find((tab) => tab.id === activeTab)!;
-
-
-
-
-
 
   return loading ? (
     <div className="w-screen h-screen flex items-center justify-center ">
@@ -305,10 +286,10 @@ function JobManagementPage() {
 
                   <button
                     onClick={() => setIsConfirmationModalOpen(true)}
-                    className="group relative px-6 py-3 bg-gradient-to-r from-emerald-600/80 to-green-600/80 text-white rounded-xl border border-emerald-500/30 hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-emerald-500/25"
+                    className="group relative px-6 py-3 min-w-6 min-h-3 bg-gradient-to-r from-emerald-600/80 to-green-600/80 text-white rounded-xl border border-emerald-500/30 hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-emerald-500/25"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-600 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity" />
-                    <div className="relative flex items-center">
+                    <div className="relative flex items-center justify-center">
                       <PlayCircle className="mr-2 h-5 w-5 animate-pulse" />
                       Initiate Interview Process
                     </div>
@@ -323,7 +304,7 @@ function JobManagementPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {candidates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-2xl shadow-sm border border-gray-200">
+          <div className="flex flex-col items-center justify-center min-h-[500px] rounded-2xl shadow-sm  border-gray-200">
             <div className="text-center">
               <Users className="h-20 w-20 text-gray-300 mb-6 mx-auto" />
               <h2 className="text-2xl font-bold text-gray-700 mb-3">
@@ -396,103 +377,109 @@ function JobManagementPage() {
                 </p>
               </div>
             ) : (
-<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-  {filteredCandidates.map((candidateWrapper: IDelegatedCandidate) => {
-    const profile = candidateWrapper.candidate as ICandidateProfile;
-    const feedback = candidateWrapper.finalInterviewFeedback;
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredCandidates.map(
+                  (candidateWrapper: IDelegatedCandidate) => {
+                    const profile =
+                      candidateWrapper.candidate as ICandidateProfile;
+                    const feedback = candidateWrapper.finalInterviewFeedback;
 
-    return (
-      <div
-        key={profile._id}
-        className="bg-zinc-900 rounded-2xl border border-violet-800 shadow-lg shadow-violet-900/20 hover:shadow-violet-700/40 transition-all duration-300 overflow-hidden group text-violet-300"
-      >
-        {/* Header with Status Badge */}
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <img
-                src={
-                  profile.avatar ||
-                  "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
-                }
-                alt={profile.name}
-                className="h-14 w-14 rounded-full object-cover border-2 border-violet-500/50 group-hover:scale-105 transition-transform duration-300"
-              />
-              <div>
-                <h3 className="font-bold text-lg text-white">{profile.name}</h3>
-                <p className="text-sm text-violet-400">{profile.email}</p>
+                    return (
+                      <div
+                        key={profile._id}
+                        className="bg-zinc-900 rounded-2xl border border-violet-800 shadow-lg shadow-violet-900/20 hover:shadow-violet-700/40 transition-all duration-300 overflow-hidden group text-violet-300"
+                      >
+                        {/* Header with Status Badge */}
+                        <div className="p-6 pb-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <img
+                                src={
+                                  profile.avatar ||
+                                  "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
+                                }
+                                alt={profile.name}
+                                className="h-14 w-14 rounded-full object-cover border-2 border-violet-500/50 group-hover:scale-105 transition-transform duration-300"
+                              />
+                              <div>
+                                <h3 className="font-bold text-lg text-white">
+                                  {profile.name}
+                                </h3>
+                                <p className="text-sm text-violet-400">
+                                  {profile.email}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="px-6 pb-6 space-y-5">
+                          {/* Profile Status */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-violet-400">
+                              <UserCheck className="h-4 w-4 text-violet-300" />
+                              <span>Profile Status</span>
+                            </div>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
+                                profile.status === "active"
+                                  ? "bg-green-200/20 text-green-400 border border-green-500/40"
+                                  : "bg-yellow-200/20 text-yellow-400 border border-yellow-500/40"
+                              }`}
+                            >
+                              {profile.status}
+                            </span>
+                          </div>
+
+                          {/* Resume */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-violet-400">
+                              <FileText className="h-4 w-4 text-violet-300" />
+                              <span>Resume</span>
+                            </div>
+                            {profile.resume ? (
+                              <a
+                                href={`https://docs.google.com/viewer?url=${profile.resume}&embedded=true`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center px-3 py-1 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded-lg text-xs font-medium hover:bg-violet-500/30 hover:border-violet-400 transition-all duration-200"
+                              >
+                                View Resume
+                              </a>
+                            ) : (
+                              <span className="text-xs text-violet-500/70 italic">
+                                Not uploaded
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Interview Progress */}
+                          <div className="pt-4 border-t border-violet-800/30">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-sm text-violet-400">
+                                <CalendarClock className="h-4 w-4 text-violet-300" />
+                                <span>Interview Progress</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-violet-300">
+                                {getStatusIcon(candidateWrapper.status)}
+                                <span className="text-xs">
+                                  {formatStatusText(candidateWrapper.status)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Final Interview Feedback */}
+                          {feedback && activeTab === "final_completed" && (
+                            <FinalInterviewFeedback feedback={feedback} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="px-6 pb-6 space-y-5">
-          {/* Profile Status */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-violet-400">
-              <UserCheck className="h-4 w-4 text-violet-300" />
-              <span>Profile Status</span>
-            </div>
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
-                profile.status === "active"
-                  ? "bg-green-200/20 text-green-400 border border-green-500/40"
-                  : "bg-yellow-200/20 text-yellow-400 border border-yellow-500/40"
-              }`}
-            >
-              {profile.status}
-            </span>
-          </div>
-
-          {/* Resume */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-violet-400">
-              <FileText className="h-4 w-4 text-violet-300" />
-              <span>Resume</span>
-            </div>
-            {profile.resume ? (
-              <a
-                href={`https://docs.google.com/viewer?url=${profile.resume}&embedded=true`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-3 py-1 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded-lg text-xs font-medium hover:bg-violet-500/30 hover:border-violet-400 transition-all duration-200"
-              >
-                View Resume
-              </a>
-            ) : (
-              <span className="text-xs text-violet-500/70 italic">
-                Not uploaded
-              </span>
-            )}
-          </div>
-
-          {/* Interview Progress */}
-          <div className="pt-4 border-t border-violet-800/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-violet-400">
-                <CalendarClock className="h-4 w-4 text-violet-300" />
-                <span>Interview Progress</span>
-              </div>
-              <div className="flex items-center gap-1 text-violet-300">
-                {getStatusIcon(candidateWrapper.status)}
-                <span className="text-xs">
-                  {formatStatusText(candidateWrapper.status)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Final Interview Feedback */}
-          {feedback && activeTab==='final_completed'&& (
-             <FinalInterviewFeedback feedback={feedback} />
-          )}
-        </div>
-      </div>
-    );
-  })}
-</div>
-
             )}
           </>
         )}
@@ -511,6 +498,7 @@ function JobManagementPage() {
         onClosed={() => setIsConfirmationModalOpen(false)}
         onProceed={handleModalConfirmation}
         candidatesCount={candidates?.length}
+        paymentLoading={initPaymentLoading}
       />
     </div>
   );

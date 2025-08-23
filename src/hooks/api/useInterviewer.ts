@@ -23,12 +23,13 @@ export const useUpdateInterviewerProfile = () => {
   const [loading, setLoading] = useState(false);
 
   const updateInterviewerProfile = useCallback(
-    async ( updatedInterviewer: IInterviewerProfile,avatar?: string) => {
+    async ( updatedInterviewer: IInterviewerProfile,avatar?: string,resume?: string|null) => {
       try {
         setLoading(true);
         const response = await InterviewerService.updateInterviewerProfile(
           updatedInterviewer,
-          avatar
+          avatar,
+          resume
           
         );
         return response;

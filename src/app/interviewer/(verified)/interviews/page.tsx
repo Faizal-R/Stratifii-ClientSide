@@ -11,35 +11,41 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
-import { useGetAllUpcomingInterviews } from "@/hooks/api/useInterview";
+import {
+  useGetAllInterviewsByCandidateId,
+  useGetAllUpcomingInterviews,
+} from "@/hooks/api/useInterview";
 import { useRouter } from "next/navigation";
-
-// Mock data - replace with actual API call
-
+import { CandidateHistoryModal } from "@/components/features/interviewer/interview/CandidateInterivewHistoryModal";
+import {  ICandidateProfile } from "@/types/ICandidate";
 
 const InterviewsPage: React.FC = () => {
   const router = useRouter();
   const { getAllUpcomingInterviews } = useGetAllUpcomingInterviews();
-  const [upcomingInterviews, setUpcomingInterviews] =
-    useState<IInterview[]>([]);
-  const [filteredInterviews, setFilteredInterviews] =
-    useState<IInterview[]>([]);
+  const [upcomingInterviews, setUpcomingInterviews] = useState<IInterview[]>(
+    []
+  );
+  const [filteredInterviews, setFilteredInterviews] = useState<IInterview[]>(
+    []
+  );
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
- 
- 
 
+  const [isCandidateHistoryModalOpen, setIsCandidateHistoryModalOpen] =
+    useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<ICandidateProfile| null>(
+    null
+  );
+  const [pastInterviewsOfCandidate, setPastInterviewsOfCandidate] = useState<
+    IInterview[]
+  >([]);
 
-  /**
-   * Redirects the user to the interview room page
-   * @param meetingLink - The meeting link of the interview
-   */
-  const handleJoinMeeting = (meetingLink: string,interviewId:string) => {
+  const { getAllInterviewsByCandidateId } = useGetAllInterviewsByCandidateId();
+
+  const handleJoinMeeting = (meetingLink: string, interviewId: string) => {
     router.push(`/interviews/${interviewId}?room=${meetingLink}`);
   };
   console.log("upcomingInterviews", upcomingInterviews);
-
-
 
   const filterInterviews = () => {
     let filtered = [...upcomingInterviews];
@@ -129,6 +135,18 @@ const InterviewsPage: React.FC = () => {
 
   const stats = getStats();
 
+  const onShowCandidateHistory = async (candidateId: string) => {
+    const response = await getAllInterviewsByCandidateId(candidateId);
+    const candidate=upcomingInterviews.find(
+      (interview) => interview.candidate._id === candidateId
+    );
+    if (response.success) {
+      setPastInterviewsOfCandidate(response.data);
+      setSelectedCandidate(candidate?.candidate as ICandidateProfile);
+      setIsCandidateHistoryModalOpen(true);
+    }
+  };
+
   return (
     <div className=" ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
       <div className="max-w-7xl mx-auto">
@@ -198,14 +216,14 @@ const InterviewsPage: React.FC = () => {
         />
 
         {/* Interviews List */}
-        <div className="space-y-4">
+        <div className=" flex items-center justify-center gap-3">
           {filteredInterviews.length > 0 ? (
             filteredInterviews.map((interview) => (
               <InterviewCard
                 key={interview._id}
                 interview={interview}
                 onJoinMeeting={handleJoinMeeting}
-                
+                onShowCandidateHistory={onShowCandidateHistory}
               />
             ))
           ) : (
@@ -222,10 +240,13 @@ const InterviewsPage: React.FC = () => {
             </div>
           )}
         </div>
-
-       
-      
       </div>
+      <CandidateHistoryModal
+        interviews={pastInterviewsOfCandidate}
+        candidate={selectedCandidate}
+        onClose={() => setIsCandidateHistoryModalOpen(false)}
+        isOpen={isCandidateHistoryModalOpen}
+      />
     </div>
   );
 };

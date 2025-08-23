@@ -20,7 +20,7 @@ export const InterviewerService = {
   updateInterviewerProfile: async (
     interviewer: IInterviewerProfile,
     avatar?: string,
-    resume?: string,
+    resume?: string|null,
   ) => {
     const formData = new FormData();
     try {

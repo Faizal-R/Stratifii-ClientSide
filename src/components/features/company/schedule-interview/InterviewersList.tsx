@@ -1,33 +1,39 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Star, MapPin, Mail, Calendar, Clock, Award, CheckCircle } from "lucide-react";
+import {
+  Star,
+  MapPin,
+  Mail,
+  Calendar,
+  Clock,
+  Award,
+  CheckCircle,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  BookOpen,
+} from "lucide-react";
 import { IJob } from "@/types/IJob";
 import { useGetMatchedInterviewersByJobDescription } from "@/hooks/api/useJob";
 import { toast } from "sonner";
-import { IInterviewerProfile, ISkillExpertise } from "@/validations/InterviewerSchema";
+import {
+  IInterviewerProfile,
+  ISkillExpertise,
+} from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
+import { Badge } from "@/components/ui/badge";
+import SlotModal from "./AvailableSlotListingModal";
 
-// Badge component (if not available from a UI library)
-const Badge: React.FC<{
-  children: React.ReactNode;
-  variant?: "default" | "outline";
-  className?: string;
-}> = ({ children, variant = "default", className = "" }) => {
-  const baseClasses = "inline-flex items-center px-2 py-1 text-xs font-medium rounded-full";
-  const variantClasses = variant === "outline" 
-    ? "border border-gray-600 bg-transparent" 
-    : "bg-gray-700 text-gray-300";
-  
-  return (
-    <span className={`${baseClasses} ${variantClasses} ${className}`}>
-      {children}
-    </span>
-  );
-};
-
-const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: IInterviewerProfile, slot: IInterviewSlot) => void}> = ({ selectedJob,onBookSlot }) => {
+// Main InterviewerList Component
+const InterviewerList: React.FC<{
+  selectedJob: IJob;
+  onBookSlot: (interviewer: IInterviewerProfile, slot: IInterviewSlot) => void;
+}> = ({ selectedJob, onBookSlot }) => {
   const [interviewers, setInterviewers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedInterviewer, setSelectedInterviewer] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const hasFetched = useRef(false);
 
   const { getMatchedInterviewersByJobDescription } =
@@ -37,6 +43,7 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
     if (!selectedJob) return;
     if (hasFetched.current) return;
     hasFetched.current = true;
+
     const fetchMatchedInterviewers = async () => {
       setLoading(true);
       const res = await getMatchedInterviewersByJobDescription(
@@ -44,7 +51,6 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
       );
       if (res.success) {
         setInterviewers(res.data);
-        console.log(res.data);
       } else {
         toast.error(res.error || "Failed to fetch interviewers", {
           className: "custom-error-toast",
@@ -55,198 +61,193 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
     fetchMatchedInterviewers();
   }, [selectedJob]);
 
-
-
-  const isSlotAvailable = (slot: IInterviewSlot) =>
-    slot.isAvailable && slot.status === "available";
-
-  // Helper function to get top skills (you can modify the logic as needed)
-  const getTopSkills = (expertise: ISkillExpertise[]) => {
-    return expertise?.slice(0, 6) || []; // Show top 6 skills
+  const openSlotModal = (interviewer: any) => {
+    setSelectedInterviewer(interviewer);
+    setIsModalOpen(true);
   };
 
-  // Helper function to check if skill matches job requirements
+  const closeSlotModal = () => {
+    setIsModalOpen(false);
+    setSelectedInterviewer(null);
+  };
+
   const getSkillMatch = (skill: string) => {
     return selectedJob.requiredSkills.includes(skill);
   };
+  const getSortedSkills = (expertise: ISkillExpertise[]) => {
+    if (!expertise) return [];
+
+    // Sort matched first, then non-matched
+    return [...expertise].sort((a, b) => {
+      const aMatch = getSkillMatch(a.skill) ? 1 : 0;
+      const bMatch = getSkillMatch(b.skill) ? 1 : 0;
+      return bMatch - aMatch;
+    });
+  };
+
+  const getAvailableSlotCount = (slots: IInterviewSlot[]) => {
+    return slots.filter(
+      (slot) => slot.isAvailable && slot.status === "available"
+    ).length;
+  };
 
   return (
-    <div className="bg-gradient-to-br from-gray-900/60 to-black/40 backdrop-blur-sm rounded-xl border border-gray-700 shadow-xl">
-      <div className="p-6 border-b border-gray-700">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
-            Matched Interviewers
-          </h2>
-          <span className="bg-gradient-to-r from-violet-600/20 to-purple-600/20 text-violet-300 px-4 py-2 rounded-full text-sm font-medium border border-violet-500/30">
-            {interviewers.length} available
-          </span>
+    <>
+      <div className="bg-gradient-to-br from-gray-900/60 to-black/40 backdrop-blur-sm rounded-xl border border-gray-700 shadow-xl">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-violet-900/20 to-purple-900/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                Expert Interviewers
+              </h2>
+              <p className="text-gray-400">
+                Handpicked professionals matching your requirements
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="bg-gradient-to-r from-violet-600/20 to-purple-600/20 text-violet-300 px-6 py-3 rounded-xl border border-violet-500/30">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5" />
+                  <span className="font-bold text-lg">
+                    {interviewers.length}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">Available</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-400 mx-auto mb-6"></div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Finding Perfect Matches
+              </h3>
+              <p className="text-gray-400">
+                We're searching for the best interviewers for your role...
+              </p>
+            </div>
+          ) : interviewers.length === 0 ? (
+            <div className="text-center py-16">
+              <BookOpen className="h-16 w-16 text-gray-500 mx-auto mb-6" />
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                No Matches Found
+              </h3>
+              <p className="text-gray-500">
+                No interviewers match the current job requirements.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {interviewers.map((interviewer: any) => {
+                const availableSlots = getAvailableSlotCount(
+                  interviewer.slots || []
+                );
+
+                return (
+                  <div
+                    key={interviewer.interviewer._id}
+                    className={`group relative w-full p-5 rounded-xl border transition-all duration-300 overflow-hidden ${
+                      availableSlots > 0
+                        ? "border-gray-700/50 bg-gray-800/30 hover:border-violet-500/50 hover:bg-violet-900/20 hover:shadow-lg"
+                        : "border-gray-700/50 bg-gray-800/20 opacity-70"
+                    }`}
+                  >
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    <div className="relative flex items-center gap-5">
+                      {/* Avatar */}
+                      <div className="relative flex-shrink-0">
+                        <img
+                          src={interviewer.interviewer.avatar}
+                          alt={interviewer.interviewer.name}
+                          className="w-14 h-14 rounded-full object-cover border-2 border-gray-600/50 shadow-lg"
+                        />
+                        {availableSlots > 0 && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border border-gray-900 shadow" />
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-white text-lg truncate">
+                            {interviewer.interviewer.name}
+                          </h3>
+                          <span
+                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                              availableSlots > 0
+                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                : "bg-red-500/10 text-red-400 border border-red-500/30"
+                            }`}
+                          >
+                            {availableSlots > 0
+                              ? `${availableSlots} Slots Available`
+                              : "No Slots"}
+                          </span>
+                        </div>
+                        <p className="text-sm text-violet-300 truncate">
+                          {interviewer.interviewer.position}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {interviewer.interviewer.experience} years experience
+                        </p>
+
+                        {/* Skills */}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {getSortedSkills(
+                            interviewer.interviewer.expertise
+                          )?.map((expertise: ISkillExpertise, idx: number) => (
+                            <span
+                              key={idx}
+                              className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
+                                getSkillMatch(expertise.skill)
+                                  ? "bg-green-500/20 text-green-300 border-green-500/30"
+                                  : "bg-gray-700/40 text-gray-300 border-gray-600/30"
+                              }`}
+                            >
+                              {expertise.skill} - {expertise.yearsOfExperience} yrs
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <div className="flex-shrink-0">
+                        <button
+                          onClick={() => openSlotModal(interviewer)}
+                          disabled={availableSlots === 0}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md ${
+                            availableSlots > 0
+                              ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 hover:shadow-violet-500/25"
+                              : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                          }`}
+                        >
+                          {availableSlots > 0 ? "View Slots" : "Unavailable"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="p-6 space-y-6 max-h-96 overflow-y-auto custom-scrollbar">
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-400 mx-auto mb-4"></div>
-            <p className="text-gray-300">Loading interviewers...</p>
-          </div>
-        ) : interviewers.length === 0 ? (
-          <div className="text-center py-8">
-            <Star className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-400">
-              No matched interviewers found for this job
-            </p>
-          </div>
-        ) : (
-          interviewers.map((interviewer: any) => (
-            <div
-              key={interviewer.interviewer._id}
-              className="group p-6 rounded-xl border border-gray-700 bg-gradient-to-br from-gray-900/40 to-black/20 hover:border-violet-500/50 hover:bg-gradient-to-br hover:from-gray-900/60 hover:to-violet-950/30 transition-all duration-300 backdrop-blur-sm"
-            >
-              <div className="flex items-start space-x-4">
-                <div className="relative">
-                  <img
-                    src={interviewer.interviewer.avatar}
-                    alt={interviewer.interviewer.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-violet-400 transition-colors"
-                  />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-lg text-white group-hover:text-violet-200 transition-colors">
-                      {interviewer.interviewer.name}
-                    </h3>
-                    <div className="flex items-center bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-3 py-1 rounded-full border border-yellow-500/30">
-                      <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
-                      <span className="text-sm text-yellow-300 font-medium">
-                        {interviewer.interviewer.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-violet-200 font-medium mb-1">
-                    {interviewer.interviewer.position}
-                  </p>
-                  <p className="text-gray-400 mb-3">
-                    {interviewer.isVerified ?? "Independent"} •{" "}
-                    {interviewer.interviewer.experience} yrs experience
-                  </p>
-
-                  <div className="flex items-center space-x-6 text-sm text-gray-400 mb-4">
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-violet-400" />
-                      <span className="text-gray-300">
-                        {interviewer.interviewer.email}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                      <Award className="h-4 w-4 text-violet-400" />
-                      Top Expertise
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {getTopSkills(interviewer.interviewer.expertise)?.map(
-                        (expertise: any, index: number) => (
-                          <Badge
-                            key={`${expertise.skill}-${index}`}
-                            variant="outline"
-                            className={
-                              getSkillMatch(expertise.skill)
-                                ? "bg-gradient-to-r from-green-600/30 to-emerald-600/30 text-green-300 border-green-500/40 shadow-sm"
-                                : "bg-gradient-to-r from-gray-700/50 to-gray-600/50 text-gray-300 border-gray-600/30"
-                            }
-                          >
-                            {expertise.skill}
-                            {expertise.yearsOfExperience && (
-                              <span className="ml-1 text-xs opacity-80">
-                                ({expertise.yearsOfExperience}y)
-                              </span>
-                            )}
-                            {getSkillMatch(expertise.skill) && (
-                              <CheckCircle className="h-3 w-3 ml-1 text-green-400" />
-                            )}
-                          </Badge>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-violet-300 flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Available Slots:
-                    </h4>
-                    {interviewer.slots.length === 0 ? (
-                      <p className="text-sm text-gray-400 italic bg-gray-800/30 p-3 rounded-lg border border-gray-700">
-                        No available slots
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-3">
-                        {interviewer.slots.map((slot: IInterviewSlot) => {
-                          const available = isSlotAvailable(slot);
-                          return (
-                            <div
-                              key={slot._id}
-                              className={`p-4 rounded-lg border text-sm transition-all ${
-                                available
-                                  ? "border-green-500/40 bg-gradient-to-r from-green-900/20 to-emerald-900/20 hover:from-green-900/30 hover:to-emerald-900/30"
-                                  : "border-gray-600 bg-gradient-to-r from-gray-800/30 to-gray-700/30"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-4">
-                                  <div className="flex items-center space-x-2">
-                                    <Calendar className="h-4 w-4 text-violet-400" />
-                                    <span className="font-medium text-white">
-                                      {new Date(slot.startTime).toDateString()}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Clock className="h-4 w-4 text-violet-400" />
-                                    <span className="text-gray-300">
-                                      {new Date(slot.startTime).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })}
-                                    </span>
-                                  </div>
-                                  <span className="text-gray-400 bg-gray-700/50 px-2 py-1 rounded text-xs">
-                                    {slot.duration} mins
-                                  </span>
-                                </div>
-                                {available ? (
-                                  <button
-                                    onClick={() => onBookSlot(interviewer.interviewer, slot)}
-                                    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all text-xs font-medium shadow-lg hover:shadow-violet-500/25 transform hover:scale-105"
-                                  >
-                                    Book Slot
-                                  </button>
-                                ) : (
-                                  <span className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-700/50 text-gray-400 border border-gray-600">
-                                    Not Available
-                                  </span>
-                                )}
-                              </div>
-                              {slot.meetingLink && (
-                                <div className="mt-3 text-xs text-gray-400 bg-gray-800/40 p-2 rounded border border-gray-700">
-                                  <span className="font-medium text-violet-300">Meeting:</span>{" "}
-                                  <span className="text-gray-300">{slot.meetingLink}</span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {/* Slot Modal */}
+      <SlotModal
+        isOpen={isModalOpen}
+        onClose={closeSlotModal}
+        interviewer={selectedInterviewer}
+        onBookSlot={onBookSlot}
+        selectedJob={selectedJob}
+      />
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
@@ -264,7 +265,7 @@ const InterviewerList: React.FC<{ selectedJob: IJob ,onBookSlot: (interviewer: I
           background: rgba(139, 92, 246, 0.7);
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

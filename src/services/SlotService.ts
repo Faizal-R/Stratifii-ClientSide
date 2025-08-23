@@ -64,4 +64,22 @@ export const SlotService = {
       );
     }
   },
+
+  updateInterviewerSlotGenerationRule: async (interviewerId:string,ruleData:ISlotGenerationRequest)=>{
+    try {
+      const response = await apiClient.put(
+       `${SlotRoutes.UPDATE_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`,
+        ruleData
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating slot generation rule."
+      );
+    }
+  }
 };
+
+
+

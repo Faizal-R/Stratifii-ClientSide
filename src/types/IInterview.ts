@@ -14,7 +14,7 @@ export interface IQuestion {
 import { ICompany } from "@/validations/CompanySchema";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { IJob } from "./IJob";
-import { ICandidate } from "./ICandidate";
+import {  ICandidateProfile } from "./ICandidate";
 
 // export interface IInterview {
 // _id: string;
@@ -48,7 +48,7 @@ export interface IInterviewFeedback {
 
 export interface IInterview {
   _id: string;
-  candidate: ICandidate;
+  candidate: ICandidateProfile;
   interviewer: Partial<IInterviewerProfile> | string;
   bookedBy: Partial<ICompany> | string;
   job: IJob;

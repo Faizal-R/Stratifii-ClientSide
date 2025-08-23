@@ -2,9 +2,8 @@
 import SlotDisplay from "@/components/features/interviewer/slot/SlotDisplay";
 import SlotGeneratorPage from "@/components/features/interviewer/slot/SlotGeneratorPage";
 import { useAuthStore } from "@/features/auth/authStore";
-import {
-  useGetAllSlotsByRule,
-} from "@/hooks/api/useSlot";
+import { Plus, RefreshCw, Eye } from "lucide-react";
+import { useGetAllSlotsByRule } from "@/hooks/api/useSlot";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 
 import { Sparkles } from "lucide-react";
@@ -29,11 +28,13 @@ const ScheduleManagmentPage = () => {
     hasFetched.current = true;
 
     async function getAllSlotsBasedOnRule() {
-      setIsShownSlots(true);
       const response = await getSlotsByRule(user?.id as string);
       console.log(response);
       if (response.success) {
         setSlots(response.data);
+        if (response.data.length > 0) {
+          setIsShownSlots(true);
+        }
       } else {
         toast.error(response.error, {
           className: "custom-toast-error",
@@ -71,9 +72,28 @@ const ScheduleManagmentPage = () => {
         </p>
         <button
           onClick={() => setIsShownSlots(!isShownSlots)}
-          className="absolute right-5 top-40 px-4 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 transition"
+          className="absolute right-5 top-40 flex items-center gap-2 px-3 py-1.5 text-sm font-medium 
+             bg-violet-600 text-white rounded-lg shadow-sm hover:bg-violet-700 
+             transition-all duration-200"
         >
-          {isShownSlots ? "+ Generate New Slots" : "See My Slots"}
+          {isShownSlots ? (
+            slots.length > 0 ? (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span>Update Slots</span>
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                <span>Generate Slots</span>
+              </>
+            )
+          ) : (
+            <>
+              <Eye className="w-4 h-4" />
+              <span>View Slots</span>
+            </>
+          )}
         </button>
       </div>
 

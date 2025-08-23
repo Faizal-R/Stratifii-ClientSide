@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { RiseLoader } from "react-spinners";
 
 interface ModalProps {
@@ -98,12 +98,7 @@ export const Modal: React.FC<ModalProps> = ({
                 <h3 className="text-xl font-semibold bg-gradient-to-r from-violet-200 to-white bg-clip-text text-transparent">
                   {title}
                 </h3>
-                <button
-                  onClick={handleClose}
-                  className="p-1 text-violet-300/70 hover:text-violet-200 transition-colors"
-                >
-                  <X size={20} />
-                </button>
+               
               </div>
 
               {/* Content */}
