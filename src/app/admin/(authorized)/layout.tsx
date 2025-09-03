@@ -22,7 +22,6 @@ import { toast } from 'sonner';
     { id: "subscription", label: "Subscription", icon: CreditCard, route: "/admin/subscription" },
     { id: "payments", label: "Payments", icon: Receipt, route: "/admin/payments" },
     { id: "wallet", label: "Wallet", icon: Wallet, route: "/admin/wallet" },
-    { id: "logout", label: "Logout", icon: LogOut, route: "/logout" },
   ];
   
   

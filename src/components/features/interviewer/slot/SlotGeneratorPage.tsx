@@ -485,33 +485,8 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
             </div>
           </div>
 
-          {/* Submit Button */}
+       
         </form>
-
-        {/* Success Message */}
-        {/* {showSuccess && slots.length > 0 && (
-          <div
-            id="results-section"
-            className="mt-8 p-6 rounded-xl backdrop-blur-sm"
-            style={{
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.3)",
-            }}
-          >
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-4">
-                <Sparkles className="w-8 h-8 text-emerald-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Slots Generated Successfully!
-              </h3>
-              <p className="text-emerald-300">
-                Your interview schedule is ready. {slots.length} slots have been
-                created.
-              </p>
-            </div>
-          </div>
-        )} */}
       </div>
     </div>
   );

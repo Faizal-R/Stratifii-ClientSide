@@ -10,8 +10,8 @@ export const getAdminCompanyColumns = ({
   activeTab,
 }: {
   onView: (company: ICompany) => void;
-  onBlockToggle: (id: string) => void;
-  onOpenVerificationModal: (id: string, isVerifyOrReject: boolean) => void; 
+  onBlockToggle: (companyId: string) => void;
+  onOpenVerificationModal: (companyId: string, isVerifyOrReject: boolean) => void; 
   activeTab: string;
 }): ColumnDef<ICompany>[] => [
   {

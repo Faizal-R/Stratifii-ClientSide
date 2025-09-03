@@ -155,16 +155,18 @@
 
 .custom-toast,
 .custom-error-toast {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: 14.5px !important;
   color: white !important;
   border-radius: 10px;
   padding: 16px !important;
-  height: 60px !important;
+  min-height: 60px !important;
+  max-width: 400px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  white-space: normal;  
+  overflow-wrap: break-word;  
+  word-break: break-word;
 }
+
 
 
 

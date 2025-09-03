@@ -28,9 +28,9 @@ export const getAdminInterviewerColumns = ({
   onOpenVerificationModal
 }: {
   onView: (interviewer: IInterviewerProfile) => void;
-  onBlockToggle: (id: string) => void;
+  onBlockToggle: (interviewerId: string) => void;
   activeTab: string;
-  onOpenVerificationModal: (interviewer: string,isVerifyOrReject:boolean) => void
+  onOpenVerificationModal: (interviewerId: string,isVerifyOrReject:boolean) => void
 }): ColumnDef<IInterviewerProfile>[] => [
   {
     accessorKey: "name",

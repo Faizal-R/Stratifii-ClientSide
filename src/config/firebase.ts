@@ -1,4 +1,4 @@
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
@@ -9,7 +9,7 @@ const firebaseConfig = {
 };
 
 // Prevent re-initialization
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const app =initializeApp(firebaseConfig) 
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
