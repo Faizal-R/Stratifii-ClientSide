@@ -30,6 +30,7 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
   onShowCandidateHistory,
 }) => {
   const [showAllSkills, setShowAllSkills] = useState(false);
+  console.log("interview", interview);
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("en-US", {
@@ -117,7 +118,7 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
               <div className="relative flex-shrink-0">
                 <img
                   src={
-                    interview.candidate.avatar ||
+                    interview?.candidate?.avatar ||
                     `https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face`
                   }
                   alt={interview.candidate.name}

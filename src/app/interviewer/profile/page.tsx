@@ -39,7 +39,7 @@ import { RiseLoader, SyncLoader } from "react-spinners";
 import ChangePasswordButton from "@/components/ui/Buttons/ChangePasswordButton";
 import PasswordResetFormModal from "@/components/ui/Modals/PasswordResetFormModal";
 import { Roles } from "@/constants/enums/roles";
-import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
+import { InputField } from "@/components/ui/FormFields/InputField";
 
 type TSkillSource = "professional" | "academic" | "personal" | "certification";
 

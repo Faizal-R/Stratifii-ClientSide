@@ -1,3 +1,4 @@
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { ICompany } from "./ICompany";
 import { IInterviewer } from "./IInterviewer";
 import { IJob } from "./IJob";
@@ -9,7 +10,7 @@ export interface ICandidateProfile {
   resume: string;
   status: "active" | "pending" | "deactive";
   isBlocked?: boolean;
-  name?: string;
+  name: string;
   createdAt?: string; // ISO 8601 datetime string
   updatedAt?: string; // ISO 8601 datetime string
 }
@@ -40,38 +41,52 @@ export interface ICandidateJob {
   interviewerId?: string | null;
 }
 
+export interface IInterviewFeedback {
+  technicalScore?: number;
+  communicationScore?: number;
+  problemSolvingScore?: number;
+  culturalFitScore?: number;
+  overallScore?: number;
+  strengths?: string;
+  areasForImprovement?: string;
+  comments?: string;
+  recommendation?: "hire" | "no-hire" | "maybe"|"next-round";
+  needsFollowUp?: boolean;
+  suggestedFocusAreas?: string[];
+  internalNotes?:string;
+}
+
+export interface IInterviewRound {
+  roundNumber: number;
+  type: "mock" | "final" | "followup";
+  timeZone?: string;
+  status: "scheduled" | "started" | "completed" | "cancelled";
+  feedback?: IInterviewFeedback;
+  interviewer:string | IInterviewerProfile
+}
 export interface IDelegatedCandidate {
+  _id?:string;
   candidate: string | ICandidateProfile;
   company: string | ICompany;
   job: string | IJob;
-  status:
+ status:
     | "mock_pending"
-    | "mock_started"
+    | "mock_started" 
     | "mock_completed"
     | "mock_failed"
+    | "in_interview_process" 
+    | "interview_completed"  
     | "shortlisted"
-    | "final_scheduled"
-    | "final_completed"
+    | "hired"
     | "rejected";
-  assignedInterviewer?: string | IInterviewer;
-  scheduledTime?: Date;
-  interviewTimeZone?: string;
-  finalInterviewFeedback?: {
-    technicalScore?: number;
-    communicationScore?: number;
-    problemSolvingScore?: number;
-    culturalFitScore?: number;
-    overallScore?: number;
-    strengths?: string;
-    areasForImprovement?: string;
-    comments?: string;
-    recommendation?: "hire" | "no-hire" | "maybe";
-  };
-
+  interviewRounds: IInterviewRound[];
+  totalNumberOfRounds?: number;
+  currentRound?:number
+  isQualifiedForFinal?: boolean;
   aiMockResult?: {
     totalQuestions: number;
     correctAnswers: number;
     scoreInPercentage: number;
   };
-  isQualifiedForFinal?: boolean;
+  isInterviewScheduled?: boolean
 }

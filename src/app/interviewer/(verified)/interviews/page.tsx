@@ -103,6 +103,7 @@ const InterviewsPage: React.FC = () => {
     const fetchUpcomingInterviews = async () => {
       const res = await getAllUpcomingInterviews();
       if (res.success) {
+        console.log(res.data);
         setUpcomingInterviews(res.data);
       }
     };
@@ -216,7 +217,7 @@ const InterviewsPage: React.FC = () => {
         />
 
         {/* Interviews List */}
-        <div className=" flex items-center justify-center gap-3">
+     <div className="grid grid-cols-3 gap-4">
           {filteredInterviews.length > 0 ? (
             filteredInterviews.map((interview) => (
               <InterviewCard

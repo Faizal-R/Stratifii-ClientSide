@@ -119,10 +119,10 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
           </div>
 
           <div className="flex space-x-2">
-            {
-              true?(
             
-            //  {canJoinNow() ? (
+              
+            
+             {canJoinNow() ? (
               <button onClick={() => onJoinMeeting(interview)} className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-emerald-500/25">
                 <Video className="w-4 h-4" /><span>Join Now</span>
               </button>

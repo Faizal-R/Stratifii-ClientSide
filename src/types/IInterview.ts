@@ -43,7 +43,10 @@ export interface IInterviewFeedback {
   strengths?: string;
   areasForImprovement?: string;
   comments?: string;
-  recommendation?: 'hire' | 'no-hire' | 'maybe';
+  recommendation?: "hire" | "no-hire" | "maybe";
+  needsFollowUp?: boolean;
+  suggestedFocusAreas?: string[];
+  internalNotes?:string;
 }
 
 export interface IInterview {

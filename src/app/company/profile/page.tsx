@@ -21,7 +21,7 @@ import {
   CreditCard,
   Crown,
 } from "lucide-react";
-import { InputField } from "@/components/ui/Buttons/FormFields/InputField";
+import { InputField } from "@/components/ui/FormFields/InputField";
 import {
   useFetchCompanyProfile,
   useUpdateCompanyProfile,
@@ -34,7 +34,7 @@ import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import { StatusCodes } from "@/constants/enums/statusCodes";
 
-import { SelectField } from "@/components/ui/Buttons/FormFields/SelectField";
+import { SelectField } from "@/components/ui/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
 import SubscriptionCard from "@/components/features/company/profile/ProfileSubscriptionCard";

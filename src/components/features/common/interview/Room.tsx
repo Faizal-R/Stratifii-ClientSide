@@ -199,7 +199,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
       localStreamRef.current = null;
     }
     socket.emit("leave:room", { roomId: room });
-    router.push(`/${user?.role}`);
+    router.push(`/${user?.role}/dashboard`);
     setIsConnected(false);
   };
 

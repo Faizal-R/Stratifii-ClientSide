@@ -14,8 +14,18 @@ import {
   Target,
   BookOpen,
   MessageSquare,
+  Search,
+  Filter,
+  ChevronDown,
+  Star,
+  TrendingUp,
+  UserPlus,
+  AlertTriangle,
+  ArrowRight,
+  Eye,
 } from "lucide-react";
 import FileUploadModal from "@/components/ui/Modals/FileUploadModal";
+import SlotModal from "@/components/features/company/schedule-interview/AvailableSlotListingModal";
 import {
   useGetCandidatesByJob,
   useUploadResumesAndCreateCandidates,
@@ -23,7 +33,6 @@ import {
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
-// import { Modal } from "@/components/ui/modals/ConfirmationModal";
 import PaymentProceedModal from "@/components/ui/Modals/PaymentProceedModal";
 import {
   usePaymentOrderCreation,
@@ -34,16 +43,16 @@ import {
   ICandidateJob,
   ICandidateProfile,
   IDelegatedCandidate,
+  IInterviewRound,
 } from "@/types/ICandidate";
 import { IInterview } from "@/types/IInterview";
 import FinalInterviewFeedback from "@/components/features/company/delegation/FinalInterviewFeedback";
-import { init } from "next/dist/compiled/webpack/webpack";
-
-// interface FileWithPreview extends File {
-//   preview?: string;
-// }
-
-type TabType = "all" | "mock_completed" | "final_completed";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import { IInterviewSlot } from "@/types/ISlotTypes";
+import { useGetAllSlotsByInterviewer } from "@/hooks/api/useSlot";
+import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
+import InterviewRoundsModal from "../../../../../../components/features/interviewer/interview/InterviewRoundsModal";
+type TabType = "all" | "in-progress" | "completed";
 
 interface TabConfig {
   id: TabType;
@@ -52,10 +61,23 @@ interface TabConfig {
   color: string;
   bgColor: string;
   borderColor: string;
+  count?: number;
 }
 
 function JobManagementPage() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedJob, setSelectedJob] = useState<string>("all");
+  const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
+  const [selectedInterviewer, setSelectedInterviewer] = useState<{
+    interviewer: IInterviewerProfile;
+    slots: IInterviewSlot[];
+  } | null>(null);
+  const [currentCandidate, setCurrentCandidate] =
+    useState<IDelegatedCandidate | null>(null);
+  const { getSlotsByInterviewer } = useGetAllSlotsByInterviewer();
+
   const { paymentOrderCreation } = usePaymentOrderCreation();
   const [isInterviewProcessInitiated, setIsInterviewProcessInitiated] =
     useState(false);
@@ -66,15 +88,16 @@ function JobManagementPage() {
   } = usePaymentVerificationAndCreatePaymentRecord();
 
   const jobId = useParams().id as string;
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   const { loading, getCandidatesByJob } = useGetCandidatesByJob();
-
   const { uploadResumesAndCreateCandidates } =
     useUploadResumesAndCreateCandidates();
+  const { scheduleInterview } = useScheduleInterviewForCandidate();
+  const [isRoundsModalOpen, setIsRoundsModalOpen] = useState(false);
+  const [selectedCandidateForRounds, setSelectedCandidateForRounds] =
+    useState<IDelegatedCandidate | null>(null);
 
   const handleModalConfirmation = async (totalAmount: number) => {
     const response = await paymentOrderCreation(totalAmount);
@@ -137,19 +160,96 @@ function JobManagementPage() {
     setIsModalOpen(false);
   };
 
-  // const removeFile = (candidateId: string, fileToRemove: File) => {
-  //   setCandidates(
-  //     candidates.map((candidate) => {
-  //       if (candidate.id === candidateId) {
-  //         return {
-  //           ...candidate,
-  //           files: candidate.files.filter((file) => file !== fileToRemove),
-  //         };
-  //       }
-  //       return candidate;
-  //     })
-  //   );
-  // };
+  // Handle opening slot modal for next round
+  const handleNextRound = async (
+    candidate: IDelegatedCandidate,
+    interviewer: IInterviewerProfile
+  ) => {
+    console.log(interviewer);
+
+    const res = await getSlotsByInterviewer(interviewer._id!);
+    if (res.success) {
+      const slots = res.data;
+      console.log(interviewer, slots);
+      setSelectedInterviewer({ interviewer, slots });
+      setCurrentCandidate(candidate);
+      setIsSlotModalOpen(true);
+    }
+  };
+
+  // Handle booking slot for next round
+  const handleBookSlot = async (
+    interviewer: IInterviewerProfile,
+    slot: IInterviewSlot
+  ) => {
+    if (!currentCandidate) return;
+
+    try {
+      console.log("currentCandidate",currentCandidate);
+   
+      const res = await scheduleInterview({
+        candidate: (currentCandidate.candidate as ICandidateProfile)._id,
+        slot,
+        interviewer: interviewer._id as string,
+        job: jobId,
+      });
+      if (!res.success) {
+        toast.error(res.error, {
+          className: "custom-error-toast",
+        });
+        return;
+      }
+      // Update candidate status and add new interview round
+      const updatedCandidates = candidates.map((c) => {
+        if (c._id === currentCandidate._id) {
+          const newRound = {
+            roundNumber: c.interviewRounds.length + 1,
+            type: "final" as const,
+            status: "scheduled" as const,
+            interviewer: interviewer._id,
+          };
+
+          return {
+            ...c,
+            status: "interview_rounds" as const,
+            interviewRounds: [...c.interviewRounds, newRound],
+            isInterviewScheduled: true,
+          };
+        }
+        return c;
+      });
+
+      setCandidates(updatedCandidates as IDelegatedCandidate[]);
+      toast.success("Next interview round scheduled successfully!");
+      setIsSlotModalOpen(false);
+      setCurrentCandidate(null);
+      setSelectedInterviewer(null);
+    } catch (error) {
+      toast.error("Failed to schedule next round");
+    }
+  };
+
+  // Handle completing candidate
+  const handleCompleteCandidate = async (candidateId: string) => {
+    try {
+      const updatedCandidates = candidates.map((c) => {
+        if (c._id === candidateId) {
+          return {
+            ...c,
+            status: "shortlisted" as const,
+          };
+        }
+        return c;
+      });
+
+      setCandidates(updatedCandidates);
+      toast.success("Candidate marked as completed!", {
+        className: "custom-success-toast",
+      });
+    } catch (error) {
+      toast.error("Failed to complete candidate");
+    }
+  };
 
   const hasFetched = useRef(false);
 
@@ -182,44 +282,81 @@ function JobManagementPage() {
     fetchCandidates();
   }, [getCandidatesByJob, candidates]);
 
-  const tabs: TabConfig[] = [
-    {
-      id: "all",
-      label: "All Candidates",
-      icon: Users,
-      color: "text-violet-300",
-      bgColor: "bg-violet-600/20",
-      borderColor: "border-violet-500/40",
-    },
-    {
-      id: "mock_completed",
-      label: "Mock Passed",
-      icon: CheckCircle,
-      color: "text-emerald-300",
-      bgColor: "bg-emerald-500/20",
-      borderColor: "border-emerald-500/40",
-    },
-    {
-      id: "final_completed",
-      label: "Final Completed",
-      icon: Trophy,
-      color: "text-amber-300",
-      bgColor: "bg-amber-500/20",
-      borderColor: "border-amber-500/40",
-    },
-  ];
-
+  // Get filtered candidates based on search and job filter
   const getFilteredCandidates = (tabId: TabType): IDelegatedCandidate[] => {
+    let filtered = candidates;
+
+    // Filter by tab
     switch (tabId) {
       case "all":
-        return candidates;
-      case "mock_completed":
-        return candidates.filter((c) => c.status === "mock_completed");
-      case "final_completed":
-        return candidates.filter((c) => c.status === "final_completed");
+        filtered = candidates;
+        break;
+      case "in-progress":
+        filtered = candidates.filter((c) =>
+          [
+            "interview_rounds",
+            "scheduled",
+            "mock_started",
+            "shortlisted",
+          ].includes(c.status)
+        );
+        break;
+      case "completed":
+        filtered = candidates.filter((c) =>
+          ["completed", "hired"].includes(c.status)
+        );
+        break;
       default:
-        return candidates;
+        filtered = candidates;
     }
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter((c) => {
+        const profile = c.candidate as ICandidateProfile;
+        return (
+          profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          profile.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+    }
+
+    return filtered;
+  };
+
+  const getStatusBadge = (status: string) => {
+    const inProgressStatuses = [
+      "interview_rounds",
+      "scheduled",
+      "mock_started",
+      "shortlisted",
+    ];
+    const completedStatuses = ["completed", "hired"];
+
+    if (inProgressStatuses.includes(status)) {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/40">
+          In Progress
+        </span>
+      );
+    } else if (completedStatuses.includes(status)) {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          Completed
+        </span>
+      );
+    } else {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-gray-300 border border-gray-500/40">
+          Pending
+        </span>
+      );
+    }
+  };
+
+  const getLatestInterviewRound = (interviewRounds: any[]) => {
+    if (!interviewRounds || interviewRounds.length === 0) return null;
+    return interviewRounds[interviewRounds.length - 1];
   };
 
   const getStatusIcon = (status: string) => {
@@ -232,9 +369,11 @@ function JobManagementPage() {
         return <CheckCircle className="w-3 h-3" />;
       case "mock_failed":
         return <XCircle className="w-3 h-3" />;
-      case "final_scheduled":
+      case "interview_rounds":
+      case "scheduled":
         return <CalendarClock className="w-3 h-3" />;
-      case "final_completed":
+      case "completed":
+      case "hired":
         return <Trophy className="w-3 h-3" />;
       default:
         return <Clock className="w-3 h-3" />;
@@ -245,21 +384,113 @@ function JobManagementPage() {
     return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
-  const filteredCandidates = getFilteredCandidates(activeTab);
-  const activeTabConfig = tabs.find((tab) => tab.id === activeTab)!;
+  // Calculate counts for tabs
+  const allCount = candidates.length;
+  const inProgressCount = candidates.filter((c) =>
+    [
+      "interview_rounds",
+      "scheduled",
+      "mock_started",
+      "shortlisted",
+      "mock_completed",
+    ].includes(c.status)
+  ).length;
+  const completedCount = candidates.filter((c) =>
+    ["completed", "hired", "shortlisted"].includes(c.status)
+  ).length;
 
+  const tabs: TabConfig[] = [
+    {
+      id: "all",
+      label: "All Candidates",
+      icon: Users,
+      color: "text-violet-300",
+      bgColor: "bg-violet-600/20",
+      borderColor: "border-violet-500/40",
+      count: allCount,
+    },
+    {
+      id: "in-progress",
+      label: "In Progress",
+      icon: TrendingUp,
+      color: "text-amber-300",
+      bgColor: "bg-amber-500/20",
+      borderColor: "border-amber-500/40",
+      count: inProgressCount,
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      icon: Trophy,
+      color: "text-emerald-300",
+      bgColor: "bg-emerald-500/20",
+      borderColor: "border-emerald-500/40",
+      count: completedCount,
+    },
+  ];
+
+  const filteredCandidates = getFilteredCandidates(activeTab);
+  const handleViewRounds = (candidate: IDelegatedCandidate) => {
+    setSelectedCandidateForRounds(candidate);
+    setIsRoundsModalOpen(true);
+  };
+  const activeTabConfig = tabs.find((tab) => tab.id === activeTab)!;
+  const getLatestCompletedRound = (interviewRounds: IInterviewRound[]) => {
+    // const completedRounds = interviewRounds.filter(
+    //   (r) => r.status === "completed" && r.feedback
+    // );
+    return interviewRounds.length > 0
+      ? interviewRounds[interviewRounds.length - 1]
+      : null;
+  };
+
+  const getNextAction = (candidate: IDelegatedCandidate) => {
+    const completedRounds = candidate.interviewRounds;
+
+    if (completedRounds.length === 0) {
+      return { type: "none", reason: "No completed rounds with feedback" };
+    }
+
+    const latestCompletedRound = completedRounds[completedRounds.length - 1];
+    const feedback = latestCompletedRound.feedback;
+
+    if (!feedback) {
+      return { type: "none", reason: "No feedback available" };
+    }
+
+    // Check if all planned rounds are completed
+    const allRoundsCompleted =
+      candidate.interviewRounds.length >= candidate.totalNumberOfRounds!;
+
+    if (feedback.recommendation === "hire") {
+      return { type: "complete", reason: "Recommendation: Hire" };
+    } else if (feedback.recommendation === "no-hire") {
+      return { type: "complete", reason: "Recommendation: No Hire" };
+    } else if (
+      feedback.needsFollowUp === true ||
+      feedback.recommendation === "next-round"
+    ) {
+      if (allRoundsCompleted) {
+        return { type: "complete", reason: "All rounds completed" };
+      }
+      return { type: "next-round", reason: "Follow-up needed" };
+    } else if (allRoundsCompleted) {
+      return { type: "complete", reason: "All rounds completed" };
+    }
+
+    return { type: "next-round", reason: "Continue interview process" };
+  };
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center ">
+    <div className="w-screen h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className=" ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
+    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
       {/* Header */}
       <div className="relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96  blur-3xl rounded-full" />
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 blur-3xl rounded-full" />
 
-        <div className="relative  backdrop-blur-xl  border-violet-500/20">
+        <div className="relative backdrop-blur-xl border-violet-500/20">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="flex justify-between items-center">
               <div>
@@ -304,7 +535,7 @@ function JobManagementPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {candidates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[500px] rounded-2xl shadow-sm  border-gray-200">
+          <div className="flex flex-col items-center justify-center min-h-[500px] rounded-2xl shadow-sm border-gray-200">
             <div className="text-center">
               <Users className="h-20 w-20 text-gray-300 mb-6 mx-auto" />
               <h2 className="text-2xl font-bold text-gray-700 mb-3">
@@ -326,21 +557,20 @@ function JobManagementPage() {
         ) : (
           <>
             {/* Tabs */}
-            <div className="bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30  mb-8 overflow-hidden">
+            <div className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-violet-800/50 p-1 shadow-2xl mb-6">
               <div className="flex">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
-                  const count = getFilteredCandidates(tab.id).length;
                   const isActive = activeTab === tab.id;
 
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex-1 px-6 py-6 flex items-center justify-center gap-3 transition-all duration-200 relative ${
+                      className={`flex-1 px-6 py-4 flex items-center justify-center gap-3 rounded-xl transition-all duration-300 relative ${
                         isActive
-                          ? `${tab.bgColor} ${tab.color} border-b-2 ${tab.borderColor}`
-                          : "text-gray-600 hover:text-violet-300 hover:bg-violet-600/10"
+                          ? `${tab.bgColor} ${tab.color} shadow-lg scale-105`
+                          : "text-gray-400 hover:text-violet-300 hover:bg-violet-600/10"
                       }`}
                     >
                       <Icon
@@ -352,11 +582,11 @@ function JobManagementPage() {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-bold ${
                           isActive
-                            ? `${tab.color} bg-white/80`
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-white/20 text-white"
+                            : "bg-gray-700/50 text-gray-400"
                         }`}
                       >
-                        {count}
+                        {tab.count}
                       </span>
                     </button>
                   );
@@ -364,16 +594,51 @@ function JobManagementPage() {
               </div>
             </div>
 
+            {/* Search and Filter Section */}
+            <div className="bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Search Bar */}
+                <div className="flex-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search candidates by name or email..."
+                    className="block w-full pl-10 pr-3 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                  />
+                </div>
+
+                {/* Job Filter Dropdown */}
+                <div className="relative">
+                  <select
+                    value={selectedJob}
+                    onChange={(e) => setSelectedJob(e.target.value)}
+                    className="appearance-none bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                  >
+                    <option value="all">All Jobs</option>
+                    <option value="frontend">Frontend Developer</option>
+                    <option value="backend">Backend Developer</option>
+                    <option value="fullstack">Full Stack Developer</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Candidates Grid */}
             {filteredCandidates.length === 0 ? (
-              <div className="text-center py-16   bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30">
-                <BookOpen className="h-16 w-16 text-gray-300 mb-4 mx-auto" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No candidates in "{activeTabConfig.label.toLowerCase()}"
+              <div className="text-center py-16 bg-zinc-900/50 rounded-2xl border border-violet-800/30 backdrop-blur-xl">
+                <BookOpen className="h-16 w-16 text-violet-300/50 mb-4 mx-auto" />
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  No candidates found
                 </h3>
-                <p className="text-gray-500">
-                  Candidates will appear here as they progress through the
-                  interview process.
+                <p className="text-violet-200/70">
+                  Adjust your filters or search terms to find candidates.
                 </p>
               </div>
             ) : (
@@ -382,55 +647,113 @@ function JobManagementPage() {
                   (candidateWrapper: IDelegatedCandidate) => {
                     const profile =
                       candidateWrapper.candidate as ICandidateProfile;
-                    const feedback = candidateWrapper.finalInterviewFeedback;
+                    const latestCompletedRound = getLatestCompletedRound(
+                      candidateWrapper.interviewRounds
+                    );
+                    const nextAction = getNextAction(candidateWrapper);
 
                     return (
                       <div
                         key={profile._id}
-                        className="bg-zinc-900 rounded-2xl border border-violet-800 shadow-lg shadow-violet-900/20 hover:shadow-violet-700/40 transition-all duration-300 overflow-hidden group text-violet-300"
+                        className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-violet-800/50 shadow-2xl hover:shadow-violet-700/30 transition-all duration-500 overflow-hidden group hover:scale-[1.02] hover:border-violet-600/70"
                       >
                         {/* Header with Status Badge */}
                         <div className="p-6 pb-4">
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
-                              <img
-                                src={
-                                  profile.avatar ||
-                                  "https://png.pngitem.com/pimgs/s/508-5087336_person-man-user-account-profile-employee-profile-template.png"
-                                }
-                                alt={profile.name}
-                                className="h-14 w-14 rounded-full object-cover border-2 border-violet-500/50 group-hover:scale-105 transition-transform duration-300"
-                              />
+                              <div className="relative">
+                                <img
+                                  src={
+                                    profile.avatar ||
+                                    "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150"
+                                  }
+                                  alt={profile.name}
+                                  className="h-16 w-16 rounded-full object-cover border-2 border-violet-500/50 group-hover:border-violet-400 transition-all duration-300"
+                                />
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-zinc-900 rounded-full"></div>
+                              </div>
                               <div>
-                                <h3 className="font-bold text-lg text-white">
+                                <h3 className="font-bold text-lg text-white group-hover:text-violet-200 transition-colors">
                                   {profile.name}
                                 </h3>
-                                <p className="text-sm text-violet-400">
+                                <p className="text-sm text-violet-400/80">
                                   {profile.email}
                                 </p>
                               </div>
                             </div>
+                            {getStatusBadge(candidateWrapper.status)}
                           </div>
+
+                          {/* Interview Progress Bar */}
                         </div>
 
                         {/* Content */}
                         <div className="px-6 pb-6 space-y-5">
                           {/* Profile Status */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm text-violet-400">
-                              <UserCheck className="h-4 w-4 text-violet-300" />
-                              <span>Profile Status</span>
+
+                          {latestCompletedRound && (
+                            <div className="bg-violet-900/20 border border-violet-500/30 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 bg-violet-600/30 rounded-full flex items-center justify-center">
+                                    <span className="text-xs font-bold text-violet-300">
+                                      {latestCompletedRound.roundNumber}
+                                    </span>
+                                  </div>
+                                  <span className="text-sm font-medium text-violet-300 capitalize">
+                                    {latestCompletedRound.type} Round
+                                  </span>
+                                </div>
+                                {latestCompletedRound.feedback
+                                  ?.overallScore && (
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-4 h-4 text-yellow-400" />
+                                    <span className="text-sm font-bold text-white">
+                                      {
+                                        latestCompletedRound.feedback
+                                          .overallScore
+                                      }
+                                      /10
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {latestCompletedRound.feedback
+                                ?.recommendation && (
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs text-violet-400">
+                                    Recommendation:
+                                  </span>
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                                      latestCompletedRound.feedback
+                                        .recommendation === "hire"
+                                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                        : latestCompletedRound.feedback
+                                            .recommendation === "no-hire"
+                                        ? "bg-red-500/20 text-red-300 border-red-500/40"
+                                        : latestCompletedRound.feedback
+                                            .recommendation === "next-round"
+                                        ? "bg-violet-500/20 text-violet-300 border-violet-500/40"
+                                        : "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                                    }`}
+                                  >
+                                    {latestCompletedRound.feedback.recommendation
+                                      .replace("-", " ")
+                                      .toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+
+                              {latestCompletedRound.feedback?.needsFollowUp && (
+                                <div className="flex items-center gap-2 text-amber-400 text-xs">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  <span>Follow-up recommended</span>
+                                </div>
+                              )}
                             </div>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
-                                profile.status === "active"
-                                  ? "bg-green-200/20 text-green-400 border border-green-500/40"
-                                  : "bg-yellow-200/20 text-yellow-400 border border-yellow-500/40"
-                              }`}
-                            >
-                              {profile.status}
-                            </span>
-                          </div>
+                          )}
 
                           {/* Resume */}
                           <div className="flex items-center justify-between">
@@ -445,7 +768,8 @@ function JobManagementPage() {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center px-3 py-1 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded-lg text-xs font-medium hover:bg-violet-500/30 hover:border-violet-400 transition-all duration-200"
                               >
-                                View Resume
+                                <FileText className="w-3 h-3 mr-1" />
+                                View
                               </a>
                             ) : (
                               <span className="text-xs text-violet-500/70 italic">
@@ -456,7 +780,7 @@ function JobManagementPage() {
 
                           {/* Interview Progress */}
                           <div className="pt-4 border-t border-violet-800/30">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2 text-sm text-violet-400">
                                 <CalendarClock className="h-4 w-4 text-violet-300" />
                                 <span>Interview Progress</span>
@@ -468,12 +792,105 @@ function JobManagementPage() {
                                 </span>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Final Interview Feedback */}
-                          {feedback && activeTab === "final_completed" && (
-                            <FinalInterviewFeedback feedback={feedback} />
-                          )}
+                            {/* Latest Interview Round Result */}
+                            {/* {latestRound && (
+                              <div className="bg-violet-900/20 border border-violet-500/30 rounded-lg p-3 mb-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-medium text-violet-300">
+                                    Round {latestRound.roundNumber} -{" "}
+                                    {latestRound.type.charAt(0).toUpperCase() +
+                                      latestRound.type.slice(1)}
+                                  </span>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                      latestRound.status === "completed"
+                                        ? "bg-emerald-500/20 text-emerald-300"
+                                        : latestRound.status === "scheduled"
+                                        ? "bg-amber-500/20 text-amber-300"
+                                        : "bg-violet-500/20 text-violet-300"
+                                    }`}
+                                  >
+                                    {latestRound.status
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                      latestRound.status.slice(1)}
+                                  </span>
+                                </div>
+                                {latestRound.feedback &&
+                                  latestRound.feedback.overallScore && (
+                                    <div className="flex items-center gap-2">
+                                      <Star className="h-4 w-4 text-yellow-400" />
+                                      <span className="text-sm text-white font-medium">
+                                        Overall Score:{" "}
+                                        {latestRound.feedback.overallScore}/10
+                                      </span>
+                                    </div>
+                                  )}
+                              </div>
+                            )} */}
+
+                            {/* Action Buttons */}
+
+                            <div className="pt-4 border-t border-violet-800/30">
+                              <div className="flex items-center justify-between mb-4">
+                                <button
+                                  onClick={() =>
+                                    handleViewRounds(candidateWrapper)
+                                  }
+                                  className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 border border-violet-700/30 hover:border-violet-600/50 rounded-lg text-violet-300 hover:text-violet-200 transition-all duration-200 text-sm"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  View Rounds
+                                  <span className="px-1.5 py-0.5 bg-violet-600/30 rounded text-xs">
+                                    {candidateWrapper.interviewRounds.length}
+                                  </span>
+                                </button>
+                              </div>
+
+                              {/* Smart Action Buttons */}
+                              {candidateWrapper.status ==
+                                "in_interview_process" &&!candidateWrapper.isInterviewScheduled &&(
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                  <button
+                                    onClick={() =>
+                                      handleNextRound(
+                                        candidateWrapper,
+                                        latestCompletedRound?.interviewer as IInterviewerProfile
+                                      )
+                                    }
+                                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-violet-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                                  >
+                                    <UserPlus className="h-4 w-4" />
+                                    Next Round
+                                  </button>
+
+                                  <button
+                                    onClick={() =>
+                                      handleCompleteCandidate(
+                                        candidateWrapper._id!
+                                      )
+                                    }
+                                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-emerald-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    Complete
+                                  </button>
+                                </div>
+                              )}
+
+                              {candidateWrapper.status === "shortlisted" && (
+                                <div className="text-center py-3">
+                                  <div className="flex items-center justify-center gap-2 text-emerald-400">
+                                    <Trophy className="w-4 h-4" />
+                                    <span className="text-sm font-medium">
+                                      Ready for Final Decision
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );
@@ -493,6 +910,35 @@ function JobManagementPage() {
         />
       )}
 
+      {isSlotModalOpen && selectedInterviewer && (
+        <SlotModal
+          isOpen={isSlotModalOpen}
+          onClose={() => {
+            setIsSlotModalOpen(false);
+            setSelectedInterviewer(selectedInterviewer);
+            setCurrentCandidate(currentCandidate);
+          }}
+          interviewer={selectedInterviewer}
+          onBookSlot={handleBookSlot}
+          selectedJob={{
+            _id: "64fabc12345ef67890abcd12",
+            company: "TechNova Solutions",
+            position: "Frontend Developer",
+            description:
+              "We are looking for a skilled frontend developer to join our team and work on exciting web applications using React and TypeScript.",
+            requiredSkills: [
+              "JavaScript",
+              "TypeScript",
+              "React",
+              "CSS",
+              "HTML",
+            ],
+            status: "open",
+            experienceRequired: 2,
+          }}
+        />
+      )}
+
       <PaymentProceedModal
         isOpen={isConfirmationModalOpen}
         onClosed={() => setIsConfirmationModalOpen(false)}
@@ -500,6 +946,19 @@ function JobManagementPage() {
         candidatesCount={candidates?.length}
         paymentLoading={initPaymentLoading}
       />
+      {isRoundsModalOpen && selectedCandidateForRounds && (
+        <InterviewRoundsModal
+          isOpen={isRoundsModalOpen}
+          onClose={() => {
+            setIsRoundsModalOpen(false);
+            setSelectedCandidateForRounds(null);
+          }}
+          rounds={selectedCandidateForRounds.interviewRounds}
+          candidateName={
+            (selectedCandidateForRounds.candidate as ICandidateProfile).name
+          }
+        />
+      )}
     </div>
   );
 }

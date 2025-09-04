@@ -19,8 +19,7 @@ import {
   ISkillExpertise,
 } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
-import { Badge } from "@/components/ui/badge";
-import { set } from "zod";
+
 
 const SlotModal: React.FC<{
   isOpen: boolean;
@@ -29,6 +28,7 @@ const SlotModal: React.FC<{
   onBookSlot: (interviewer: IInterviewerProfile, slot: IInterviewSlot) => void;
   selectedJob: IJob;
 }> = ({ isOpen, onClose, interviewer, onBookSlot, selectedJob }) => {
+  console.log(interviewer)
   const [currentWeek, setCurrentWeek] = useState(0);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 

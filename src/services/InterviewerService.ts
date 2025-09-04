@@ -3,14 +3,15 @@ import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { InterviewerRoutes } from "@/constants/routes/api/InterviewerRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
+import { ApiResponse } from "@/types/api/ApiResponse";
 
 export const InterviewerService = {
-  getInterviewerProfile: async () => {
+  getInterviewerProfile: async ():Promise<ApiResponse<IInterviewerProfile>>=> {
     try {
       const response = await apiClient.get(InterviewerRoutes.PROFILE);
       return response.data;
     } catch (error) {
-      return parseAxiosError(
+       return parseAxiosError(
         error,
         "An error occurred while fetching interviewer profile"
       );

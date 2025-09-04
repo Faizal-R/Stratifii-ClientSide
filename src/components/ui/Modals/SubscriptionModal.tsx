@@ -2,8 +2,8 @@ import { X } from "lucide-react";
 import { useState, useEffect, ChangeEvent } from "react";
 import { ISubscription, ISubscriptionFeatures } from "@/types/ISubscription";
 import { toast } from "sonner";
-import { Input } from "../Buttons/FormFields/FormInput";
-import { Toggle } from "../Buttons/FormFields/ToggleInput";
+import { Input } from "../FormFields/FormInput";
+import { Toggle } from "../FormFields/ToggleInput";
 import { set } from "zod";
 
 type SubscriptionModalProps = {
