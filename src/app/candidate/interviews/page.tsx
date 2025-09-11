@@ -138,7 +138,7 @@ const CandidateInterviewsPage = () => {
   return isMockInitiated ? (
     <div className="ml-64">
       <MockInterview
-        onBackToDashboard={() => router.push("/candidate")}
+        onBackToDashboard={() => router.push("/candidate/dashboard")}
         questions={mockQuestions}
         delegationId={selectedJob?.delegatedCandidateId!}
         submitMockResultAndUpdateStatus={submitMockResult}

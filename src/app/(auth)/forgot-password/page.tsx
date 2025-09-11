@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useSendForgotPasswordOtpRequest } from '@/hooks/api/useAuth';
 import {  useSearchParams } from 'next/navigation';
 import {  HashLoader } from 'react-spinners';
+import { errorToast, successToast } from '@/utils/customToast';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -24,13 +25,11 @@ function ForgotPasswordPage() {
   const response= await  sendForgotPasswordOtpRequest(email,role!);
 
      if(!response.success){
-        toast.error(response.error,{
-          className:'custom-error-toast'
-        });
+        errorToast(response.message)
         return;
      }
      console.log(response)
-     toast(response.message)
+     successToast(response.message)
   };
 
 

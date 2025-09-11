@@ -9,7 +9,8 @@ import { IInterviewSlot } from "@/types/ISlotTypes";
 import { Sparkles } from "lucide-react";
 import { useState, useEffect, use, useRef } from "react";
 import { RiseLoader } from "react-spinners";
-import { toast } from "sonner";
+
+import { errorToast } from "@/utils/customToast";
 
 const ScheduleManagmentPage = () => {
   const [slots, setSlots] = useState<IInterviewSlot[]>([]);
@@ -36,9 +37,7 @@ const ScheduleManagmentPage = () => {
           setIsShownSlots(true);
         }
       } else {
-        toast.error(response.error, {
-          className: "custom-toast-error",
-        });
+        errorToast(response.message);
       }
     }
     getAllSlotsBasedOnRule();

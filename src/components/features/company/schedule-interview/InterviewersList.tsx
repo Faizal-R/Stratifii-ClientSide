@@ -24,6 +24,7 @@ import {
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import { Badge } from "@/components/ui/badge";
 import SlotModal from "./AvailableSlotListingModal";
+import { errorToast } from "@/utils/customToast";
 
 // Main InterviewerList Component
 const InterviewerList: React.FC<{
@@ -52,9 +53,7 @@ const InterviewerList: React.FC<{
       if (res.success) {
         setInterviewers(res.data);
       } else {
-        toast.error(res.error || "Failed to fetch interviewers", {
-          className: "custom-error-toast",
-        });
+        errorToast(res.error || "Failed to fetch interviewers");
       }
       setLoading(false);
     };

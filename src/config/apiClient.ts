@@ -30,6 +30,7 @@ export function handleLogout() {
 // ✅ Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
+    
     // Don't make requests if logging out
     if (isLoggingOut) {
       return Promise.reject(new Error('Logging out'));
@@ -60,13 +61,13 @@ apiClient.interceptors.response.use(
 
     // Handle Forbidden
     if (error.response?.status === StatusCodes.FORBIDDEN) {
-      toast.error("You are not authorized to access this resource.");
+      errorToast("You are not authorized to access this resource.");
       if (typeof window !== "undefined") {
         window.location.href = "/unauthorized";
       }
     }
     if(error.response?.status === StatusCodes.LOCKED){
-      toast.error(error.response.data.message, {
+      errorToast(error.response.data.message, {
         className: "custom-error-toast",
       });
       setTimeout(()=>{

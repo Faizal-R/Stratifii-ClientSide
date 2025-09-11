@@ -34,6 +34,7 @@ import { StatusCodes } from "@/constants/enums/statusCodes";
 import useSubscriptionStore from "@/features/company/subscriberStore";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/config/firebase";
+import { errorToast, successToast } from "@/utils/customToast";
 
 const roles = [
   {
@@ -91,19 +92,15 @@ function App() {
         return;
       }
       if (response.status === StatusCodes.LOCKED) {
-        toast.error(response.error, {
-          className: "custom-error-toast",
-        });
+        errorToast(response.message)
         return;
       }
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+      errorToast(response.message)
 
       return;
     }
-    console.log(response);
-    toast(response.message);
+    
+    successToast(response.message);
     const { email, _id: id, name } = response.data.user;
     console.log(response.data.user);
 
@@ -134,13 +131,9 @@ function App() {
 
   useEffect(() => {
     if (errors.email) {
-      toast.error(errors.email.message, {
-        className: "custom-error-toast",
-      });
+      errorToast(errors.email.message!)
     } else if (errors.password) {
-      toast.error(errors.password.message, {
-        className: "custom-error-toast",
-      });
+      errorToast(errors.password.message!)
     }
   }, [errors]);
 
@@ -154,7 +147,7 @@ function App() {
       avatar: user.photoURL!,
     });
     if(!response.success){
-      toast.error(response.error)
+      errorToast(response.message)
       return
     }
   

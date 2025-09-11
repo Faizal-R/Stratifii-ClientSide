@@ -62,7 +62,8 @@ export interface IInterviewRound {
   timeZone?: string;
   status: "scheduled" | "started" | "completed" | "cancelled";
   feedback?: IInterviewFeedback;
-  interviewer:string | IInterviewerProfile
+  interviewer:string | IInterviewerProfile;
+  isFollowUpScheduled: boolean;
 }
 export interface IDelegatedCandidate {
   _id?:string;
@@ -88,5 +89,6 @@ export interface IDelegatedCandidate {
     correctAnswers: number;
     scoreInPercentage: number;
   };
+  mockInterviewDeadline?: Date|string
   isInterviewScheduled?: boolean
 }

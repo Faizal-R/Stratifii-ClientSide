@@ -13,6 +13,7 @@ import { ICandidateProfile, IDelegatedCandidate } from "@/types/ICandidate";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
+import { errorToast, successToast } from "@/utils/customToast";
 
 const InterviewScheduling = () => {
   const [selectedJob, setSelectedJob] =
@@ -33,9 +34,7 @@ const InterviewScheduling = () => {
     slot: IInterviewSlot
   ) => {
     if (!selectedCandidate) {
-      toast.error("Please select a candidate", {
-        className: "custom-error-toast",
-      });
+      errorToast("Please select a candidate")
       return;
     }
     console.log(interviewer, slot, selectedCandidate);
@@ -44,15 +43,14 @@ const InterviewScheduling = () => {
       slot,
       candidate: (selectedCandidate.candidate as ICandidateProfile)._id,
       job: selectedJob?.job._id!,
+      isFollowUpScheduling: false,
     });
     if (!res.success) {
-      toast.error(res.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(res.message);
       return;
     }
 
-    toast.success("Slot Booked Successfully");
+    successToast("Slot Booked Successfully");
   };
 
   const hasFetched = useRef(false);
@@ -62,9 +60,7 @@ const InterviewScheduling = () => {
     const fetchGetInProgressJobs = async () => {
       const res = await getInProgressJobs();
       if (!res.success) {
-        toast.error(res.error, {
-          className: "custom-error-toast",
-        });
+      errorToast(res.message);
         return;
       }
       setJobsInProgress(res.data);

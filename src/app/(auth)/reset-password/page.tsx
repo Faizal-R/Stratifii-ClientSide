@@ -6,6 +6,7 @@ import {  useSearchParams } from "next/navigation";
 import { useResetPassword } from "@/hooks/api/useAuth";
 import { RiseLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function ResetPassword() {
   
@@ -20,11 +21,11 @@ function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast("Passwords do not match");
+      errorToast("Passwords do not match");
       return;
     }
     if (newPassword.length < 8) {
-      toast("Password must be at least 8 characters long");
+      errorToast("Password must be at least 8 characters long");
       return;
     }
     const response = await resetPassword(
@@ -33,12 +34,10 @@ function ResetPassword() {
       token as string
     );
     if (!response.success) {
-      toast.error(response.error,{
-        className:"custom-error-toast"
-      });
+      errorToast(response.error)
       return;
     }
-    toast(response.message);
+    successToast(response.message);
     router.push('/signin')
   };
 

@@ -40,6 +40,7 @@ import ChangePasswordButton from "@/components/ui/Buttons/ChangePasswordButton";
 import PasswordResetFormModal from "@/components/ui/Modals/PasswordResetFormModal";
 import { Roles } from "@/constants/enums/roles";
 import { InputField } from "@/components/ui/FormFields/InputField";
+import { errorToast, successToast } from "@/utils/customToast";
 
 type TSkillSource = "professional" | "academic" | "personal" | "certification";
 
@@ -70,7 +71,7 @@ function InterviewerProfilePage() {
       const errors = validatedInterviewer.error;
       console.log(errors);
       for (const issue of errors.issues) {
-        toast(issue.message);
+        errorToast(issue.message);
       }
       return;
     }
@@ -82,10 +83,10 @@ function InterviewerProfilePage() {
       resumePreview
     );
     if (!respone.success) {
-      toast.error(respone.error);
+      errorToast(respone.message);
       return;
     } else {
-      toast.success(respone.message);
+      successToast(respone.message);
       setIsEditing(false);
     }
   };
@@ -134,12 +135,10 @@ function InterviewerProfilePage() {
       state.newPassword
     );
     if (!respose.success) {
-      toast.error(respose.error, {
-        className: "custom-error-toast",
-      });
+      errorToast(respose.message)
       return;
     }
-    toast.success(respose.message);
+    successToast(respose.message);
     setShowChangePasswordModal(false);
   };
 
@@ -191,11 +190,11 @@ function InterviewerProfilePage() {
     const fetchInterviewer = async () => {
       const response = await interviewerProfile();
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
-      setInterviewerData(response.data);
-      setLogoPreview(response.data.avatar);
+      setInterviewerData(response.data as IInterviewerProfile);
+      setLogoPreview(response.data?.avatar!);
     };
 
     fetchInterviewer();

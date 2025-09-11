@@ -13,6 +13,7 @@ import { RiseLoader } from "react-spinners";
 import { initiateRazorpayPayment, loadRazorpayScript } from "@/utils/razorpay";
 import useSubscriptionStore from "@/features/company/subscriberStore";
 import SubscriptionCard from "@/components/features/company/SubscriptionCard";
+import { errorToast, successToast } from "@/utils/customToast";
 const CompanySubscriptionPage = () => {
   const { getSubscriptions, loading } = useGetAllSubscriptions();
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -26,9 +27,7 @@ const CompanySubscriptionPage = () => {
   const processSubscriptionPurchase = async (subscription: ISubscription) => {
     const response = await createSubscriptionPaymentOrder(subscription.price);
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       return;
     }
     const { id, amount } = response.data;
@@ -50,15 +49,11 @@ const CompanySubscriptionPage = () => {
         );
         console.log(res);
         if (!res.success) {
-          toast.error(res.error, {
-            className: "custom-error-toast",
-          });
+          errorToast(res.message)
           return;
         }
 
-        toast.success(res.message, {
-          className: "custom-toast",
-        });
+        successToast(res.message)
         setSubscription({
           planId: res.data.planId,
           status: "active",
@@ -70,9 +65,7 @@ const CompanySubscriptionPage = () => {
         });
       },
       onFailure: (error) => {
-        toast.error("Something went wrong during payment!", {
-          className: "custom-error-toast",
-        });
+        errorToast("Something went wrong during payment!")
       },
     });
   };
@@ -86,7 +79,7 @@ const CompanySubscriptionPage = () => {
     const fetchSubscriptions = async () => {
       const response = await getSubscriptions();
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
       setSubscriptions(response.data);

@@ -27,6 +27,7 @@ import { RiseLoader } from "react-spinners";
 // import { ICandidateJob } from "@/types/IJob";
 import { HttpStatusCode } from "axios";
 import { IJob } from "@/types/IJob";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function InterviewDelegation() {
   const router = useRouter();
@@ -83,7 +84,7 @@ if (isJobEditing) {
   const handleEditJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJob.position || !selectedJob.requiredSkills.length) {
-      toast("Please fill all fields");
+      errorToast("Please fill all fields");
       return;
     }
     const res = await updateJob({
@@ -92,10 +93,10 @@ if (isJobEditing) {
       experienceRequired: Number(selectedJob.experienceRequired),
     });
     if (!res.success) {
-      toast(res.error);
+      errorToast(res.message);
       return;
     }
-    toast.success("Job updated successfully");
+    successToast("Job updated successfully");
     setJobs((prev) =>
       prev.map((job) => (job._id === selectedJob._id ? selectedJob : job))
     );
@@ -105,7 +106,7 @@ if (isJobEditing) {
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newJob.position || !newJob.requiredSkills.length) {
-      toast("Please fill all  fields");
+      errorToast("Please fill all  fields");
       return;
     }
 
@@ -117,9 +118,7 @@ if (isJobEditing) {
       newJob.requiredSkills
     );
     if (!response.success) {
-      toast(response.error, {
-        className: "custom-error-toast",
-      });
+      errorToast(response.message)
       setTimeout(() => {
         if (response.status === HttpStatusCode.Forbidden) {
           router.push("/company/subscription");
@@ -129,7 +128,7 @@ if (isJobEditing) {
     }
     setJobs([...jobs, response.data]);
     setIsModalOpen(false);
-    toast.success(response.message);
+    successToast(response.message);
     setNewJob({
       position: "",
       description: "",
@@ -141,10 +140,10 @@ if (isJobEditing) {
   const handleJobDelete = async (jobId: string) => {
     const res = await deleteJob(jobId);
     if (!res.success) {
-      toast(res.error);
+      errorToast(res.message);
       return;
     }
-    toast.success(res.message);
+    successToast(res.message);
     setJobs((prev) => prev.filter((job) => job._id !== jobId));
   };
 
@@ -181,7 +180,7 @@ if (isJobEditing) {
     const fetchJobs = async () => {
       const response = await getJobs();
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
       setJobs(response.data);

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTriggerOtpResend, useVerifyOtp } from "@/hooks/api/useAuth";
 import { RiseLoader } from "react-spinners";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function OtpVerificationPage() {
   const [timeLeft, setTimeLeft] = useState(180);
@@ -85,9 +86,7 @@ function OtpVerificationPage() {
 
   const onHandleOtpVerification = async () => {
     if (verificationCode.includes("")) {
-      toast.error("All the fields are required",{
-        className:"custom-error-toast"
-      });
+      errorToast("All the fields are required")
       return;
     }
     console.log(verificationCode);
@@ -97,12 +96,10 @@ function OtpVerificationPage() {
       role,
     });
     if (!response.success) {
-      toast.error(response.error,{
-        className:"custom-error-toast"
-      });
+      errorToast(response.error)
       return;
     }
-    toast(response.message);
+    successToast(response.message);
 
     setTimeout(() => {
       router.push("/signin");

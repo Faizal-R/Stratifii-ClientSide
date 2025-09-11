@@ -85,6 +85,7 @@ export const useScheduleInterviewForCandidate = () => {
       slot: IInterviewSlot;
       candidate: string;
       job: string;
+      isFollowUpScheduling: boolean;
     }) => {
       setLoading(true);
       try {

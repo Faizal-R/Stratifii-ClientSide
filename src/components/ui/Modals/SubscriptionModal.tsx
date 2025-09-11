@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Input } from "../FormFields/FormInput";
 import { Toggle } from "../FormFields/ToggleInput";
 import { set } from "zod";
+import { errorToast } from "@/utils/customToast";
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -68,14 +69,14 @@ export default function SubscriptionModal({
 
   const onSave = () => {
     if (!name || !price) {
-      toast.error("Please fill in all required fields");
+      errorToast("Please fill in all required fields");
       return;
     }
     if (
       features.candidateSlotPerMonth <= 0 ||
       features.jobPostLimitPerMonth <= 0
     ) {
-      toast.error("Please enter valid numbers for slots and limits");
+      errorToast("Please enter valid numbers for slots and limits");
       return;
     }
 

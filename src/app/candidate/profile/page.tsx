@@ -4,6 +4,7 @@ import { User, Mail, FileText, CheckCircle, XCircle, Clock, Calendar, Eye } from
 import { useGetCandidateProfile } from "@/hooks/api/useCandidate"
 import { useAuthStore } from "@/features/auth/authStore"
 import type { ICandidateProfile } from "@/types/ICandidate"
+import { errorToast } from "@/utils/customToast"
 
 // Mock toast function
 const toast = {
@@ -49,7 +50,7 @@ function CandidateProfile() {
   const fetchCandidateProfile = async () => {
     const response = await getCandidateProfile(user?.id as string)
     if (!response.success) {
-      toast.error(response.error || "An error occurred while fetching candidate profile")
+      errorToast(response.message || "An error occurred while fetching candidate profile")
     } else {
       setCandidateProfile(response.data)
     }

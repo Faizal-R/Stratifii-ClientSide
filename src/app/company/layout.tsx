@@ -17,6 +17,7 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
+import { errorToast, successToast } from "@/utils/customToast";
 
 const navItems = [
   {
@@ -73,12 +74,10 @@ function CompanyLayout({ children }: { children: ReactNode }) {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
     }
     logout();
-    toast.success(response.message);
+    successToast(response.message);
     router.push("/signin");
   }
 

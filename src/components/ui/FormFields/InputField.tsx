@@ -41,7 +41,7 @@ export const InputField = ({
       ) : (
         <div className="text-white bg-gray-900 rounded-lg px-4 py-2">
           {/* {(value as string)?.length > 1 ? value : placeholder} */}
-          {value}
+          {value?value:placeholder}
         </div>
       )}
     </div>

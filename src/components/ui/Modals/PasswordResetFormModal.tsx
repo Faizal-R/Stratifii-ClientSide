@@ -12,7 +12,7 @@ interface IPasswordRestFormModalProps {
   }) => void;
 }
 import { Input } from "../FormFields/FormInput";
-import { toast } from "sonner";
+import { errorToast } from "@/utils/customToast";
 
 export default function PasswordResetFormModal({
   isOpen,
@@ -32,23 +32,17 @@ export default function PasswordResetFormModal({
   const handleOnSubmit = async(e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     if(!formData.currentPassword.trim() || !formData.newPassword.trim() || !formData.confirmNewPassword.trim()) {
-      toast.error("All fields are required. Please make sure no field is left empty.",{
-        className:'custom-error-toast'
-      });
+      errorToast("All fields are required. Please make sure no field is left empty.");
       return
     }
 
     if (formData.newPassword === formData.currentPassword) {
-      toast.error("New Password should not be same as Current Password!",{
-        className:'custom-error-toast'
-      });
+      errorToast("New Password should not be same as Current Password!");
       return;
     }
 
     if (formData.newPassword !== formData.confirmNewPassword) {
-      toast.error("New Password and Confirm New Password must be same!",{
-        className:'custom-error-toast'
-      });
+      errorToast("New Password and Confirm New Password must be same!");
       return;
     }
     await handleSubmit(formData);

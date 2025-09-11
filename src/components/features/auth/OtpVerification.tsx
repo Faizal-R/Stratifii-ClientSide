@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Buttons/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { LucideCheck, LucideRefreshCw, LucideArrowLeft } from "lucide-react";
+import { errorToast, successToast } from "@/utils/customToast";
 
 interface OTPVerificationProps {
   email?: string;
@@ -66,7 +67,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   const handleResendOTP = () => {
     setIsLoading(true);
     setTimeout(() => {
-      toast.success("A new verification code has been sent");
+      successToast("A new verification code has been sent");
       setCountdown(60);
       setIsResendDisabled(true);
       setOtp(Array(6).fill(""));
@@ -77,7 +78,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   const handleVerify = () => {
     if (otp.join("").length !== 6) {
-      toast.error("Please enter a complete verification code");
+      errorToast("Please enter a complete verification code");
       return;
     }
 
@@ -85,10 +86,10 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     setTimeout(() => {
       if (otp.join("") === "123456") {
         setIsVerified(true);
-        toast.success("Verification successful");
+        successToast("Verification successful");
         setTimeout(() => (onComplete ? onComplete() : navigate.push("/")), 1500);
       } else {
-        toast.error("Invalid verification code. Please try again.");
+        errorToast("Invalid verification code. Please try again.");
       }
       setIsLoading(false);
     }, 1500);

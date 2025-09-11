@@ -22,6 +22,7 @@ import { Socket } from "socket.io-client";
 import { useUpdateInterviewWithFeedback } from "@/hooks/api/useInterview";
 import { IInterviewFeedback } from "@/types/IInterview";
 import { toast } from "sonner";
+import { successToast } from "@/utils/customToast";
 
 interface RoomPageProps {
   room: string;
@@ -222,7 +223,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
   const handleFeedbackSubmission = async (feedback: IInterviewFeedback) => {
     const response = await updateInterviewWithFeedback(interviewId!, feedback);
     if (response.success) {
-      toast.success("Feedback submitted and interview ended");
+      successToast("Feedback submitted and interview ended");
     }
     setShowFeedbackModal(false);
     terminateCallAndCleanup();

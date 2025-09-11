@@ -40,6 +40,7 @@ import { useAuthStore } from "@/features/auth/authStore";
 import SubscriptionCard from "@/components/features/company/profile/ProfileSubscriptionCard";
 import { useGetSubscriptionDetails } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -95,9 +96,7 @@ function CompanyProfilePage() {
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-        toast.error(issue.message, {
-          className: "custom-error-toast",
-        });
+        errorToast(issue.message)
       }
       return;
     }
@@ -115,12 +114,10 @@ function CompanyProfilePage() {
 
     const response = await updateCompanyProfile(formData);
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       return;
     } else {
-      toast.success(response.message);
+      successToast(response.message);
       setIsEditing(false);
     }
   };
@@ -128,9 +125,7 @@ function CompanyProfilePage() {
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       if (response.status === StatusCodes.FORBIDDEN) {
         logout();
       }
@@ -143,7 +138,7 @@ function CompanyProfilePage() {
   const fetchSubscriptionDetails = async () => {
     const response = await getSubscriptionDetails();
     // if (!response.success) {
-    //   toast.error(response.error, {
+    //   errorToast(response.error, {
     //     className: "custom-error-toast",
     //   });
     if (response.success) {
@@ -268,8 +263,17 @@ function CompanyProfilePage() {
                             onClick={handleSave}
                             className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
                           >
-                            <Save size={18} />
+                          {
+                            updateLoading ? (
+                              <RiseLoader color="#ffffff" size={8} />
+                            ) : (
+                               <>
+                               <Save size={18} />
                             Save
+                               </>
+                            )
+                            
+                          }
                           </button>
                         </div>
                       )}

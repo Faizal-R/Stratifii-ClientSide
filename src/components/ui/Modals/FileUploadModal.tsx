@@ -1,16 +1,19 @@
 "use client";
 import { Upload, X, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { RiseLoader } from "react-spinners";
 
 interface FileUploadModalProps {
   setIsModalOpen: (state: boolean) => void;
   onComplete: (files: File[]) => void;
+  isCandidateResumeUploading?: boolean
 
 }
 
 const FileUploadModal: React.FC<FileUploadModalProps> = ({
   setIsModalOpen,
   onComplete,
+ isCandidateResumeUploading
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +75,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           </div>
         </div>
 
-        {/* Uploaded Files */}
+       
         {/* Uploaded Files */}
         {files.length > 0 && (
           <div className="mt-4">
@@ -119,9 +122,11 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         <div className="mt-4 flex justify-end hover:cursor-pointer">
           <button
             onClick={() => onComplete(files)}
-            className="border border-violet-900 text-white px-4 py-2 rounded-md hover:cursor-pointer hover:bg-violet-700 transition-colors"
+            className="border border-violet-900 bg-violet-600 text-white px-4 py-2 rounded-md hover:cursor-pointer hover:bg-violet-700 transition-colors"
           >
-            Done
+           {
+            isCandidateResumeUploading ? <RiseLoader  color="#ffffff" size={8} /> : 'Upload Resumes'
+           }
           </button>
         </div>
       </div>

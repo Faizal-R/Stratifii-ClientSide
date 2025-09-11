@@ -1,10 +1,12 @@
 "use client";
 import { useFetchCompanyProfile } from "@/hooks/api/useCompany";
+import { errorToast } from "@/utils/customToast";
 import { ICompany } from "@/validations/CompanySchema";
+
 import { CheckCircle, Hourglass, Info } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { RiseLoader } from "react-spinners";
-import { toast } from "sonner";
+
 const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
   const { companyProfile, loading } = useFetchCompanyProfile();
   const [company, setCompany] = useState({} as ICompany);
@@ -19,7 +21,7 @@ const ComanyVerfiedLayout = ({ children }: { children: ReactNode }) => {
     const fetchCompany = async () => {
       const response = await companyProfile();
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
       setCompany(response.data);

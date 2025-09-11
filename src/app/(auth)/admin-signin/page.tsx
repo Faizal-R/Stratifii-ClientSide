@@ -9,6 +9,7 @@ import { useAdminSignIn } from "@/hooks/api/useAdmin";
 import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/enums/roles";
 import { RiseLoader } from "react-spinners";
+import { errorToast } from "@/utils/customToast";
 
 function AdminSignIn() {
   const router = useRouter();
@@ -25,9 +26,7 @@ function AdminSignIn() {
     e.preventDefault();
     const response = await signIn({ email, password });
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       return;
     } else {
       toast(response.message);

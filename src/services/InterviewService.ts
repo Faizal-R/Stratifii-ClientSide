@@ -96,6 +96,20 @@ export const InterviewService = {
         "An error occurred while fetching interviews by candidate ID."
       );
     }
+  },
+
+ completeCandidateInterviewProcess: async (delegatedCandidateId: string) => {
+    try {
+      const response = await apiClient.put(
+        `${InterviewRoutes.COMPLETE_CANDIDATE_INTERVIEW_PROCESS}/${delegatedCandidateId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while completing candidate interview process."
+      );
+    }
   }
 
 };

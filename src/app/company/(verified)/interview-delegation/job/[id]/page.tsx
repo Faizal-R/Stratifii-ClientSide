@@ -5,24 +5,20 @@ import {
   FileText,
   Users,
   PlayCircle,
-  UserCheck,
   CalendarClock,
   CheckCircle,
   Clock,
   XCircle,
   Trophy,
-  Target,
   BookOpen,
-  MessageSquare,
   Search,
-  Filter,
-  ChevronDown,
   Star,
   TrendingUp,
   UserPlus,
   AlertTriangle,
-  ArrowRight,
   Eye,
+  ChevronRight,
+  CalendarCheck,
 } from "lucide-react";
 import FileUploadModal from "@/components/ui/Modals/FileUploadModal";
 import SlotModal from "@/components/features/company/schedule-interview/AvailableSlotListingModal";
@@ -52,6 +48,7 @@ import { IInterviewSlot } from "@/types/ISlotTypes";
 import { useGetAllSlotsByInterviewer } from "@/hooks/api/useSlot";
 import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
 import InterviewRoundsModal from "../../../../../../components/features/interviewer/interview/InterviewRoundsModal";
+import { errorToast, successToast } from "@/utils/customToast";
 type TabType = "all" | "in-progress" | "completed";
 
 interface TabConfig {
@@ -68,7 +65,6 @@ function JobManagementPage() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedJob, setSelectedJob] = useState<string>("all");
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState<{
     interviewer: IInterviewerProfile;
@@ -92,8 +88,10 @@ function JobManagementPage() {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   const { loading, getCandidatesByJob } = useGetCandidatesByJob();
-  const { uploadResumesAndCreateCandidates } =
-    useUploadResumesAndCreateCandidates();
+  const {
+    uploadResumesAndCreateCandidates,
+    loading: isCandidateResumeUploading,
+  } = useUploadResumesAndCreateCandidates();
   const { scheduleInterview } = useScheduleInterviewForCandidate();
   const [isRoundsModalOpen, setIsRoundsModalOpen] = useState(false);
   const [selectedCandidateForRounds, setSelectedCandidateForRounds] =
@@ -102,9 +100,7 @@ function JobManagementPage() {
   const handleModalConfirmation = async (totalAmount: number) => {
     const response = await paymentOrderCreation(totalAmount);
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       return;
     }
     const { id: orderId, amount } = response.data;
@@ -126,15 +122,13 @@ function JobManagementPage() {
           candidates.length
         );
         if (!res.success) {
-          toast.error(res.error, {
-            className: "custom-error-toast",
-          });
+          errorToast(res.message)
           return;
         }
 
         setIsInterviewProcessInitiated(true);
         setIsConfirmationModalOpen(false);
-        toast.success(res.message);
+        successToast(res.message);
       },
     });
   };
@@ -149,14 +143,12 @@ function JobManagementPage() {
 
     const response = await uploadResumesAndCreateCandidates(jobId!, formData);
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
       return;
     }
     console.log(response.data);
     setCandidates((prev) => [...prev, ...response.data]);
-    toast.success(response.message);
+    successToast(response.message);
     setIsModalOpen(false);
   };
 
@@ -185,34 +177,35 @@ function JobManagementPage() {
     if (!currentCandidate) return;
 
     try {
-      console.log("currentCandidate",currentCandidate);
-   
+      console.log("currentCandidate", currentCandidate);
+
       const res = await scheduleInterview({
         candidate: (currentCandidate.candidate as ICandidateProfile)._id,
         slot,
         interviewer: interviewer._id as string,
         job: jobId,
+        isFollowUpScheduling: true,
       });
       if (!res.success) {
-        toast.error(res.error, {
-          className: "custom-error-toast",
-        });
+        errorToast(res.message)
         return;
       }
       // Update candidate status and add new interview round
       const updatedCandidates = candidates.map((c) => {
         if (c._id === currentCandidate._id) {
-          const newRound = {
-            roundNumber: c.interviewRounds.length + 1,
-            type: "final" as const,
-            status: "scheduled" as const,
-            interviewer: interviewer._id,
-          };
+          const lastIndex = c.interviewRounds.length - 1;
 
           return {
             ...c,
-            status: "interview_rounds" as const,
-            interviewRounds: [...c.interviewRounds, newRound],
+            interviewRounds: c.interviewRounds.map((round, index) => {
+              if (index === lastIndex) {
+                return {
+                  ...round,
+                  isFollowUpScheduled: true,
+                };
+              }
+              return round;
+            }),
             isInterviewScheduled: true,
           };
         }
@@ -220,12 +213,12 @@ function JobManagementPage() {
       });
 
       setCandidates(updatedCandidates as IDelegatedCandidate[]);
-      toast.success("Next interview round scheduled successfully!");
+      successToast("Next interview round scheduled successfully!");
       setIsSlotModalOpen(false);
       setCurrentCandidate(null);
       setSelectedInterviewer(null);
     } catch (error) {
-      toast.error("Failed to schedule next round");
+      errorToast("Failed to schedule next round");
     }
   };
 
@@ -243,11 +236,9 @@ function JobManagementPage() {
       });
 
       setCandidates(updatedCandidates);
-      toast.success("Candidate marked as completed!", {
-        className: "custom-success-toast",
-      });
+      successToast("Candidate Interview Process marked as completed!");
     } catch (error) {
-      toast.error("Failed to complete candidate");
+      errorToast("Failed to complete candidate");
     }
   };
 
@@ -261,9 +252,7 @@ function JobManagementPage() {
     const fetchCandidates = async () => {
       const response = await getCandidatesByJob(jobId);
       if (!response.success) {
-        toast.error(response.error, {
-          className: "custom-error-toast",
-        });
+       errorToast(response.message);
         return;
       }
       if (
@@ -294,16 +283,16 @@ function JobManagementPage() {
       case "in-progress":
         filtered = candidates.filter((c) =>
           [
-            "interview_rounds",
-            "scheduled",
+            "in_interview_process",
             "mock_started",
+            "mock_completed",
             "shortlisted",
           ].includes(c.status)
         );
         break;
       case "completed":
         filtered = candidates.filter((c) =>
-          ["completed", "hired"].includes(c.status)
+          ["shortlisted", "hired"].includes(c.status)
         );
         break;
       default:
@@ -326,8 +315,7 @@ function JobManagementPage() {
 
   const getStatusBadge = (status: string) => {
     const inProgressStatuses = [
-      "interview_rounds",
-      "scheduled",
+      "in_interview_process",
       "mock_started",
       "shortlisted",
     ];
@@ -369,7 +357,7 @@ function JobManagementPage() {
         return <CheckCircle className="w-3 h-3" />;
       case "mock_failed":
         return <XCircle className="w-3 h-3" />;
-      case "interview_rounds":
+      case "in_interview_process":
       case "scheduled":
         return <CalendarClock className="w-3 h-3" />;
       case "completed":
@@ -388,8 +376,7 @@ function JobManagementPage() {
   const allCount = candidates.length;
   const inProgressCount = candidates.filter((c) =>
     [
-      "interview_rounds",
-      "scheduled",
+      "in_interview_process",
       "mock_started",
       "shortlisted",
       "mock_completed",
@@ -485,13 +472,13 @@ function JobManagementPage() {
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
+    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 pb-3">
       {/* Header */}
       <div className="relative overflow-hidden">
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 blur-3xl rounded-full" />
 
         <div className="relative backdrop-blur-xl border-violet-500/20">
-          <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="max-w-7xl mx-auto px-6 py-5">
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
@@ -533,7 +520,7 @@ function JobManagementPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 ">
         {candidates.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[500px] rounded-2xl shadow-sm border-gray-200">
             <div className="text-center">
@@ -550,14 +537,33 @@ function JobManagementPage() {
                 className="inline-flex items-center px-8 py-4 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <Upload className="mr-3 h-6 w-6" />
-                Upload First Resume
+                <span className="font-medium font-mono">
+                  {" "}
+                  Delegate Candidates
+                </span>
               </button>
             </div>
           </div>
         ) : (
           <>
+            <div className="flex flex-col sm:flex-row gap-4 mb-3">
+              {/* Search Bar */}
+              <div className="flex-1 relative ">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search candidates by name or email..."
+                  className="block w-full pl-10 pr-3 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                />
+              </div>
+            </div>
+
             {/* Tabs */}
-            <div className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-violet-800/50 p-1 shadow-2xl mb-6">
+            <div className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-violet-800/50 p-1 shadow-2xl mb-5">
               <div className="flex">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -594,42 +600,6 @@ function JobManagementPage() {
               </div>
             </div>
 
-            {/* Search and Filter Section */}
-            <div className="bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30 mb-8">
-              <div className="flex flex-col sm:flex-row gap-4">
-                {/* Search Bar */}
-                <div className="flex-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search candidates by name or email..."
-                    className="block w-full pl-10 pr-3 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div>
-
-                {/* Job Filter Dropdown */}
-                <div className="relative">
-                  <select
-                    value={selectedJob}
-                    onChange={(e) => setSelectedJob(e.target.value)}
-                    className="appearance-none bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="all">All Jobs</option>
-                    <option value="frontend">Frontend Developer</option>
-                    <option value="backend">Backend Developer</option>
-                    <option value="fullstack">Full Stack Developer</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Candidates Grid */}
             {filteredCandidates.length === 0 ? (
               <div className="text-center py-16 bg-zinc-900/50 rounded-2xl border border-violet-800/30 backdrop-blur-xl">
@@ -642,7 +612,7 @@ function JobManagementPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-5">
                 {filteredCandidates.map(
                   (candidateWrapper: IDelegatedCandidate) => {
                     const profile =
@@ -658,8 +628,8 @@ function JobManagementPage() {
                         className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-violet-800/50 shadow-2xl hover:shadow-violet-700/30 transition-all duration-500 overflow-hidden group hover:scale-[1.02] hover:border-violet-600/70"
                       >
                         {/* Header with Status Badge */}
-                        <div className="p-6 pb-4">
-                          <div className="flex items-center justify-between mb-4">
+                        <div className="p-6 py-4">
+                          <div className="flex items-center justify-between ">
                             <div className="flex items-center gap-4">
                               <div className="relative">
                                 <img
@@ -670,7 +640,9 @@ function JobManagementPage() {
                                   alt={profile.name}
                                   className="h-16 w-16 rounded-full object-cover border-2 border-violet-500/50 group-hover:border-violet-400 transition-all duration-300"
                                 />
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-zinc-900 rounded-full"></div>
+                                {profile.status === "active" && (
+                                  <span className="absolute bottom-1 right-0 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></span>
+                                )}
                               </div>
                               <div>
                                 <h3 className="font-bold text-lg text-white group-hover:text-violet-200 transition-colors">
@@ -681,13 +653,32 @@ function JobManagementPage() {
                                 </p>
                               </div>
                             </div>
-                            {getStatusBadge(candidateWrapper.status)}
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                              {profile.status}
+                            </span>
                           </div>
 
                           {/* Interview Progress Bar */}
                         </div>
 
                         {/* Content */}
+                        {candidateWrapper.interviewRounds.length > 0 && (
+                          <div className="flex justify-end mr-6 mb-2">
+                            <button
+                              onClick={() => handleViewRounds(candidateWrapper)}
+                              className="inline-flex items-center gap-2 px-2 py-1 bg-slate-800/60 hover:bg-slate-700/80 border border-slate-600/50 hover:border-violet-500/50 rounded-xl text-slate-300 hover:text-violet-300 transition-all duration-300 text-sm font-medium"
+                            >
+                              <Eye className="w-4 h-4" />
+                              <span>View Rounds</span>
+                              <div className="flex items-center gap-1">
+                                <span className="min-w-[20px] h-4 flex items-center justify-center rounded-full bg-violet-600/30 border border-violet-500/40 text-xs font-bold text-violet-300">
+                                  {candidateWrapper.interviewRounds.length}
+                                </span>
+                                <ChevronRight className="w-3 h-3" />
+                              </div>
+                            </button>
+                          </div>
+                        )}
                         <div className="px-6 pb-6 space-y-5">
                           {/* Profile Status */}
 
@@ -747,10 +738,21 @@ function JobManagementPage() {
                               )}
 
                               {latestCompletedRound.feedback?.needsFollowUp && (
-                                <div className="flex items-center gap-2 text-amber-400 text-xs">
-                                  <AlertTriangle className="w-3 h-3" />
-                                  <span>Follow-up recommended</span>
-                                </div>
+                                <>
+                                  {latestCompletedRound.isFollowUpScheduled ? (
+                                    <div className="flex items-center gap-2 text-green-400 text-xs">
+                                      <CalendarCheck className="w-3 h-3" />
+                                      <span>Follow-up Interview Scheduled</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2 text-amber-400 text-xs">
+                                      <AlertTriangle className="w-3 h-3" />
+                                      <span>
+                                        Follow-up Interview Recommended
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
                           )}
@@ -779,118 +781,76 @@ function JobManagementPage() {
                           </div>
 
                           {/* Interview Progress */}
-                          <div className="pt-4 border-t border-violet-800/30">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2 text-sm text-violet-400">
-                                <CalendarClock className="h-4 w-4 text-violet-300" />
-                                <span>Interview Progress</span>
-                              </div>
-                              <div className="flex items-center gap-1 text-violet-300">
-                                {getStatusIcon(candidateWrapper.status)}
-                                <span className="text-xs">
-                                  {formatStatusText(candidateWrapper.status)}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Latest Interview Round Result */}
-                            {/* {latestRound && (
-                              <div className="bg-violet-900/20 border border-violet-500/30 rounded-lg p-3 mb-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-medium text-violet-300">
-                                    Round {latestRound.roundNumber} -{" "}
-                                    {latestRound.type.charAt(0).toUpperCase() +
-                                      latestRound.type.slice(1)}
-                                  </span>
-                                  <span
-                                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                      latestRound.status === "completed"
-                                        ? "bg-emerald-500/20 text-emerald-300"
-                                        : latestRound.status === "scheduled"
-                                        ? "bg-amber-500/20 text-amber-300"
-                                        : "bg-violet-500/20 text-violet-300"
-                                    }`}
-                                  >
-                                    {latestRound.status
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                      latestRound.status.slice(1)}
+                          {isInterviewProcessInitiated && (
+                            <div className="pt-4 border-t border-violet-800/30">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2 text-sm text-violet-400">
+                                  <CalendarClock className="h-4 w-4 text-violet-300" />
+                                  <span>Interview Progress</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-violet-300">
+                                  {getStatusIcon(candidateWrapper.status)}
+                                  <span className="text-xs">
+                                    {candidateWrapper.isInterviewScheduled
+                                      ? "Interivew Scheduled"
+                                      : formatStatusText(
+                                          candidateWrapper.status
+                                        )}
                                   </span>
                                 </div>
-                                {latestRound.feedback &&
-                                  latestRound.feedback.overallScore && (
-                                    <div className="flex items-center gap-2">
-                                      <Star className="h-4 w-4 text-yellow-400" />
-                                      <span className="text-sm text-white font-medium">
-                                        Overall Score:{" "}
-                                        {latestRound.feedback.overallScore}/10
-                                      </span>
+                              </div>
+
+                              {/* Action Buttons */}
+
+                              {candidateWrapper.interviewRounds.length > 0 && (
+                                <div className="pt-4 border-t border-violet-800/30">
+                                  {/* Smart Action Buttons */}
+                                  {candidateWrapper.status ==
+                                    "in_interview_process" &&
+                                    !candidateWrapper.isInterviewScheduled && (
+                                      <div className="flex flex-col sm:flex-row gap-3">
+                                        <button
+                                          onClick={() =>
+                                            handleNextRound(
+                                              candidateWrapper,
+                                              latestCompletedRound?.interviewer as IInterviewerProfile
+                                            )
+                                          }
+                                          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-violet-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                                        >
+                                          <UserPlus className="h-4 w-4" />
+                                          Next Round
+                                        </button>
+
+                                        <button
+                                          onClick={() =>
+                                            handleCompleteCandidate(
+                                              candidateWrapper._id!
+                                            )
+                                          }
+                                          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-emerald-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                                        >
+                                          <CheckCircle className="h-4 w-4" />
+                                          Complete
+                                        </button>
+                                      </div>
+                                    )}
+
+                                  {candidateWrapper.status ===
+                                    "shortlisted" && (
+                                    <div className="text-center py-3">
+                                      <div className="flex items-center justify-center gap-2 text-emerald-400">
+                                        <Trophy className="w-4 h-4" />
+                                        <span className="text-sm font-medium">
+                                          Ready for Final Decision
+                                        </span>
+                                      </div>
                                     </div>
                                   )}
-                              </div>
-                            )} */}
-
-                            {/* Action Buttons */}
-
-                            <div className="pt-4 border-t border-violet-800/30">
-                              <div className="flex items-center justify-between mb-4">
-                                <button
-                                  onClick={() =>
-                                    handleViewRounds(candidateWrapper)
-                                  }
-                                  className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 border border-violet-700/30 hover:border-violet-600/50 rounded-lg text-violet-300 hover:text-violet-200 transition-all duration-200 text-sm"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                  View Rounds
-                                  <span className="px-1.5 py-0.5 bg-violet-600/30 rounded text-xs">
-                                    {candidateWrapper.interviewRounds.length}
-                                  </span>
-                                </button>
-                              </div>
-
-                              {/* Smart Action Buttons */}
-                              {candidateWrapper.status ==
-                                "in_interview_process" &&!candidateWrapper.isInterviewScheduled &&(
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                  <button
-                                    onClick={() =>
-                                      handleNextRound(
-                                        candidateWrapper,
-                                        latestCompletedRound?.interviewer as IInterviewerProfile
-                                      )
-                                    }
-                                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-violet-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
-                                  >
-                                    <UserPlus className="h-4 w-4" />
-                                    Next Round
-                                  </button>
-
-                                  <button
-                                    onClick={() =>
-                                      handleCompleteCandidate(
-                                        candidateWrapper._id!
-                                      )
-                                    }
-                                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-emerald-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                    Complete
-                                  </button>
-                                </div>
-                              )}
-
-                              {candidateWrapper.status === "shortlisted" && (
-                                <div className="text-center py-3">
-                                  <div className="flex items-center justify-center gap-2 text-emerald-400">
-                                    <Trophy className="w-4 h-4" />
-                                    <span className="text-sm font-medium">
-                                      Ready for Final Decision
-                                    </span>
-                                  </div>
                                 </div>
                               )}
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -907,6 +867,7 @@ function JobManagementPage() {
         <FileUploadModal
           setIsModalOpen={setIsModalOpen}
           onComplete={onhandleCandidateDelegationComplete}
+          isCandidateResumeUploading={isCandidateResumeUploading}
         />
       )}
 

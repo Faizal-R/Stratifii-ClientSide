@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   UserCircle,
 } from "lucide-react";
+import { errorToast, successToast } from "@/utils/customToast";
 
 const navItems = [
   {
@@ -46,11 +47,9 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
     }
-    toast.success(response.message);
+    successToast(response.message);
     logout();
     router.push("/signin");
   }

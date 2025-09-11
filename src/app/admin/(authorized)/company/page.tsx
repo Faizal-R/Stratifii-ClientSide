@@ -14,6 +14,7 @@ import CompanyDetailsModal from "@/components/ui/Modals/UserDetailsModal";
 import { ICompany } from "@/validations/CompanySchema";
 import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminCompanyColumns } from "@/constants/table-columns/companyColumn";
+import { errorToast, successToast } from "@/utils/customToast";
 
 // Reasons for rejecting a company
 const companyVerificationReasons = [
@@ -94,12 +95,12 @@ function AdminCompanyManagement() {
       reasonForRejection
     );
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
       return;
     }
 
     if (response.data && isApproved) {
-      toast.success("Company verified successfully");
+      successToast("Company verified successfully");
       setCompanies(
         companies.map((c) => (c._id === response.data._id ? response.data : c))
       );
@@ -116,7 +117,7 @@ function AdminCompanyManagement() {
   const loadCompanies = useCallback(async () => {
     const response = await fetchCompanies(activeTab);
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
     } else {
       setCompanies(response.data);
     }

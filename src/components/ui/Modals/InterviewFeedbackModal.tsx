@@ -1,6 +1,14 @@
-import React, { useState, useMemo } from 'react';
-import { X, Star, MessageSquare, Target, Users, TrendingUp, Shield } from 'lucide-react';
-import { IInterviewFeedback } from '@/types/IInterview';
+import React, { useState, useMemo } from "react";
+import {
+  X,
+  Star,
+  MessageSquare,
+  Target,
+  Users,
+  TrendingUp,
+  Shield,
+} from "lucide-react";
+import { IInterviewFeedback } from "@/types/IInterview";
 
 interface InterviewFeedbackModalProps {
   isOpen: boolean;
@@ -10,19 +18,19 @@ interface InterviewFeedbackModalProps {
 }
 
 // Enhanced Score Input Component (1-10 scale)
-import EnhancedScoreInput from '../FormFields/ScoreInput';
+import EnhancedScoreInput from "../FormFields/ScoreInput";
 
 // Modern Toggle Switch Component
-import ToggleSwitch from '../FormFields/ToggleSwitch';
+import ToggleSwitch from "../FormFields/ToggleSwitch";
 
 // Compact Tag Input Component
-import { TagInput } from '../FormFields/InputField';
+import { TagInput } from "../FormFields/InputField";
 
 const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  candidateName = 'Candidate',
+  candidateName = "Candidate",
 }) => {
   const [feedback, setFeedback] = useState<IInterviewFeedback>({
     needsFollowUp: false,
@@ -36,30 +44,42 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
       feedback.communicationScore,
       feedback.problemSolvingScore,
       feedback.culturalFitScore,
-    ].filter(score => score !== undefined) as number[];
-    
+    ].filter((score) => score !== undefined) as number[];
+
     if (scores.length === 0) return undefined;
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length * 10) / 10;
-  }, [feedback.technicalScore, feedback.communicationScore, feedback.problemSolvingScore, feedback.culturalFitScore]);
+    return (
+      Math.round(
+        (scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10
+      ) / 10
+    );
+  }, [
+    feedback.technicalScore,
+    feedback.communicationScore,
+    feedback.problemSolvingScore,
+    feedback.culturalFitScore,
+  ]);
 
   const updateScore = (field: keyof IInterviewFeedback, value: number) => {
-    setFeedback(prev => ({ ...prev, [field]: value }));
+    setFeedback((prev) => ({ ...prev, [field]: value }));
   };
 
   const updateText = (field: keyof IInterviewFeedback, value: string) => {
-    setFeedback(prev => ({ ...prev, [field]: value }));
+    setFeedback((prev) => ({ ...prev, [field]: value }));
   };
 
   const updateBoolean = (field: keyof IInterviewFeedback, value: boolean) => {
-    setFeedback(prev => ({ ...prev, [field]: value }));
+    setFeedback((prev) => ({ ...prev, [field]: value }));
   };
 
   const updateTags = (field: keyof IInterviewFeedback, value: string[]) => {
-    setFeedback(prev => ({ ...prev, [field]: value }));
+    setFeedback((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Todo:Add validation here 
+
     onConfirm({ ...feedback, overallScore });
     setFeedback({
       needsFollowUp: false,
@@ -85,8 +105,12 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
         <div className="relative p-6 border-b border-violet-900/30 bg-gradient-to-r from-violet-950/30 to-purple-950/30">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">Interview Feedback</h2>
-              <p className="text-violet-300 text-sm font-medium">{candidateName}</p>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                Interview Feedback
+              </h2>
+              <p className="text-violet-300 text-sm font-medium">
+                {candidateName}
+              </p>
             </div>
             <button
               onClick={handleClose}
@@ -103,37 +127,39 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
           <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-violet-400" />
-              <h3 className="text-white font-semibold">Performance Evaluation</h3>
+              <h3 className="text-white font-semibold">
+                Performance Evaluation
+              </h3>
               <span className="text-xs text-gray-400 ml-auto">Scale: 1-10</span>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <EnhancedScoreInput
                 label="Technical Skills"
                 icon={<Target className="w-4 h-4 text-violet-400" />}
                 value={feedback.technicalScore}
-                onChange={(value) => updateScore('technicalScore', value)}
+                onChange={(value) => updateScore("technicalScore", value)}
               />
-              
+
               <EnhancedScoreInput
                 label="Communication"
                 icon={<MessageSquare className="w-4 h-4 text-violet-400" />}
                 value={feedback.communicationScore}
-                onChange={(value) => updateScore('communicationScore', value)}
+                onChange={(value) => updateScore("communicationScore", value)}
               />
-              
+
               <EnhancedScoreInput
                 label="Problem Solving"
                 icon={<Star className="w-4 h-4 text-violet-400" />}
                 value={feedback.problemSolvingScore}
-                onChange={(value) => updateScore('problemSolvingScore', value)}
+                onChange={(value) => updateScore("problemSolvingScore", value)}
               />
-              
+
               <EnhancedScoreInput
                 label="Cultural Fit"
                 icon={<Users className="w-4 h-4 text-violet-400" />}
                 value={feedback.culturalFitScore}
-                onChange={(value) => updateScore('culturalFitScore', value)}
+                onChange={(value) => updateScore("culturalFitScore", value)}
               />
             </div>
           </div>
@@ -146,7 +172,9 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
                   <div className="p-2 bg-violet-600/20 rounded-lg">
                     <TrendingUp className="w-5 h-5 text-violet-400" />
                   </div>
-                  <span className="text-white font-semibold">Overall Score</span>
+                  <span className="text-white font-semibold">
+                    Overall Score
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
@@ -165,24 +193,51 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
               <Star className="w-4 h-4 text-violet-400" />
               <h3 className="text-white font-semibold">Recommendation</h3>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               {[
-                { value: 'hire', label: 'Hire', color: 'green', emoji: '✓' },
-                { value: 'maybe', label: 'Maybe', color: 'yellow', emoji: '?' },
-                { value: 'no-hire', label: 'No Hire', color: 'red', emoji: '✗' },
+                { value: "hire", label: "Hire", color: "green", emoji: "✓" },
+                { value: "maybe", label: "Maybe", color: "yellow", emoji: "?" },
+                {
+                  value: "no-hire",
+                  label: "No Hire",
+                  color: "red",
+                  emoji: "✗",
+                },
+                {
+                  value: "next-round",
+                  label: "Suggest Next Round",
+                  color: "blue",
+                  emoji: "→",
+                },
               ].map((option) => (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => updateText('recommendation', option.value as any)}
+                  onClick={() => {
+                    if (feedback.recommendation === option.value) {
+                      // If already selected, unselect it
+                      updateText("recommendation", "");
+                      if (option.value === "next-round") {
+                        updateBoolean("needsFollowUp", false);
+                      }
+                    } else {
+                      // Otherwise select it
+                      updateText("recommendation", option.value as any);
+                      if (option.value === "next-round") {
+                        updateBoolean("needsFollowUp", true);
+                      }
+                    }
+                  }}
                   className={`p-3 rounded-xl border-2 transition-all duration-200 text-sm font-medium relative overflow-hidden group ${
                     feedback.recommendation === option.value
-                      ? option.color === 'green'
-                        ? 'bg-green-500/20 border-green-500 text-green-400 shadow-lg shadow-green-500/20'
-                        : option.color === 'yellow'
-                        ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400 shadow-lg shadow-yellow-500/20'
-                        : 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20'
-                      : 'border-gray-600 text-gray-400 hover:border-violet-500 hover:text-violet-400 hover:shadow-lg hover:shadow-violet-500/10'
+                      ? option.color === "green"
+                        ? "bg-green-500/20 border-green-500 text-green-400 shadow-lg shadow-green-500/20"
+                        : option.color === "yellow"
+                        ? "bg-yellow-500/20 border-yellow-500 text-yellow-400 shadow-lg shadow-yellow-500/20"
+                        : option.color === "red"
+                        ? "bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20"
+                        : "bg-blue-500/20 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/20"
+                      : "border-gray-600 text-gray-400 hover:border-violet-500 hover:text-violet-400 hover:shadow-lg hover:shadow-violet-500/10"
                   }`}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
@@ -199,25 +254,33 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-violet-400" />
               <h3 className="text-white font-semibold">Candidate Feedback</h3>
-              <span className="text-xs text-gray-400 ml-auto">Shared with candidate</span>
+              <span className="text-xs text-gray-400 ml-auto">
+                Shared with candidate
+              </span>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-white font-medium text-sm">Strengths</label>
+                <label className="text-white font-medium text-sm">
+                  Strengths
+                </label>
                 <textarea
-                  value={feedback.strengths || ''}
-                  onChange={(e) => updateText('strengths', e.target.value)}
+                  value={feedback.strengths || ""}
+                  onChange={(e) => updateText("strengths", e.target.value)}
                   placeholder="What did the candidate excel at?"
                   className="w-full p-3 bg-black/50 border border-violet-900/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none h-24 text-sm transition-all duration-200"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-white font-medium text-sm">Areas for Growth</label>
+                <label className="text-white font-medium text-sm">
+                  Areas for Growth
+                </label>
                 <textarea
-                  value={feedback.areasForImprovement || ''}
-                  onChange={(e) => updateText('areasForImprovement', e.target.value)}
+                  value={feedback.areasForImprovement || ""}
+                  onChange={(e) =>
+                    updateText("areasForImprovement", e.target.value)
+                  }
                   placeholder="Constructive improvement suggestions..."
                   className="w-full p-3 bg-black/50 border border-violet-900/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none h-24 text-sm transition-all duration-200"
                 />
@@ -225,10 +288,12 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-white font-medium text-sm">Additional Comments</label>
+              <label className="text-white font-medium text-sm">
+                Additional Comments
+              </label>
               <textarea
-                value={feedback.comments || ''}
-                onChange={(e) => updateText('comments', e.target.value)}
+                value={feedback.comments || ""}
+                onChange={(e) => updateText("comments", e.target.value)}
                 placeholder="Any additional observations for the candidate..."
                 className="w-full p-3 bg-black/50 border border-violet-900/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none h-20 text-sm transition-all duration-200"
               />
@@ -240,13 +305,15 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-amber-400 drop-shadow-sm filter drop-shadow-[0_0_6px_rgba(251,191,36,0.3)]" />
               <h3 className="text-white font-semibold">Internal Notes</h3>
-              <span className="text-xs text-amber-400/80 ml-auto font-medium">Company Only</span>
+              <span className="text-xs text-amber-400/80 ml-auto font-medium">
+                Company Only
+              </span>
             </div>
-            
+
             <div className="space-y-2">
               <textarea
-                value={feedback.internalNotes || ''}
-                onChange={(e) => updateText('internalNotes', e.target.value)}
+                value={feedback.internalNotes || ""}
+                onChange={(e) => updateText("internalNotes", e.target.value)}
                 placeholder="Internal observations, concerns, or notes for the hiring team..."
                 className="w-full p-3 bg-black/60 border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 resize-none h-20 text-sm transition-all duration-200"
               />
@@ -254,31 +321,33 @@ const InterviewFeedbackModal: React.FC<InterviewFeedbackModalProps> = ({
           </div>
 
           {/* Follow-up Interview Recommendation Section */}
-          <div className="pt-4 border-t border-violet-900/30">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-violet-400 drop-shadow-sm filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]" />
-                <h3 className="text-white font-semibold">Follow-up Interview</h3>
-              </div>
-              
-              <ToggleSwitch
-                checked={feedback.needsFollowUp || false}
-                onChange={(value) => updateBoolean('needsFollowUp', value)}
-                label="Recommend a follow-up round"
-              />
-              
-              {feedback.needsFollowUp && (
-                <div className="space-y-3 animate-in fade-in duration-300">
-                  <label className="text-white font-medium text-sm">Suggested Focus Areas</label>
-                  <TagInput
-                    tags={feedback.suggestedFocusAreas || []}
-                    onChange={(tags) => updateTags('suggestedFocusAreas', tags)}
-                    placeholder="e.g., System Design, Advanced Node.js, Data Structures"
-                  />
+          {feedback.needsFollowUp && (
+            <div className="pt-4 border-t border-violet-900/30">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-violet-400 drop-shadow-sm filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]" />
+                  <h3 className="text-white font-semibold">
+                    Follow-up Interview
+                  </h3>
                 </div>
-              )}
+
+                {feedback.needsFollowUp && (
+                  <div className="space-y-3 animate-in fade-in duration-300">
+                    <label className="text-white font-medium text-sm">
+                      Suggested Focus Areas
+                    </label>
+                    <TagInput
+                      tags={feedback.suggestedFocusAreas || []}
+                      onChange={(tags) =>
+                        updateTags("suggestedFocusAreas", tags)
+                      }
+                      placeholder="e.g., System Design, Advanced Node.js, Data Structures"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Enhanced Actions */}
           <div className="flex gap-3 pt-6 border-t border-violet-900/30">

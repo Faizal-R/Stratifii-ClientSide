@@ -16,6 +16,7 @@ import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminInterviewerColumns } from "@/constants/table-columns/interviewerColumns";
 import { set } from "zod";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import { errorToast, successToast } from "@/utils/customToast";
 const interviewerVerificationReasons = [
   {
     value: "less_experience",
@@ -116,11 +117,11 @@ function AdminInterviewerManagement() {
       reasonForRejection
     );
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
       return;
     }
     if (response.data && isApproved === true) {
-      toast.success("Interviewer Verified successfully");
+      successToast("Interviewer Verified successfully");
       setInterviewers(
         interviewers.map((interviewer) =>
           interviewer._id === response.data._id ? response.data : interviewer
@@ -128,7 +129,7 @@ function AdminInterviewerManagement() {
       );
       setActiveTab("approved");
     } else {
-      toast("Interviewer Verification rejected successfully.");
+      successToast("Interviewer Verification rejected successfully.");
       setInterviewers(
         interviewers.filter(
           (interviewer) => interviewer._id !== response.data._id
@@ -142,8 +143,7 @@ function AdminInterviewerManagement() {
     interviewerId: string,
     isVerifyOrReject: boolean
   ) => {
-    console.log(interviewerId);
-    console.log(isVerifyOrReject)
+   
     setSelectedInterviewerId(interviewerId);
     if (isVerifyOrReject) {
       setIsVerificationAccept(true);
@@ -155,7 +155,7 @@ function AdminInterviewerManagement() {
   const getInterviewers = useCallback(async () => {
     const response = await fetchInterviewers(activeTab);
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
     } else {
       setInterviewers(response.data);
     }

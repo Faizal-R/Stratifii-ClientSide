@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/authStore';
   import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from 'sonner';
+import { errorToast, successToast } from '@/utils/customToast';
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/admin/dashboard" },
     { id: "company", label: "Company", icon: Briefcase, route: "/admin/company" },
@@ -37,12 +38,10 @@ export default function AdminLayout({children}:{children:ReactNode}){
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
     }
     logout()
-    toast.success(response.message);
+    successToast(response.message);
     router.push("/signin");
   }
   return (

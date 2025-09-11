@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 
 import { ISubscription } from "@/types/ISubscription";
+import { errorToast } from "@/utils/customToast";
 
 export default function SubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -40,7 +41,7 @@ export default function SubscriptionPage() {
       console.log(subscription);
       const response = await createSubscription(subscription);
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       } else {
         setSubscriptions((prev) => [...prev, response.data]);
@@ -58,7 +59,7 @@ export default function SubscriptionPage() {
   const fetchSubscriptions = useCallback(async () => {
     const response = await getSubscriptions();
     if (!response.success) {
-      toast(response.error);
+      errorToast(response.message);
       return;
     }
 

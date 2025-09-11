@@ -17,6 +17,7 @@ import { Roles } from "@/constants/enums/roles";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
+import { errorToast,successToast } from "@/utils/customToast";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer/dashboard" },
@@ -60,11 +61,9 @@ const InterviewerLayout = ({ children }: { children: ReactNode }) => {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
     }
-    toast.success(response.message);
+    successToast(response.message);
     logout()
     router.push("/signin");
   }

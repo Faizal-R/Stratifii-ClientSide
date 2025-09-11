@@ -35,6 +35,7 @@ import {
 } from "@/hooks/api/useInterviewer";
 
 import { useAuthStore } from "@/features/auth/authStore";
+import { errorToast, successToast } from "@/utils/customToast";
 // import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
 
 type TProficiencyLevel = "beginner" | "intermediate" | "advanced" | "expert";
@@ -116,12 +117,10 @@ function InterviewerRegistrationPage() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords does not match", {
-        className: "custom-error-toast",
-      });
+      errorToast("Passwords does not match",)
       return;
     }
-    console.log(formData)
+    console.log(formData);
 
     if (isGoogleVerified) {
       const response = await setupInterviewerAccount(
@@ -133,9 +132,7 @@ function InterviewerRegistrationPage() {
         interviewerId
       );
       if (!response.success) {
-        toast.error(response.error, {
-          className: "custom-error-toast",
-        });
+        errorToast(response.message);
         return;
       }
       setUser({
@@ -144,7 +141,7 @@ function InterviewerRegistrationPage() {
         role: Roles.INTERVIEWER,
         id: response.data.interviewer._id,
       });
-      toast.success("Account setup successfully");
+      successToast("Account setup successfully");
 
       router.push(`/${Roles.INTERVIEWER}/dashboard`);
     } else {
@@ -154,11 +151,9 @@ function InterviewerRegistrationPage() {
       });
       console.log(response); // Set default status
       if (!response.success) {
-        toast.error(response.error, {
-          className: "custom-error-toast",
-        });
+        errorToast(response.message);
       } else {
-        toast(response.message);
+        successToast(response.message);
 
         router.push(`/verify-otp?email=${formData.email}&&role=interviewer`);
       }
@@ -174,9 +169,7 @@ function InterviewerRegistrationPage() {
     if (!validInterviewer?.success) {
       const errors = validInterviewer?.errors;
       for (const issue of errors!) {
-        toast.error(issue.message, {
-          className: "custom-error-toast",
-        });
+        errorToast(issue.message)
         return;
       }
     }
@@ -204,9 +197,7 @@ function InterviewerRegistrationPage() {
 
   const addSkillExpertise = () => {
     if (skillInput.skill.trim() === "" || skillInput.skillSource.length === 0) {
-      toast("Please fill in skill name and select at least one skill source",{
-        className: "custom-error-toast",
-      });
+      errorToast("Please fill in skill name and select at least one skill source")
       return;
     }
 
@@ -217,9 +208,7 @@ function InterviewerRegistrationPage() {
           exp.skill.toLowerCase() === skillInput.skill.trim().toLowerCase()
       )
     ) {
-      toast("Skill already added",{
-        className: "custom-error-toast",
-      });
+      errorToast("Skill already added")
       return;
     }
 

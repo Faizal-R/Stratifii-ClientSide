@@ -60,6 +60,7 @@ export const SlotService = {
     slot: IInterviewSlot;
     candidate: string;
     job: string;
+    isFollowUpScheduling: boolean;
   }) => {
     try {
       const response = await apiClient.post(

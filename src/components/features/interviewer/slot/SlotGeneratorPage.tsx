@@ -24,6 +24,7 @@ import {
 } from "@/hooks/api/useSlot";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
+import { errorToast, successToast } from "@/utils/customToast";
 
 interface ISlotGenerationProps {
   sendSlotsToParent: (newSlots: IInterviewSlot[]) => void;
@@ -51,8 +52,6 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [preview, setPreview] = useState<SlotPreview | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-
   const { generateSlots, loading } = useSlotGeneration();
 
   const dayNames = [
@@ -85,9 +84,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
           setIsExistingRule(true);
         }
       } else {
-        toast.error(response.error, {
-          className: "custom-toast-error",
-        });
+        errorToast(response.message);
       }
     };
     fetchInterviewerSlotGenerationRule();
@@ -155,9 +152,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
     // if (!validateForm()) return;
     if (!formData.bufferRate) {
-      toast.error("Buffer Time cannot be emtpy", {
-        className: "custom-error-toast",
-      });
+      errorToast("Buffer Time cannot be emtpy");
       return;
     }
     console.log("Form Data:", formData);
@@ -167,22 +162,18 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
         formData
       );
       if (!response.success) {
-        toast.error(
-          response.error || "Failed to update rule. Please try again.",
-          {
-            className: "custom-error-toast",
-          }
+        errorToast(
+          response.error || "Failed to update rule. Please try again."
         );
+
         return;
       }
-      toast.success("Rule updated successfully!");
+      successToast("Rule updated successfully!");
     } else {
       const response = await generateSlots(formData);
 
       if (!response.success) {
-        toast(response.error || "Failed to generate slots. Please try again.", {
-          className: "custom-error-toast",
-        });
+        errorToast(response.message || "Failed to generate slots. Please try again.")
         return;
       }
       console.log("Generated Slots:", response);
@@ -191,7 +182,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
       sendSlotsToParent(response.data || []);
 
-      toast.success("Slots generated successfully!");
+      successToast("Slots generated successfully!");
     }
   };
 
@@ -484,8 +475,6 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
               </div>
             </div>
           </div>
-
-       
         </form>
       </div>
     </div>

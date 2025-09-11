@@ -269,8 +269,8 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
 
             {/* Bottom Row - Meeting Action */}
             <div className="flex justify-center">
+                {/* // {true && ( */}
               {canJoin() && (
-                // {true && (
                 <button
                   onClick={() =>
                     onJoinMeeting(interview.meetingLink!, interview._id!)
@@ -291,11 +291,11 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
                 interview.meetingLink && (
                   <button
                     disabled
-                    className="w-full flex flex-col items-center justify-center space-x-2 px-4 py-2 bg-gray-600/30 text-gray-400 rounded-lg font-medium text-sm cursor-not-allowed border border-gray-500/30"
+                    className="w-full flex flex-col items-center justify-center space-x-2 px-2 py-2 bg-gray-600/30 text-gray-400 rounded-lg font-medium text-xs cursor-not-allowed border border-gray-500/30"
                   >
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>Join Soon</span>
+                      {/* <Clock className="w-4 h-4" />
+                      <span>Join Soon</span> */}
                     </div>
                     <span className="text-xs text-gray-500 mt-1 block">
                       This button will be enabled 10 minutes before the
