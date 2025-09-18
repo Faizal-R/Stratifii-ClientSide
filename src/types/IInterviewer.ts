@@ -1,8 +1,4 @@
-type Availability = {
-  date?: string; // Format: "YYYY-MM-DD"
-  day: string;
-  timeSlot: string[];
-};
+
 
 
 export interface IInterviewer {
@@ -20,7 +16,6 @@ export interface IInterviewer {
     level: string;
   }[];
   availableDays: string[];
-  availability?: Availability[];
   professionalSummary: string;
   expertise: string[];
   scheduleInterviews?: [];

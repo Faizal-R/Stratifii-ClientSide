@@ -20,7 +20,6 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { errorToast,successToast } from "@/utils/customToast";
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer/dashboard" },
   {
     id: "profile",
     label: "Profile",
@@ -40,12 +39,12 @@ const navItems = [
     route: "/interviewer/interviews",
   },
   { id: "wallet", label: "Wallet", icon: Wallet, route: "/interviewer/wallet" },
-  {
-    id: "payment",
-    label: "Payment",
-    icon: CreditCard,
-    route: "/interviewer/payment",
-  },
+  // {
+  //   id: "payment",
+  //   label: "Payment",
+  //   icon: CreditCard,
+  //   route: "/interviewer/payment",
+  // },
 
 ];
 

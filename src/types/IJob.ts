@@ -6,11 +6,26 @@ export interface IJob {
   requiredSkills: string[];
   status?: "open" | "in-progress" | "completed";
   experienceRequired: number|string;
+  paymentTransaction?: string | IPaymentTransaction;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-
+export interface IPaymentTransaction {
+  _id: string;
+  companyId: string;
+  jobId: string;
+  candidatesCount: number;
+  pricePerInterview: number;
+  totalAmount: number;
+  taxAmount: number;
+  platformFee: number;
+  finalPayableAmount: number;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  paymentGatewayTransactionId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 
 export interface DelegatedJob {

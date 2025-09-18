@@ -138,3 +138,19 @@ export const useHandleInterveiwerVerification = () => {
 
   return { verifyOrRejectInterviewer, loading };
 };
+
+
+export const useGetAdminDashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const getAdminDashboard = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await AdminService.getAdminDashboard();
+      console.log("res", response);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { getAdminDashboard, loading };
+};

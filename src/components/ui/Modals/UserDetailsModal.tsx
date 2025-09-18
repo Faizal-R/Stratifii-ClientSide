@@ -158,7 +158,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 pb-6  transition-all duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
       <div className={`bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90 rounded-xl border border-violet-500/20 shadow-2xl shadow-violet-500/10 w-full max-w-4xl max-h-[90vh] overflow-hidden transition-all duration-300 ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
         
         {/* Header */}
@@ -253,7 +253,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-t border-violet-500/20 bg-gradient-to-r from-transparent to-violet-500/5 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center p-3 border-t border-violet-500/20 bg-gradient-to-r from-transparent to-violet-500/5 gap-4 ">
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div className="text-sm text-gray-400">
               Last updated: {new Date().toLocaleDateString()}

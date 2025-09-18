@@ -49,6 +49,7 @@ import { useGetAllSlotsByInterviewer } from "@/hooks/api/useSlot";
 import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
 import InterviewRoundsModal from "../../../../../../components/features/interviewer/interview/InterviewRoundsModal";
 import { errorToast, successToast } from "@/utils/customToast";
+import { useAuthStore } from "@/features/auth/authStore";
 type TabType = "all" | "in-progress" | "completed";
 
 interface TabConfig {
@@ -62,6 +63,7 @@ interface TabConfig {
 }
 
 function JobManagementPage() {
+  const {user} =useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>("all");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,13 +109,13 @@ function JobManagementPage() {
     initiateRazorpayPayment({
       amount: amount,
       orderId: orderId,
-      name: "Stratifii Interviews",
-      description: "Subscription Payment",
+      name:"Stratifii Interviews", 
+      description: "Payment for Interview Process",
       image: "https://your-image-url",
       prefill: {
-        name: "Stratifii",
-        email: "stratifii@gmail.com",
-        contact: "1234567890",
+        name: user?.name!,
+        email: user?.email!,
+        contact:"1234567890",
       },
       onSuccess: async (response) => {
         const res = await paymentVerificationAndCreatePaymentRecord(

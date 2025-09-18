@@ -1,4 +1,6 @@
 import { StatusCodes } from "@/constants/enums/statusCodes";
+import { AuthRoutes } from "@/constants/routes/api/AuthRoutes";
+import { errorToast } from "@/utils/customToast";
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -17,10 +19,10 @@ let isLoggingOut = false;
 // ✅ Function to handle logout
 export function handleLogout() {
   isLoggingOut = true;
-  
+
   // Clear any pending requests
   apiClient.defaults.timeout = 1; // Cancel pending requests quickly
-   localStorage.clear();
+  localStorage.clear();
   // Redirect to signin
   if (typeof window !== "undefined") {
     window.location.href = "/signin";
@@ -30,10 +32,9 @@ export function handleLogout() {
 // ✅ Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    
     // Don't make requests if logging out
     if (isLoggingOut) {
-      return Promise.reject(new Error('Logging out'));
+      return Promise.reject(new Error("Logging out"));
     }
     return config;
   },
@@ -51,7 +52,6 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
- 
     // If we get 401, it means both access and refresh tokens are invalid
     if (error.response?.status === StatusCodes.UNAUTHORIZED) {
       console.error("❌ Authentication failed - redirecting to signin");
@@ -59,21 +59,22 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle Forbidden
-    if (error.response?.status === StatusCodes.FORBIDDEN) {
+    if (
+      error.response?.status === StatusCodes.FORBIDDEN &&
+      !originalRequest?.url?.includes(AuthRoutes.SIGN_IN)
+    ) {
       errorToast("You are not authorized to access this resource.");
       if (typeof window !== "undefined") {
         window.location.href = "/unauthorized";
       }
     }
-    if(error.response?.status === StatusCodes.LOCKED){
-      errorToast(error.response.data.message, {
-        className: "custom-error-toast",
-      });
-      setTimeout(()=>{
+
+    // Handle Forbidden
+    if (error.response?.status === StatusCodes.LOCKED &&!originalRequest?.url?.includes("/auth")) {
+      errorToast(error.response.data.message);
+      setTimeout(() => {
         window.location.href = "/signin";
-      },1000)
-    
+      }, 1000);
     }
 
     return Promise.reject(error);

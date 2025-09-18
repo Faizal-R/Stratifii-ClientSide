@@ -168,6 +168,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
         return;
       }
+      sendSlotsToParent(response.data.slots);
       successToast("Rule updated successfully!");
     } else {
       const response = await generateSlots(formData);

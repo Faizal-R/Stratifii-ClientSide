@@ -22,12 +22,15 @@ import Link from 'next/link';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useRouter } from 'next/navigation';
 import OrbitingSkills from '@/components/ui/Orbiting/Orbiting';
+import { Roles } from '@/constants/enums/roles';
 function LandingPage() {
 const {user}=useAuthStore();
 const router=useRouter();
 useEffect(()=>{
   if(user){
-    router.push(`/${user.role}/dashboard`);
+    if(user.role === Roles.INTERVIEWER){
+      router.push(`/${user.role}/profile`);
+    }else router.push(`/${user.role}/dashboard`);
   }
 },[user,router])
   const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -41,17 +41,31 @@ import SubscriptionCard from "@/components/features/company/profile/ProfileSubsc
 import { useGetSubscriptionDetails } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
 import { errorToast, successToast } from "@/utils/customToast";
+import TabsNav from "@/components/reusable/tabsNav/TabsNav";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [subscription, setSubscription] = useState<ISubscriptionDetails | null>(
+    null
+  );
+  const tabs = [
+    {
+      key: "profile",
+      label: "Company Profile",
+      icon: <Building className="w-4 h-4" />,
+    },
+    {
+      key: "subscription",
+      label: "Subscription",
+      icon: <Crown className="w-4 h-4" />,
+      show: subscription?.status === "active",
+    },
+  ];
   const [activeTab, setActiveTab] = useState<"profile" | "subscription">(
     "profile"
   );
   const [companyData, setCompanyData] = useState<ICompanyProfile>(
     {} as ICompanyProfile
-  );
-  const [subscription, setSubscription] = useState<ISubscriptionDetails | null>(
-    null
   );
   const [logoPreview, setLogoPreview] = useState<string | null>("");
 
@@ -96,7 +110,7 @@ function CompanyProfilePage() {
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-        errorToast(issue.message)
+        errorToast(issue.message);
       }
       return;
     }
@@ -114,7 +128,7 @@ function CompanyProfilePage() {
 
     const response = await updateCompanyProfile(formData);
     if (!response.success) {
-     errorToast(response.message);
+      errorToast(response.message);
       return;
     } else {
       successToast(response.message);
@@ -125,7 +139,7 @@ function CompanyProfilePage() {
   const fetchCompanyProfile = useCallback(async () => {
     const response = await companyProfile();
     if (!response.success) {
-     errorToast(response.message);
+      errorToast(response.message);
       if (response.status === StatusCodes.FORBIDDEN) {
         logout();
       }
@@ -162,36 +176,7 @@ function CompanyProfilePage() {
   ) : (
     <div className="min-h-screen ml-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
       {/* Navigation Tabs */}
-      <div className="bg-gray-900/60 backdrop-blur-xl border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6">
-          <nav className="flex gap-8">
-            <button
-              onClick={() => setActiveTab("profile")}
-              className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "profile"
-                  ? "text-violet-400 border-violet-400"
-                  : "text-gray-400 border-transparent hover:text-white"
-              }`}
-            >
-              <Building className="w-4 h-4" />
-              Company Profile
-            </button>
-            {subscription && subscription.status === "active" && (
-              <button
-                onClick={() => setActiveTab("subscription")}
-                className={`flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 ${
-                  activeTab === "subscription"
-                    ? "text-violet-400 border-violet-400"
-                    : "text-gray-400 border-transparent hover:text-white"
-                }`}
-              >
-                <Crown className="w-4 h-4" />
-                Subscription
-              </button>
-            )}
-          </nav>
-        </div>
-      </div>
+   <TabsNav activeTab={activeTab} onTabChange={(key)=>setActiveTab(key as "profile" | "subscription")} tabs={tabs} />
 
       {/* Main Content */}
       <main className="p-6 overflow-y-auto">
@@ -263,17 +248,14 @@ function CompanyProfilePage() {
                             onClick={handleSave}
                             className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg"
                           >
-                          {
-                            updateLoading ? (
+                            {updateLoading ? (
                               <RiseLoader color="#ffffff" size={8} />
                             ) : (
-                               <>
-                               <Save size={18} />
-                            Save
-                               </>
-                            )
-                            
-                          }
+                              <>
+                                <Save size={18} />
+                                Save
+                              </>
+                            )}
                           </button>
                         </div>
                       )}
@@ -333,7 +315,6 @@ function CompanyProfilePage() {
                     isEditing={isEditing}
                     handleChange={handleChange}
                     disabled={true}
-                    
                   />
                   <InputField
                     icon={Phone}
@@ -426,4 +407,4 @@ function CompanyProfilePage() {
     </div>
   );
 }
-export default CompanyProfilePage
+export default CompanyProfilePage;

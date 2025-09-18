@@ -16,6 +16,15 @@ export const SkillExpertiseSchema = z.object({
     .min(1, "At least one skill source is required"),
 });
 
+export const bankDetailsSchema = z.object({
+  accountNumber: z.string().min(1, "Account number is required"),
+  ifsc: z.string().min(1, "IFSC code is required"),
+  accountHolderName: z.string().min(1, "Account holder name is required"),
+  upiId: z.string().optional(),
+  addedAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+})
+
 // Main Interviewer Profile Schema
 export const InterviewerProfileSchema = z.object({
   _id: z.string().optional(),
@@ -43,8 +52,13 @@ export const InterviewerProfileSchema = z.object({
     .min(1, "At least one expertise is required"),
     isBlocked: z.boolean().optional(),
     createdAt: z.string().optional(),
+  stripeAccountId: z.string().optional(),
+    bankDetails:bankDetailsSchema.optional(),
+    resubmissionPeriod:z.string().optional(),
+    resubmissionNote:z.string().optional()
 });
 
 // Type export
 export type IInterviewerProfile = z.infer<typeof InterviewerProfileSchema>;
 export type ISkillExpertise = z.infer<typeof SkillExpertiseSchema>;
+export type IBankDetails = z.infer<typeof bankDetailsSchema>;

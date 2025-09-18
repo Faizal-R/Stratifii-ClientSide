@@ -147,6 +147,13 @@ function App() {
       avatar: user.photoURL!,
     });
     if(!response.success){
+      if(response.status === StatusCodes.FORBIDDEN){
+        setIsVerifyAccountModalOpen(true);
+        return
+      }else if(response.status === StatusCodes.LOCKED){
+        errorToast(response.message)
+        return
+      }
       errorToast(response.message)
       return
     }
@@ -161,7 +168,7 @@ function App() {
         role: Roles.INTERVIEWER,
         name: authUser.name,
       });
-      router.push(`${Roles.INTERVIEWER}/dashboard`);
+      router.push(`${Roles.INTERVIEWER}/profile`);
     }else{
       router.push(
           `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`
@@ -172,7 +179,9 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      router.push(`/${user.role}/dashboard`);
+      if(user.role === Roles.INTERVIEWER){
+        router.push(`${Roles.INTERVIEWER}/profile`);
+      }else router.push(`/${user.role}/dashboard`);
     }
   }, [user, router]);
 

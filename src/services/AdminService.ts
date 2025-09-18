@@ -84,4 +84,16 @@ export const AdminService = {
       return parseAxiosError(error, "An error occurred during interviewer verification");
     }
   },
+
+   getAdminDashboard: async () => {
+    try {
+      const response = await apiClient.get(AdminRoutes.GET_DASHBOARD);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching company dashboard data."
+      );
+    }
+  },
 };

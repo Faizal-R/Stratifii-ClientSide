@@ -38,8 +38,8 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { errorToast, successToast } from "@/utils/customToast";
 // import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
 
-type TProficiencyLevel = "beginner" | "intermediate" | "advanced" | "expert";
-type TSkillSource = "professional" | "academic" | "personal" | "certification";
+export type TProficiencyLevel = "beginner" | "intermediate" | "advanced" | "expert";
+export type TSkillSource = "professional" | "academic" | "personal" | "certification";
 
 interface ISkillExpertise {
   skill: string;
@@ -143,7 +143,7 @@ function InterviewerRegistrationPage() {
       });
       successToast("Account setup successfully");
 
-      router.push(`/${Roles.INTERVIEWER}/dashboard`);
+      router.push(`/${Roles.INTERVIEWER}/profile`);
     } else {
       const response = await registerInterviewer({
         ...formData,

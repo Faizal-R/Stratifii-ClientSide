@@ -1,17 +1,22 @@
 import apiClient from "@/config/apiClient";
-import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import {
+  IBankDetails,
+  IInterviewerProfile,
+} from "@/validations/InterviewerSchema";
 import { InterviewerRoutes } from "@/constants/routes/api/InterviewerRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { ApiResponse } from "@/types/api/ApiResponse";
 
 export const InterviewerService = {
-  getInterviewerProfile: async ():Promise<ApiResponse<IInterviewerProfile>>=> {
+  getInterviewerProfile: async (): Promise<
+    ApiResponse<IInterviewerProfile>
+  > => {
     try {
       const response = await apiClient.get(InterviewerRoutes.PROFILE);
       return response.data;
     } catch (error) {
-       return parseAxiosError(
+      return parseAxiosError(
         error,
         "An error occurred while fetching interviewer profile"
       );
@@ -21,7 +26,7 @@ export const InterviewerService = {
   updateInterviewerProfile: async (
     interviewer: IInterviewerProfile,
     avatar?: string,
-    resume?: string|null,
+    resume?: string | null
   ) => {
     const formData = new FormData();
     try {
@@ -29,7 +34,7 @@ export const InterviewerService = {
         const avatarFile = await convertBlobUrlToFile(avatar);
         formData.append("avatar", avatarFile!);
       }
-      if(resume) {
+      if (resume) {
         const resumeFile = await convertBlobUrlToFile(resume);
         formData.append("resume", resumeFile!);
       }
@@ -107,6 +112,48 @@ export const InterviewerService = {
       return parseAxiosError(
         error,
         "An error occurred while updating the interviewer password. Please try again later."
+      );
+    }
+  },
+
+  addBankDetails: async (bankDetails: IBankDetails) => {
+    try {
+      const response = await apiClient.post(
+        InterviewerRoutes.ADD_BANK_DETAILS,
+        bankDetails
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while adding bank details. Please try again later."
+      );
+    }
+  },
+
+  updateBankDetails: async (bankDetails: IBankDetails) => {
+    try {
+      const response = await apiClient.put(
+        InterviewerRoutes.UPDATE_BANK_DETAILS,
+        bankDetails
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating bank details. Please try again later."
+      );
+    }
+  },
+
+  getInterviewerWallet: async () => {
+    try {
+      const response = await apiClient.get(InterviewerRoutes.GET_WALLET);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching interviewer wallet. Please try again later."
       );
     }
   },

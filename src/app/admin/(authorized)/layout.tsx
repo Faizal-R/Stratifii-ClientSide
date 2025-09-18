@@ -8,7 +8,9 @@ import {
     CreditCard, 
     Receipt, 
     Wallet, 
-    LogOut 
+    LogOut, 
+    FileText
+    
   } from "lucide-react";
 import { Modal } from '@/components/ui/Modals/ConfirmationModal';
 import { useRouter } from 'next/navigation';
@@ -22,7 +24,8 @@ import { errorToast, successToast } from '@/utils/customToast';
     { id: "interviewers", label: "Interviewers", icon: Users, route: "/admin/interviewers" },
     { id: "subscription", label: "Subscription", icon: CreditCard, route: "/admin/subscription" },
     { id: "payments", label: "Payments", icon: Receipt, route: "/admin/payments" },
-    { id: "wallet", label: "Wallet", icon: Wallet, route: "/admin/wallet" },
+   
+    {id:"payouts",label:" Payouts",icon:FileText,route:"/admin/payouts"},
   ];
   
   

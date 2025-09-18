@@ -20,7 +20,8 @@ const ScheduleManagmentPage = () => {
   const { getSlotsByRule, loading } = useGetAllSlotsByRule();
 
   function updateSlotsFromChild(newSlots: IInterviewSlot[]) {
-    setSlots((prev) => [...prev, ...newSlots]);
+    setSlots(newSlots);
+    setIsShownSlots(true);
   }
 
   useEffect(() => {
@@ -99,7 +100,7 @@ const ScheduleManagmentPage = () => {
       {isShownSlots ? (
         <SlotDisplay slots={slots} />
       ) : (
-        <SlotGeneratorPage sendSlotsToParent={updateSlotsFromChild} />
+        <SlotGeneratorPage sendSlotsToParent={updateSlotsFromChild}  />
       )}
     </div>
   );

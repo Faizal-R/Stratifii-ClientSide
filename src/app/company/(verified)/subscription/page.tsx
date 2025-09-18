@@ -14,7 +14,9 @@ import { initiateRazorpayPayment, loadRazorpayScript } from "@/utils/razorpay";
 import useSubscriptionStore from "@/features/company/subscriberStore";
 import SubscriptionCard from "@/components/features/company/SubscriptionCard";
 import { errorToast, successToast } from "@/utils/customToast";
+import { useAuthStore } from "@/features/auth/authStore";
 const CompanySubscriptionPage = () => {
+  const { user } = useAuthStore();
   const { getSubscriptions, loading } = useGetAllSubscriptions();
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const { createSubscriptionPaymentOrder } =
@@ -38,8 +40,8 @@ const CompanySubscriptionPage = () => {
       description: "Subscription Payment",
       image: "https://your-image-url",
       prefill: {
-        name: "Stratifii",
-        email: "stratifii@gmail.com",
+        name:user?.name!,
+        email:user?.email!,
         contact: "1234567890",
       },
       onSuccess: async (response) => {

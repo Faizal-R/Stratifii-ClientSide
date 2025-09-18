@@ -25,7 +25,6 @@ function OtpVerificationPage() {
   const email = useSearchParams().get("email") ?? "";
   const role = useSearchParams().get("role") ?? "";
 
-  console.log(role, email);
 
   const { loading, verifyOtp } = useVerifyOtp();
 
@@ -96,7 +95,7 @@ function OtpVerificationPage() {
       role,
     });
     if (!response.success) {
-      errorToast(response.error)
+      errorToast(response.message)
       return;
     }
     successToast(response.message);
@@ -179,7 +178,7 @@ function OtpVerificationPage() {
           onClick={onHandleOtpVerification}
           className="w-full bg-black/80 border border-violet-950/50 hover:bg-violet-950/90  text-white py-3 rounded-md font-medium transition-colors"
         >
-          {loading ? <RiseLoader /> : "Verify OTP"}
+          {loading ? <RiseLoader color="#ffff" size={13} /> : "Verify OTP"}
         </button>
       </div>
     </div>
