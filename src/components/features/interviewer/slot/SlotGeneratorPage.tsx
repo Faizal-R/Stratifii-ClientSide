@@ -188,7 +188,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
   };
 
   return (
-    <div className=" bg-gradient-to-br from-black via-black to-violet-950  py-8 px-4 ml-64 bg">
+    <div className=" bg-gradient-to-br from-black via-black to-violet-950  py-8 px-4 custom-64 bg">
       <div className="max-w-7xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

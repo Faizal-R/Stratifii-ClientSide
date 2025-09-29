@@ -17,7 +17,7 @@ interface TabsNavProps {
 
  const TabsNav:FC<TabsNavProps> = ({ activeTab, onTabChange, tabs }) => {
   return (
-    <div className="bg-gray-900/60 backdrop-blur-xl border-b border-gray-800">
+    <div className="bg-gray-900/60 backdrop-blur-xl border-b border-gray-800 ">
       <div className="max-w-6xl mx-auto px-6">
         <nav className="flex gap-8">
           {tabs

@@ -38,13 +38,7 @@ export const InterviewerProfileSchema = z.object({
   rating: z.number().min(0).max(5).optional(),
   status: z.enum(["approved", "pending", "rejected"]),
   isVerified: z.boolean().optional(),
-  resume: z
-    .custom<File | string | null>((file) => {
-      return typeof file === "string" || file instanceof File || file === null;
-    }, {
-      message: "Invalid resume file",
-    })
-    .optional(),
+  resume: z.string().nullable().optional(),
 
   // ✅ Use structured expertise schema
   expertise: z
@@ -53,9 +47,9 @@ export const InterviewerProfileSchema = z.object({
     isBlocked: z.boolean().optional(),
     createdAt: z.string().optional(),
   stripeAccountId: z.string().optional(),
-    bankDetails:bankDetailsSchema.optional(),
-    resubmissionPeriod:z.string().optional(),
-    resubmissionNote:z.string().optional()
+    bankDetails:bankDetailsSchema.nullable().optional(),
+    resubmissionPeriod:z.string().nullable().optional(),
+    resubmissionNote:z.string().nullable().optional()
 });
 
 // Type export

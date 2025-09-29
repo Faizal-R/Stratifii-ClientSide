@@ -85,7 +85,7 @@ const CandidateInterviewsPage = () => {
   };
 
   return isMockInitiated ? (
-    <div className="ml-64">
+    <div className="custom-64">
       <MockInterview
         onBackToDashboard={() => router.push("/candidate")}
         questions={mockQuestions}
@@ -94,7 +94,7 @@ const CandidateInterviewsPage = () => {
       />
     </div>
   ) : (
-    <div className="ml-64 p-8 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
+    <div className="custom-64 p-8 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">My Interviews</h1>

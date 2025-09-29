@@ -128,7 +128,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       return detail.value !== "Not provided" ? (
         <div className="flex flex-wrap gap-2">
           <a
-            href={`https://docs.google.com/viewer?url=${encodeURIComponent(detail.value as string)}&embedded=true`}
+            href={detail.value}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-700 text-white text-xs px-3 py-2 rounded-lg hover:from-violet-500 hover:to-violet-600 transition-all duration-200 shadow-lg hover:shadow-violet-500/25"

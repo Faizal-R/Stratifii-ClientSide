@@ -1,254 +1,252 @@
-"use client";
 import React from "react";
 import {
-  Building,
   Eye,
   Ban,
-  Clock,
-  CheckCircle,
-  XCircle,
   Play,
-  AlertCircle,
+  Tag,
+  Briefcase,
+  Star,
+  Calendar,
+  Clock,
 } from "lucide-react";
-import { DelegatedJob } from "@/types/IJob";
 import { Timer } from "@/components/features/common/Timer";
 import { RiseLoader } from "react-spinners";
+import { DelegatedJob } from "@/types/IJob";
+
+
+
 
 interface JobCardProps {
   job: DelegatedJob;
   onStartMock: (job: DelegatedJob) => void;
-  getStatusColor: (status: string) => string;
-  getStatusIcon: (status: string) => React.ReactNode;
   formatStatus: (status: string) => string;
   isMockQuestionsLoading?: boolean;
+  handleJobEdit?: (id: string) => void;
+  handleJobDelete?: (id: string) => void;
 }
 
 const JobCard: React.FC<JobCardProps> = ({
   job,
   onStartMock,
-  getStatusColor,
-  getStatusIcon,
   formatStatus,
   isMockQuestionsLoading,
 }) => {
-  const getCardVariant = () => {
-    if (job.isQualifiedForFinal) {
+  console.log("JObCard:", job);
+  const cardVariant = (() => {
+    if (job.isQualifiedForFinal)
       return {
-        gradient: "from-emerald-500/20 via-teal-500/10 to-emerald-600/20",
-        border: "border-emerald-400/30",
-        hoverBorder: "hover:border-emerald-400/60",
-        shadow: "shadow-emerald-500/10",
-        hoverShadow: "hover:shadow-emerald-500/20",
+        gradient: "from-emerald-900/40 via-emerald-800/30 to-teal-900/40",
+        border: "border-emerald-500/30",
+        glow: "group-hover:shadow-[0_0_30px_10px_rgba(16,185,129,0.15)]",
+        accent: "text-emerald-400",
+        accentBg: "bg-emerald-500/20",
+        skillBg: "bg-emerald-900/30 border-emerald-700/50",
+        skillText: "text-emerald-300",
       };
-    }
-
-    if (job.mockStatus === "mock_failed") {
+    if (job.mockStatus === "mock_failed")
       return {
-        gradient: "from-red-500/20 via-pink-500/10 to-red-600/20",
-        border: "border-red-400/30",
-        hoverBorder: "hover:border-red-400/60",
-        shadow: "shadow-red-500/10",
-        hoverShadow: "hover:shadow-red-500/20",
+        gradient: "from-red-950/50 via-red-900/40 to-pink-950/50",
+        border: "border-red-500/30",
+        glow: "group-hover:shadow-[0_0_30px_10px_rgba(239,68,68,0.15)]",
+        accent: "text-red-400",
+        accentBg: "bg-red-500/20",
+        skillBg: "bg-red-950/40 border-red-800/50",
+        skillText: "text-red-300",
       };
-    }
     return {
-      gradient: "from-violet-500/20 via-purple-500/10 to-indigo-600/20",
-      border: "border-violet-400/30",
-      hoverBorder: "hover:border-violet-400/60",
-      shadow: "shadow-violet-500/10",
-      hoverShadow: "hover:shadow-violet-500/20",
+      gradient: "from-violet-950/60 via-purple-950/50 to-indigo-950/60",
+      border: "border-violet-500/30",
+      glow: "group-hover:shadow-[0_0_30px_10px_rgba(139,92,246,0.2)]",
+      accent: "text-violet-400",
+      accentBg: "bg-violet-500/20",
+      skillBg: "bg-violet-950/50 border-violet-700/40",
+      skillText: "text-violet-300",
     };
-  };
-
-  const getStatusBadge = () => {
-    const statusConfig = {
-      mock_pending: {
-        icon: <Clock className="w-4 h-4" />,
-        bg: "bg-amber-500/20",
-        border: "border-amber-400/40",
-        text: "text-amber-200",
-        dot: "bg-amber-400",
-      },
-      mock_started: {
-        icon: <Play className="w-4 h-4" />,
-        bg: "bg-blue-500/20",
-        border: "border-blue-400/40",
-        text: "text-blue-200",
-        dot: "bg-blue-400",
-      },
-      mock_completed: {
-        icon: <CheckCircle className="w-4 h-4" />,
-        bg: "bg-emerald-500/20",
-        border: "border-emerald-400/40",
-        text: "text-emerald-200",
-        dot: "bg-emerald-400",
-      },
-      mock_failed: {
-        icon: <XCircle className="w-4 h-4" />,
-        bg: "bg-red-500/20",
-        border: "border-red-400/40",
-        text: "text-red-200",
-        dot: "bg-red-400",
-      },
-      shortlisted: {
-        icon: <CheckCircle className="w-4 h-4" />,
-        bg: "bg-purple-500/20",
-        border: "border-purple-400/40",
-        text: "text-purple-200",
-        dot: "bg-purple-400",
-      },
-      final_scheduled: {
-        icon: <AlertCircle className="w-4 h-4" />,
-        bg: "bg-cyan-500/20",
-        border: "border-cyan-400/40",
-        text: "text-cyan-200",
-        dot: "bg-cyan-400",
-      },
-    };
-
-    const config =
-      statusConfig[job.mockStatus as keyof typeof statusConfig] ||
-      statusConfig.mock_pending;
-
-    return (
-      <div
-        className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border backdrop-blur-sm ${config.bg} ${config.border} ${config.text}`}
-      >
-        <div
-          className={`w-2 h-2 rounded-full mr-3 ${config.dot} animate-pulse`}
-        ></div>
-        {config.icon}
-        <span className="ml-2 font-semibold">
-          {formatStatus(job.mockStatus)}
-        </span>
-      </div>
-    );
-  };
+  })();
 
   const getActionButton = () => {
-    if (job.mockStatus === "mock_pending") {
-      return (
-        <button
-          onClick={() => onStartMock(job)}
-          className="group relative bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-violet-500/30 hover:scale-105 active:scale-95"
-        >
-          <div className="flex items-center space-x-2">
-            <Play className="w-4 h-4 group-hover:animate-pulse" />
-            <span>Start Mock Interview</span>
-          </div>
-          <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </button>
-      );
-    }
+  if (job.mockStatus === "mock_pending") {
+  const deadline = new Date(job.mockInterviewDeadline as string);
 
-    if (job.mockStatus === "mock_started") {
+  if (deadline < new Date()) {
+    // Deadline passed → show disabled "Interview Failed" button
+    return (
+      <button
+        className="bg-gradient-to-r from-red-900/60 to-red-800/60 text-red-300 px-8 py-3.5 rounded-2xl cursor-not-allowed font-semibold flex items-center space-x-3 opacity-70 border border-red-600/30"
+        disabled
+      >
+        <Ban className="w-4 h-4" />
+        <span>Interview Failed</span>
+      </button>
+    );
+  } else {
+    // Deadline not passed → show "Start Interview" button
+    return (
+      <button
+        onClick={() => onStartMock(job)}
+        className="group relative bg-gradient-to-r from-violet-600 via-purple-600 to-violet-700 text-white px-8 py-3.5 rounded-2xl hover:from-violet-500 hover:via-purple-500 hover:to-violet-600 transition-all duration-300 font-semibold shadow-2xl hover:shadow-violet-500/40 hover:scale-105 active:scale-95 border border-violet-400/20"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="p-1 bg-white/10 rounded-full">
+            <Play
+              className="w-4 h-4 group-hover:animate-pulse"
+              fill="currentColor"
+            />
+          </div>
+          <span>Start Interview</span>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-400/0 via-violet-400/10 to-violet-400/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+      </button>
+    );
+  }
+}
+
+
+    if (job.mockStatus === "mock_started")
       return (
-        <button className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-3 rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-emerald-500/30 flex items-center space-x-2 min-w-[140px] justify-center">
+        <button className="bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-700 text-white px-8 py-3.5 rounded-2xl flex items-center space-x-3 min-w-[180px] justify-center shadow-2xl hover:shadow-emerald-500/30 transition-all duration-300 border border-emerald-400/30">
           {isMockQuestionsLoading ? (
             <RiseLoader color="#ffffff" size={8} />
           ) : (
             <>
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-              <span>In Progress</span>
+              <div className="flex space-x-1">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse animation-delay-100"></div>
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse animation-delay-200"></div>
+              </div>
+              <span className="font-semibold">In Progress</span>
             </>
           )}
         </button>
       );
-    }
 
-    if (job.mockStatus === "mock_completed") {
+    if (job.mockStatus === "mock_completed")
       return (
-        <button className="group relative bg-gradient-to-r from-slate-700 to-slate-800 text-white px-6 py-3 rounded-xl hover:from-slate-800 hover:to-slate-900 transition-all duration-300 font-semibold shadow-lg hover:shadow-slate-500/30 hover:scale-105 active:scale-95">
-          <div className="flex items-center space-x-2">
-            <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
+        <button className="group relative bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white px-8 py-3.5 rounded-2xl hover:from-slate-700 hover:via-slate-600 hover:to-slate-700 transition-all duration-300 font-semibold shadow-2xl hover:shadow-slate-500/30 hover:scale-105 border border-slate-400/20">
+          <div className="flex items-center space-x-3">
+            <div className="p-1 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors">
+              <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </div>
             <span>View Results</span>
           </div>
         </button>
       );
-    }
 
-    if (job.mockStatus === "mock_failed") {
+    if (job.mockStatus === "mock_failed")
       return (
         <button
-          className="bg-gradient-to-r from-red-600/50 to-red-700/50 text-red-200 px-6 py-3 rounded-xl cursor-not-allowed font-semibold flex items-center space-x-2 opacity-70"
+          className="bg-gradient-to-r from-red-900/60 to-red-800/60 text-red-300 px-8 py-3.5 rounded-2xl cursor-not-allowed font-semibold flex items-center space-x-3 opacity-70 border border-red-600/30"
           disabled
         >
           <Ban className="w-4 h-4" />
           <span>Interview Failed</span>
         </button>
       );
-    }
-
-    if (["shortlisted", "final_scheduled"].includes(job.mockStatus)) {
-      return (
-        <button className="group relative bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
-          <div className="flex items-center space-x-2">
-            <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            <span>View Details</span>
-          </div>
-        </button>
-      );
-    }
 
     return null;
   };
 
-  const cardVariant = getCardVariant();
-
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl transition-all duration-500 hover:scale-[1.02] ${cardVariant.hoverShadow}`}
+      className={`group relative overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] ${cardVariant.glow}`}
     >
-      {/* Background gradient */}
+      {/* Animated Background */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${cardVariant.gradient} opacity-80`}
+        className={`absolute inset-0 bg-gradient-to-br ${cardVariant.gradient} opacity-90`}
+      ></div>
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+
+      {/* Subtle Pattern Overlay */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)`,
+          backgroundSize: "24px 24px",
+        }}
       ></div>
 
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
-
-      {/* Border */}
+      {/* Card Content */}
       <div
-        className={`relative border ${cardVariant.border} ${cardVariant.hoverBorder} rounded-2xl transition-all duration-300`}
+        className={`relative border ${cardVariant.border} rounded-3xl transition-all duration-300 backdrop-blur-sm`}
       >
-        <div className="relative p-8">
+        <div className="relative p-8 space-y-6 z-10">
           {/* Header Section */}
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex-1 pr-4">
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-white/90 transition-colors">
-                {job.jobTitle}
-              </h3>
-              <div className="flex items-center text-gray-300 mb-4">
-                <div className="p-2 bg-white/10 rounded-lg mr-3">
-                  <Building className="w-5 h-5" />
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-4">
+              <div
+                className={`${cardVariant.accentBg} p-4 rounded-2xl border ${cardVariant.border} backdrop-blur-sm`}
+              >
+                <Briefcase className={`${cardVariant.accent}`} size={28} />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white leading-tight">
+                  {job.job.position}
+                </h2>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Star className="w-4 h-4 text-yellow-400" />
+                    <span className="font-medium">
+                      {job.job.experienceRequired}+ years
+                    </span>
+                  </div>
+                  {job.isQualifiedForFinal && (
+                    <div className="flex items-center gap-2 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                      <span className="text-emerald-400 text-xs font-semibold">
+                        QUALIFIED
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <span className="text-lg font-medium">{job.name}</span>
               </div>
-              {getStatusBadge()}
             </div>
-
-            {!job.isQualifiedForFinal && (
-              <div className="text-right bg-white/5 rounded-xl p-4 backdrop-blur-sm">
-                <Timer deadline={job.mockInterviewDeadline as string} />
-              </div>
-            )}
           </div>
 
-          {/* Footer Section */}
-          <div className="flex justify-between items-center pt-6 border-t border-white/10">
-            <div className="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
-              <span className="text-sm font-semibold text-gray-300">
-                ID: <span className="text-white font-mono">{job.jobId}</span>
-              </span>
+          {/* Skills Section */}
+          {(job.job.requiredSkills || []).length > 0 && (
+            <div className="space-y-3">
+              <h4
+                className={`text-sm font-bold flex items-center gap-2 ${cardVariant.accent}`}
+              >
+                <Tag size={16} />
+                Required Skills
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {job.job.requiredSkills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className={`${cardVariant.skillBg} border ${cardVariant.skillText} px-4 py-2 rounded-xl text-sm font-medium hover:scale-105 transition-all duration-200 backdrop-blur-sm hover:shadow-lg`}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="flex space-x-4">{getActionButton()}</div>
+          {/* Action Section */}
+          <div className="pt-4 border-t border-white/10">
+            {!job.isQualifiedForFinal ? (
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  {job.mockStatus === "mock_pending" && (
+                    <>
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                    <Timer deadline={job.mockInterviewDeadline as string} />
+                    </>
+                  )}
+                </div>
+                {getActionButton()}
+              </div>
+            ) : (
+              <div className="flex justify-end">{getActionButton()}</div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Hover effect overlay */}
-      <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"></div>
+      {/* Hover Effect Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none"></div>
     </div>
   );
 };

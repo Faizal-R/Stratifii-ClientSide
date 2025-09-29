@@ -95,7 +95,7 @@ const CandidateInterviewsPage = () => {
     if (selectedJob) {
       setDelegatedJobs((prev) =>
         prev.map((job) =>
-          job.jobId === selectedJob.jobId
+          job.job._id === selectedJob.job._id
             ? { ...job, mockStatus: "mock_started" }
             : job
         )
@@ -136,7 +136,7 @@ const CandidateInterviewsPage = () => {
   const stats = getTabStats();
 
   return isMockInitiated ? (
-    <div className="ml-64">
+    <div className="custom-64">
       <MockInterview
         onBackToDashboard={() => router.push("/candidate/dashboard")}
         questions={mockQuestions}
@@ -145,7 +145,7 @@ const CandidateInterviewsPage = () => {
       />
     </div>
   ) : (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className=" min-h-screen bg-gradient-to-br from-black via-black to-violet-950 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-20 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl"></div>
@@ -158,7 +158,7 @@ const CandidateInterviewsPage = () => {
           {/* Header */}
           <div className="mb-12">
             <div className="flex items-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 border border-violet-950 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-xl flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -289,11 +289,10 @@ const CandidateInterviewsPage = () => {
                 ) : (
                   mockInterviews.map((job) => (
                     <JobCard
-                      key={job.jobId}
+                      key={job.job._id}
                       job={job}
                       onStartMock={handleStartMock}
-                      getStatusColor={getStatusColor}
-                      getStatusIcon={getStatusIcon}
+                     
                       formatStatus={formatStatus}
                       isMockQuestionsLoading={mockQuestionsLoding}
                     />
@@ -338,10 +337,10 @@ const CandidateInterviewsPage = () => {
                       />
                     ))}
 
-                    {/* Scheduled from delegated jobs (temporary until API is ready) */}
-                    {scheduledInterviews.map((job) => (
+                   
+                    {/* {scheduledInterviews.map((job) => (
                       <div
-                        key={job.jobId}
+                        key={job.job._id}
                         className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300"
                       >
                         <div className="flex items-center justify-between">
@@ -351,7 +350,7 @@ const CandidateInterviewsPage = () => {
                             </div>
                             <div>
                               <h3 className="text-lg font-semibold text-white">
-                                {job.jobTitle}
+                                {job.job.position}
                               </h3>
                               <p className="text-gray-300 text-sm">
                                 {"Company Name"}
@@ -378,7 +377,7 @@ const CandidateInterviewsPage = () => {
                           </button>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 )}
               </div>

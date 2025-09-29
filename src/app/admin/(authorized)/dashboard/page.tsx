@@ -312,7 +312,7 @@ const subscriptionData = {
   }, []);
 
   return (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
+    <div className="custom-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4 animate-in fade-in duration-1000">

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, Video, User, Building, Timer, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Calendar, Clock, Video, User, Building, Timer, X } from "lucide-react";
 
 export interface IInterview {
   _id: string;
@@ -28,33 +28,47 @@ interface InterviewCardProps {
   onJoinMeeting: (interview: IInterview) => void;
 }
 
-const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting }) => {
+const InterviewCard: React.FC<InterviewCardProps> = ({
+  interview,
+  onJoinMeeting,
+}) => {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat('en-US', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     }).format(new Date(date));
 
   const formatTime = (date: Date) =>
-    new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: true
+    new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     }).format(new Date(date));
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'booked': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-      case 'completed': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'cancelled': return 'bg-red-500/20 text-red-300 border-red-500/30';
-      case 'rescheduled': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-      case 'no_show': return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      case "booked":
+        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+      case "completed":
+        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+      case "cancelled":
+        return "bg-red-500/20 text-red-300 border-red-500/30";
+      case "rescheduled":
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+      case "no_show":
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
 
   const isUpcoming = () => {
     const now = new Date();
-    return new Date(interview.startTime) > now && interview.status === 'booked';
+    return new Date(interview.startTime) > now && interview.status === "booked";
   };
 
   const canJoinNow = () => {
@@ -62,7 +76,11 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
     const startTime = new Date(interview.startTime);
     const endTime = new Date(interview.endTime);
     const joinWindow = 10 * 60 * 1000;
-    return now >= new Date(startTime.getTime() - joinWindow) && now <= endTime && interview.status === 'booked';
+    return (
+      now >= new Date(startTime.getTime() - joinWindow) &&
+      now <= endTime &&
+      interview.status === "booked"
+    );
   };
 
   return (
@@ -76,13 +94,23 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
               <Building className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white mb-1">{interview.job.title}</h3>
+              <h3 className="text-lg font-semibold text-white mb-1">
+                {interview.job.title}
+              </h3>
               <p className="text-gray-300 text-sm">{interview.bookedBy.name}</p>
-              {interview.job.department && <p className="text-gray-400 text-xs mt-1">{interview.job.department}</p>}
+              {interview.job.department && (
+                <p className="text-gray-400 text-xs mt-1">
+                  {interview.job.department}
+                </p>
+              )}
             </div>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(interview.status)}`}>
-            {interview.status.replace('_', ' ').toUpperCase()}
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+              interview.status
+            )}`}
+          >
+            {interview.status.replace("_", " ").toUpperCase()}
           </span>
         </div>
 
@@ -91,21 +119,30 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
           <div className="flex items-center space-x-3">
             <Calendar className="w-5 h-5 text-violet-400" />
             <div>
-              <p className="text-white font-medium text-sm">{formatDate(interview.startTime)}</p>
+              <p className="text-white font-medium text-sm">
+                {formatDate(interview.startTime)}
+              </p>
               <p className="text-gray-400 text-xs">Interview Date</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <Clock className="w-5 h-5 text-emerald-400" />
             <div>
-              <p className="text-white font-medium text-sm">{formatTime(interview.startTime)} - {formatTime(interview.endTime)}</p>
-              <p className="text-gray-400 text-xs">{interview.duration} minutes</p>
+              <p className="text-white font-medium text-sm">
+                {formatTime(interview.startTime)} -{" "}
+                {formatTime(interview.endTime)}
+              </p>
+              <p className="text-gray-400 text-xs">
+                {interview.duration} minutes
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <User className="w-5 h-5 text-blue-400" />
             <div>
-              <p className="text-white font-medium text-sm">{interview.interviewer.name}</p>
+              <p className="text-white font-medium text-sm">
+                {interview.interviewer.name}
+              </p>
               <p className="text-gray-400 text-xs">Interviewer</p>
             </div>
           </div>
@@ -115,31 +152,41 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
         <div className="flex items-center justify-between pt-4 border-t border-white/10">
           <div className="flex items-center space-x-2">
             <Timer className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-400 text-sm">{interview.bufferDuration && `${interview.bufferDuration}min buffer`}</span>
+            <span className="text-gray-400 text-sm">
+              {interview.bufferDuration &&
+                `${interview.bufferDuration}min buffer`}
+            </span>
           </div>
 
           <div className="flex space-x-2">
-            
-              
-            {
-              true?(
-            
-            //  {canJoinNow() ? (
-              <button onClick={() => onJoinMeeting(interview)} className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-emerald-500/25">
-                <Video className="w-4 h-4" /><span>Join Now</span>
+            {canJoinNow() ? (
+              // true ?(
+              <button
+                onClick={() => onJoinMeeting(interview)}
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-emerald-500/25"
+              >
+                <Video className="w-4 h-4" />
+                <span>Join Now</span>
               </button>
             ) : isUpcoming() ? (
-              <button disabled className="px-6 py-2 bg-gray-600/50 text-gray-400 rounded-lg font-medium cursor-not-allowed flex items-center space-x-2">
-                <Clock className="w-4 h-4" /><span>Upcoming</span>
+              <button
+                disabled
+                className="px-6 py-2 bg-gray-600/50 text-gray-400 rounded-lg font-medium cursor-not-allowed flex items-center space-x-2"
+              >
+                <Clock className="w-4 h-4" />
+                <span>Upcoming</span>
               </button>
             ) : (
-              <button disabled className="px-6 py-2 bg-gray-600/50 text-gray-400 rounded-lg font-medium cursor-not-allowed">
-                {interview.status === 'completed' ? 'Completed' : 'Unavailable'}
+              <button
+                disabled
+                className="px-6 py-2 bg-gray-600/50 text-gray-400 rounded-lg font-medium cursor-not-allowed"
+              >
+                {interview.status === "completed" ? "Completed" : "Unavailable"}
               </button>
             )}
 
             {/* New "View Result" Button */}
-            {interview.status === 'completed' && interview.feedback && (
+            {interview.status === "completed" && interview.feedback && (
               <button
                 onClick={() => setShowFeedback(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200"
@@ -170,16 +217,26 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interview, onJoinMeeting 
             </div>
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-emerald-400">Strengths</h3>
-                <p className="text-gray-300 mt-1">{interview.feedback?.strengths}</p>
+                <h3 className="text-lg font-medium text-emerald-400">
+                  Strengths
+                </h3>
+                <p className="text-gray-300 mt-1">
+                  {interview.feedback?.strengths}
+                </p>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-yellow-400">Areas for Improvement</h3>
-                <p className="text-gray-300 mt-1">{interview.feedback?.areasForImprovement}</p>
+                <h3 className="text-lg font-medium text-yellow-400">
+                  Areas for Improvement
+                </h3>
+                <p className="text-gray-300 mt-1">
+                  {interview.feedback?.areasForImprovement}
+                </p>
               </div>
               <div>
                 <h3 className="text-lg font-medium text-blue-400">Comments</h3>
-                <p className="text-gray-300 mt-1">{interview.feedback?.comments}</p>
+                <p className="text-gray-300 mt-1">
+                  {interview.feedback?.comments}
+                </p>
               </div>
             </div>
           </div>

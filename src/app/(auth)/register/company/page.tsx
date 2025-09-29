@@ -331,7 +331,7 @@ function CompanyRegistrationPage() {
                   />
                 </div>
 
-                <div className="flex items-center mb-4">
+                {/* <div className="flex items-center mb-4">
                   <input
                     id="terms"
                     type="checkbox"
@@ -357,7 +357,7 @@ function CompanyRegistrationPage() {
                       Privacy Policy
                     </a>
                   </label>
-                </div>
+                </div> */}
 
                 <div className="flex space-x-3">
                   <button

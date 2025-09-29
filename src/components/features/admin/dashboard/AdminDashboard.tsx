@@ -90,7 +90,7 @@ const recentTransactions = [
   const totalSubscriptions = subscriptionDistribution.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
+    <div className="custom-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}

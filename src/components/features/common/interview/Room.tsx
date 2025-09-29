@@ -7,8 +7,8 @@ import React, {
   useState,
 } from "react";
 import SimplePeer from "simple-peer";
-import { VideoPlayer } from "./VideoPlayer";
-import { VideoControls } from "./VideoControls";
+import  VideoPlayer  from "./VideoPlayer";
+import  VideoControls from "./VideoControls";
 import { ChatPanel } from "./ChatPanel";
 import { Copy, Users, Clock } from "lucide-react";
 import { IMessage, Note } from "@/types/IInterviewRoom";
@@ -21,8 +21,9 @@ import { Socket } from "socket.io-client";
 
 import { useUpdateInterviewWithFeedback } from "@/hooks/api/useInterview";
 import { IInterviewFeedback } from "@/types/IInterview";
-import { toast } from "sonner";
+
 import { successToast } from "@/utils/customToast";
+import CompilerPanel from "./CompilerPanel";
 
 interface RoomPageProps {
   room: string;
@@ -48,6 +49,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [showSlotEndWarning, setShowSlotEndWarning] = useState(false);
+  const [isCompilerOpen, setIsCompilerOpen] = useState(false);
   const [showIsEndCallModal, setShowIsEndCallModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showRemoteScreen, setShowRemoteScreen] = useState(false);
@@ -324,38 +326,8 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
           isChatOpen ? "mr-96" : ""
         }`}
       >
-        <div className="h-full p-4 pt-16">
-          {showRemoteScreen ? (
-            // Screen sharing layout: Main screen + sidebar with videos
-            <div className="h-full flex gap-4">
-              {/* Main screen share area */}
-              <div className="flex-1 relative">
-                <VideoPlayer
-                  videoRef={remoteScreenRef as RefObject<HTMLVideoElement>}
-                  label="Screen Share"
-                  className="h-full w-full"
-                />
-              </div>
-              
-              {/* Right sidebar with video feeds */}
-              <div className="w-64 flex flex-col gap-4">
-                <VideoPlayer
-                  videoRef={remoteVideoRef as RefObject<HTMLVideoElement>}
-                  label="Remote"
-                  className="h-1/2 w-full rounded-lg"
-                />
-                <VideoPlayer
-                  videoRef={localVideoRef as RefObject<HTMLVideoElement>}
-                  isLocal={true}
-                  label="You"
-                  isAudioEnabled={isAudioEnabled}
-                  isVideoEnabled={isVideoEnabled}
-                  className="h-1/2 w-full rounded-lg"
-                />
-              </div>
-            </div>
-          ) : (
-            // Normal video call layout: Main remote + small local overlay
+        <div className="h-full  py-10 px-20  rounded-xl">
+   
             <div className="h-full relative">
               {/* Main remote video */}
               <VideoPlayer
@@ -376,7 +348,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
                 />
               </div>
             </div>
-          )}
+          
           
           {!isConnected && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
@@ -400,10 +372,16 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
         isChatOpen={isChatOpen}
         onStartScreenShare={handleScreenShare}
-        onToggleCompiler={() => {}}
-        isCompilerOpen={false}
+         onToggleCompiler={() => setIsCompilerOpen((prev) => !prev)} 
+        isCompilerOpen={isCompilerOpen}
         onStopScreenShare={() => {}}
         isScreenSharing={isScreenSharing}
+      />
+
+       <CompilerPanel
+        isOpen={isCompilerOpen}
+        onClose={() => setIsCompilerOpen(false)}
+        roomId={room}
       />
 
       {isChatOpen && (

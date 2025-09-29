@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/Buttons/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Crown,
   Calendar,
@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import useSubscriptionStore from "@/features/company/subscriberStore";
 import { useRouter } from "next/navigation";
+import { dashboardData } from "@/constants/dummyData";
+import SubscriptionPlanDetailsCard from "@/components/reusable/cards/subscription-card/SubscriptionPlanDetailsCard";
 export function SubscriptionManagement() {
   const { subscription } = useSubscriptionStore();
   const router = useRouter();
@@ -72,104 +74,7 @@ export function SubscriptionManagement() {
       style={{ animationDelay: "0.8s" }}
     >
       {/* Current Plan Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 bg-black/40 backdrop-blur-md border-violet-500/30 hover:border-yellow-400/50 transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Crown className="h-5 w-5 text-yellow-400" />
-              Current Plan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-2xl font-bold text-white">
-                  {subscription?.planDetails.name}
-                </h3>
-                <p className="text-gray-400">
-                  ${subscription?.planDetails.price}/monthly
-                </p>
-              </div>
-              <Badge
-                variant="default"
-                className="bg-green-900/50 text-green-200 border-green-500/30"
-              >
-                {currentPlan.status}
-              </Badge>
-            </div>
-
-            <div className="space-y-3">
-              {Object.entries(subscription?.planDetails.features ?? {}).map(
-                (feature, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 text-gray-300"
-                    style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-                  >
-                    <Shield className="h-4 w-4 text-green-400" />
-                    {feature}
-                  </div>
-                )
-              )}
-            </div>
-
-            <div
-              className="flex gap-3 mt-6"
-              onClick={() => router.push("/company/subscription")}
-            >
-              <Button
-                variant="outline"
-                className="bg-violet-900/50 border-violet-500/50 text-violet-200 hover:bg-violet-800/50"
-              >
-                Upgrade Plan
-                <ArrowUpRight className="h-4 w-4 ml-2" />
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-gray-400 hover:text-white"
-              >
-                View All Plans
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/40 backdrop-blur-md border-violet-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Calendar className="h-5 w-5 text-violet-400" />
-              Next Billing
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-2">
-                {currentPlan.nextBillingDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </div>
-              <p className="text-gray-400 mb-4">
-                {currentPlan.nextBillingDate.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <div className="text-xl font-semibold text-green-400 mb-4">
-                ${currentPlan.price}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full bg-gray-800/50 border-gray-600 text-gray-300 hover:bg-gray-700/50"
-              >
-                Update Payment Method
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SubscriptionPlanDetailsCard subscription={subscription!} />
 
       {/* Usage Statistics */}
       <Card className="bg-black/40 backdrop-blur-md border-violet-500/30">

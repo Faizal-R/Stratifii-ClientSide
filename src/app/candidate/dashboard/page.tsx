@@ -22,7 +22,7 @@ const CandidateDashboard: React.FC = () => {
   };
 
   return (
-    <div className='ml-64 bg-gradient-to-br from-black via-black to-violet-950'>
+    <div className='custom-64 bg-gradient-to-br from-black via-black to-violet-950'>
 
       <GuidanceSection/>
     </div>

@@ -1,7 +1,7 @@
 "use client"; // 👈 Add this at the top!
 
 import Sidebar from "@/components/layout/Sidebar";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   Calendar,
   CalendarSearchIcon,
@@ -13,59 +13,22 @@ import {
   Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/features/auth/authStore";
+import { AuthUser, useAuthStore } from "@/features/auth/authStore";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useSignoutUser } from "@/hooks/api/useAuth";
-import { toast } from "sonner";
 import { errorToast, successToast } from "@/utils/customToast";
 
-const navItems = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    route: "/company/dashboard",
-  },
-  {
-    id: "profile",
-    label: "Profile",
-    icon: UserCircle,
-    route: "/company/profile",
-  },
-  {
-    id: "delegation",
-    label: "Interview Delegation",
-    icon: Calendar,
-    route: "/company/interview-delegation",
-  },
-  {
-    id: "schedule-interview",
-    label: "Schedule Interviews",
-    icon: CalendarSearchIcon,
-    route: "/company/schedule-interview",
-  },
-  {
-    id: "subscription",
-    label: "Subscription",
-    icon: CreditCard,
-    route: "/company/subscription",
-  },
-  {
-    id: "payments",
-    label: "Payments",
-    icon: Receipt,
-    route: "/company/payments",
-  },
-  { id: "wallet", label: "Wallet", icon: Wallet, route: "/company/wallet" },
-];
+import { getCompanySidebarRoutes } from "@/constants/routes/sidebar/CompanySidebarRotues";
+import { useSidebarCollapseStore } from "@/features/sidebar/sidebarCollapseStore";
+
 
 function CompanyLayout({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-
+  const { isSidebarCollapsed } = useSidebarCollapseStore();
   const { logout } = useAuthStore();
   const { signoutUser } = useSignoutUser();
-
+  const { user } = useAuthStore();
   function handleModalState(state: boolean) {
     setIsModalOpen(state);
   }
@@ -74,12 +37,15 @@ function CompanyLayout({ children }: { children: ReactNode }) {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-     errorToast(response.message);
+      errorToast(response.message);
     }
     logout();
     successToast(response.message);
     router.push("/signin");
   }
+  if (!user) return null; 
+
+  const navItems = getCompanySidebarRoutes(user.status === "approved");
 
   return (
     <>
@@ -96,7 +62,12 @@ function CompanyLayout({ children }: { children: ReactNode }) {
         isModalOpen={isModalOpen}
         handleModalState={handleModalState}
       />
-      {children}
+      <div
+        className="transition-all duration-300"
+        style={{ marginLeft: isSidebarCollapsed ? 80 : 256 }}
+      >
+        {children}
+      </div>
     </>
   );
 }

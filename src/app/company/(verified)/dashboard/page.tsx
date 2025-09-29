@@ -11,7 +11,7 @@ import { IJob, IPaymentTransaction } from "@/types/IJob";
 import { IDelegatedCandidate } from "@/types/ICandidate";
 import { useAuthStore } from "@/features/auth/authStore";
 
-function App() {
+const  CompanyDashboard=()=> {
     const {user}=useAuthStore();
   const [dashboardData, setDashboardData] = useState<{
     jobs: IJob[];
@@ -60,7 +60,7 @@ function App() {
   };
 
   return (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
+    <div className=" min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
       {/* Header */}
       <div className="ml-5 border-b border-violet-500/20 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -149,4 +149,4 @@ function App() {
   );
 }
 
-export default App;
+export default CompanyDashboard;

@@ -35,6 +35,7 @@ import useSubscriptionStore from "@/features/company/subscriberStore";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/config/firebase";
 import { errorToast, successToast } from "@/utils/customToast";
+import { useSocketStore } from "@/features/socket/Socket";
 
 const roles = [
   {
@@ -58,6 +59,7 @@ const roles = [
 ];
 
 function App() {
+  const {socket}=useSocketStore()
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("candidate");
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
@@ -101,18 +103,19 @@ function App() {
     }
     
     successToast(response.message);
-    const { email, _id: id, name } = response.data.user;
+    const { email, _id: id, name,status } = response.data.user;
     console.log(response.data.user);
 
     if (selectedRole === Roles.COMPANY) {
       setSubscription(response.data.subscription);
     }
-
+   socket.emit("user:loggedIn",id)
     setUser({
       email,
       id,
       role: selectedRole as Roles,
       name,
+      status
     });
   };
   const handleModalConfirm = () => {
@@ -167,6 +170,7 @@ function App() {
         id: authUser._id,
         role: Roles.INTERVIEWER,
         name: authUser.name,
+        status:authUser.status
       });
       router.push(`${Roles.INTERVIEWER}/profile`);
     }else{

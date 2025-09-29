@@ -141,8 +141,11 @@ const statusConfig = {
 };
 import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminPayoutColumns } from "@/constants/table-columns/payoutColumns";
-import { useGetAllInterviewersPayoutRequest } from "@/hooks/api/usePayout";
-import { errorToast } from "@/utils/customToast";
+import {
+  useUpdateStatusOfInterviewerPayoutRequest,
+  useGetAllInterviewersPayoutRequest,
+} from "@/hooks/api/usePayout";
+import { errorToast, successToast } from "@/utils/customToast";
 function StatusBadge({ status }: { status: PayoutStatus }) {
   const config = statusConfig[status];
   const Icon = config.icon;
@@ -160,7 +163,7 @@ function StatusBadge({ status }: { status: PayoutStatus }) {
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
   }).format(amount);
 }
 
@@ -175,13 +178,15 @@ function formatDate(dateString: string) {
 }
 
 function AdminPayouts() {
-  const [payoutRequests, setPayoutRequests] =
-    useState<PayoutRequest[]>([]);
+  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<PayoutStatus | "all">("all");
   const [selectedRequest, setSelectedRequest] = useState<PayoutRequest | null>(
     null
   );
+
+  const { updateInterviewerPayoutRequestStatus } =
+    useUpdateStatusOfInterviewerPayoutRequest();
   const { getAllInterviewersPayoutRequest, loading } =
     useGetAllInterviewersPayoutRequest();
 
@@ -198,24 +203,35 @@ function AdminPayouts() {
     });
   }, [payoutRequests, searchTerm, statusFilter]);
 
-//   const stats = useMemo(() => {
-//     const totalRequests = payoutRequests.length;
-//     const totalAmount = payoutRequests.reduce(
-//       (sum, req) => sum + req.amount,
-//       0
-//     );
-//     const pendingRequests = payoutRequests.filter(
-//       (req) => req.status === "pending"
-//     ).length;
-//     const completedAmount = payoutRequests
-//       .filter((req) => req.status === "completed")
-//       .reduce((sum, req) => sum + req.amount, 0);
+  //   const stats = useMemo(() => {
+  //     const totalRequests = payoutRequests.length;
+  //     const totalAmount = payoutRequests.reduce(
+  //       (sum, req) => sum + req.amount,
+  //       0
+  //     );
+  //     const pendingRequests = payoutRequests.filter(
+  //       (req) => req.status === "pending"
+  //     ).length;
+  //     const completedAmount = payoutRequests
+  //       .filter((req) => req.status === "completed")
+  //       .reduce((sum, req) => sum + req.amount, 0);
 
-//     return { totalRequests, totalAmount, pendingRequests, completedAmount };
-//   }, [payoutRequests]);
+  //     return { totalRequests, totalAmount, pendingRequests, completedAmount };
+  //   }, [payoutRequests]);
 
-  const handleStatusUpdate = (requestId: string, newStatus: PayoutStatus) => {
-
+  const handleStatusUpdate = async (
+    requestId: string,
+    newStatus: PayoutStatus
+  ) => {
+    const res = await updateInterviewerPayoutRequestStatus(
+      requestId,
+      newStatus
+    );
+    if (!res.success) {
+      errorToast(res.message);
+      return;
+    }
+    successToast(res.message);
 
     setPayoutRequests((prev) =>
       prev.map((req) =>
@@ -256,7 +272,7 @@ function AdminPayouts() {
   }, []);
 
   return (
-    <div className="min-h-screen ml-64 bg-gradient-to-br from-black via-black to-violet-950">
+    <div className="min-h-screen custom-64 bg-gradient-to-br from-black via-black to-violet-950">
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">

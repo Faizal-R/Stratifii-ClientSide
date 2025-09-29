@@ -186,7 +186,7 @@ function WalletPage() {
   }, []);
 
   return (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white">
+    <div className="custom-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 text-white">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">

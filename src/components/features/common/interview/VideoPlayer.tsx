@@ -1,107 +1,93 @@
-import React from 'react';
-import { Mic, MicOff, VideoOff, User } from 'lucide-react';
+import React, { RefObject } from 'react';
+import { Mic, MicOff, Video, VideoOff, User } from 'lucide-react';
 
 interface VideoPlayerProps {
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef?: RefObject<HTMLVideoElement>;
+  label?: string;
   isLocal?: boolean;
-  isRemote?: boolean;
-  label: string;
   isAudioEnabled?: boolean;
   isVideoEnabled?: boolean;
   className?: string;
-  variant?: 'primary' | 'secondary';
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({
+const VideoPlayer: React.FC<VideoPlayerProps> = ({
   videoRef,
-  isLocal = false,
-  isRemote = false,
   label,
+  isLocal = false,
   isAudioEnabled = true,
   isVideoEnabled = true,
   className = "",
-  variant = 'primary'
 }) => {
-  const isPrimary = variant === 'primary';
-
   return (
-    <div className={`relative group ${className}`}>
-      <div className={`relative overflow-hidden bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm w-full h-full ${
-        isPrimary 
-          ? 'rounded-2xl border-2 border-white/10 shadow-2xl' 
-          : 'rounded-xl border border-white/20 shadow-xl'
-      }`}>
-        <video
-          ref={videoRef}
-          autoPlay
-          muted={isLocal}
-          playsInline
-          className={`w-full h-full object-cover ${!isVideoEnabled ? 'hidden' : ''} ${
-            isPrimary ? 'rounded-2xl' : 'rounded-xl'
-          }`}
-        />
-        
-        {/* Video disabled overlay */}
-        {!isVideoEnabled && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative">
-              <div className={`bg-gradient-to-br from-purple-600 to-violet-700 rounded-full flex items-center justify-center shadow-2xl ${
-                isPrimary ? 'w-32 h-32' : 'w-16 h-16'
-              }`}>
-                <User className={`text-white ${isPrimary ? 'w-16 h-16' : 'w-8 h-8'}`} />
-              </div>
-              <div className={`absolute inset-0 bg-gradient-to-br from-purple-600 to-violet-700 rounded-full opacity-20 animate-pulse`}></div>
+    <div className={`relative bg-gray-900 rounded-xl overflow-hidden ${className}`}>
+      {/* Video Element */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted={isLocal}
+        className={`w-full h-full object-cover ${!isVideoEnabled ? 'invisible' : ''}`}
+      />
+
+      {/* Video Disabled Overlay */}
+      {!isVideoEnabled && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-3 bg-gray-700 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-gray-400" />
             </div>
-          </div>
-        )}
-        
-        {/* Gradient overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 rounded-xl"></div>
-        
-        {/* Video label and status */}
-        <div className={`absolute bottom-0 left-0 right-0 p-3 ${isPrimary ? 'p-4' : 'p-2'}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className={`bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-white flex items-center space-x-2 border border-white/20 ${
-                isPrimary ? 'text-sm' : 'text-xs'
-              }`}>
-                {!isAudioEnabled && <MicOff className={`text-red-400 ${isPrimary ? 'w-4 h-4' : 'w-3 h-3'}`} />}
-                <span className="font-medium">{label}</span>
-              </div>
-            </div>
-            
-            {/* Connection quality indicator */}
-            <div className="flex items-center space-x-1">
-              <div className="w-1 h-3 bg-green-500 rounded-full opacity-80"></div>
-              <div className="w-1 h-4 bg-green-500 rounded-full opacity-60"></div>
-              <div className="w-1 h-2 bg-green-500 rounded-full opacity-40"></div>
-            </div>
+            <p className="text-gray-300 text-sm font-medium">{label}</p>
           </div>
         </div>
+      )}
 
-        {/* Video off indicator */}
-        {!isVideoEnabled && (
-          <div className={`absolute top-3 right-3 ${isPrimary ? 'top-4 right-4' : ''}`}>
-            <div className="bg-red-600/90 backdrop-blur-sm p-2 rounded-full border border-red-400/30 shadow-lg">
-              <VideoOff className={`text-white ${isPrimary ? 'w-5 h-5' : 'w-3 h-3'}`} />
-            </div>
-          </div>
-        )}
+      {/* Status Indicators */}
+      <div className="absolute top-3 left-3 flex space-x-2">
+        {/* Audio Status */}
+        <div className={`p-2 rounded-lg backdrop-blur-sm ${
+          isAudioEnabled 
+            ? 'bg-green-600/70 border border-green-500/50' 
+            : 'bg-red-600/70 border border-red-500/50'
+        }`}>
+          {isAudioEnabled ? (
+            <Mic className="w-4 h-4 text-white" />
+          ) : (
+            <MicOff className="w-4 h-4 text-white" />
+          )}
+        </div>
 
-        {/* Local video indicator */}
-        {isLocal && (
-          <div className={`absolute top-3 left-3 ${isPrimary ? 'top-4 left-4' : ''}`}>
-            <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-full text-white text-xs font-medium border border-blue-400/30 shadow-lg">
-              You
-            </div>
-          </div>
-        )}
+        {/* Video Status */}
+        <div className={`p-2 rounded-lg backdrop-blur-sm ${
+          isVideoEnabled 
+            ? 'bg-blue-600/70 border border-blue-500/50' 
+            : 'bg-red-600/70 border border-red-500/50'
+        }`}>
+          {isVideoEnabled ? (
+            <Video className="w-4 h-4 text-white" />
+          ) : (
+            <VideoOff className="w-4 h-4 text-white" />
+          )}
+        </div>
+      </div>
 
-        {/* Hover overlay for secondary videos */}
-        {!isPrimary && (
-          <div className="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/10 transition-all duration-300 rounded-xl border-2 border-transparent group-hover:border-purple-400/50"></div>
-        )}
+      {/* Label */}
+      {label && (
+        <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20">
+          <span className="text-white text-sm font-medium">{label}</span>
+        </div>
+      )}
+
+      {/* Connection Quality Indicator */}
+      <div className="absolute top-3 right-3">
+        <div className="flex space-x-1">
+          <div className="w-1 h-3 bg-green-500 rounded-full"></div>
+          <div className="w-1 h-4 bg-green-500 rounded-full"></div>
+          <div className="w-1 h-5 bg-green-400 rounded-full"></div>
+          <div className="w-1 h-3 bg-gray-600 rounded-full"></div>
+        </div>
       </div>
     </div>
   );
 };
+
+export default VideoPlayer;

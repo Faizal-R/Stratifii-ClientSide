@@ -50,7 +50,7 @@ const ScheduleManagmentPage = () => {
     </div>
   ) : (
     <div className="">
-      <div className="text-center mb-8  pt-10 flex flex-col items-center justify-center pl-44">
+      <div className="text-center mb-8  pt-10 flex flex-col items-center justify-center ">
         <div className="flex justify-center mb-4">
           <div
             className="p-3 rounded-full animate-pulse"

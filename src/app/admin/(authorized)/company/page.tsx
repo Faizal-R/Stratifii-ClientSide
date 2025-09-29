@@ -15,6 +15,7 @@ import { ICompany } from "@/validations/CompanySchema";
 import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminCompanyColumns } from "@/constants/table-columns/companyColumn";
 import { errorToast, successToast } from "@/utils/customToast";
+import { useSocketStore } from "@/features/socket/Socket";
 
 // Reasons for rejecting a company
 const companyVerificationReasons = [
@@ -32,6 +33,8 @@ function AdminCompanyManagement() {
     useState(false);
   const [isVerificationRejectModalOpen, setIsVerificationRejectModalOpen] =
     useState(false);
+
+    const {socket}=useSocketStore()
 
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [selectedCompanyForDetails, setSelectedCompanyForDetails] =
@@ -99,6 +102,10 @@ function AdminCompanyManagement() {
       return;
     }
 
+    socket.emit("user:status", {
+      userId: companyId,
+      status: isApproved ? "approved" : "rejected",
+    });
     if (response.data && isApproved) {
       successToast("Company verified successfully");
       setCompanies(
@@ -135,7 +142,7 @@ function AdminCompanyManagement() {
   });
 
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center">
       <RiseLoader color="white" />
     </div>
   ) : (
@@ -191,7 +198,7 @@ function AdminCompanyManagement() {
         />
       )}
 
-      <div className="min-h-screen pl-64 bg-gradient-to-br from-black via-black to-violet-950">
+      <div className=" min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
         <div className="p-8">
           <h1 className="text-2xl font-bold text-violet-100 mb-4">
             Company Management

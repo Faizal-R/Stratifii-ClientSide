@@ -1,4 +1,5 @@
 import { PayoutService } from "@/services/PayoutService";
+import { stat } from "fs";
 import { useCallback, useState } from "react";
 
 export const useCreatePayoutRequest = () => {
@@ -35,3 +36,17 @@ export const useGetAllInterviewersPayoutRequest = () => {
   }, []);
   return { getAllInterviewersPayoutRequest, loading };
 };
+
+export const useUpdateStatusOfInterviewerPayoutRequest= ()=>{
+  const [loading, setLoading] = useState(false);
+  const updateInterviewerPayoutRequestStatus = useCallback(async (payoutRequestId:string,status:string) => {
+    try {
+      setLoading(true);
+      const response = await PayoutService.updateInterviewerPayoutStatus(payoutRequestId,status);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { updateInterviewerPayoutRequestStatus, loading };
+}

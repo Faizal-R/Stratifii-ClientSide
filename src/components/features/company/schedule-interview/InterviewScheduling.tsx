@@ -70,7 +70,7 @@ const InterviewScheduling = () => {
   }, []);
 
   return (
-    <div className="text-white ml-64 h-min-screen bg-gradient-to-br from-black via-black">
+    <div className="text-white custom-64 h-min-screen bg-gradient-to-br from-black via-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8  ">
         <JobSelection
           sendSelectedJob={(job) => setSelectedJob(job)}

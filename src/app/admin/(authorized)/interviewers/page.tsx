@@ -53,6 +53,7 @@ const interviewerVerificationReasons = [
   { value: "other", label: "Other" },
 ];
 
+import { useSocketStore } from "@/features/socket/Socket";
 function AdminInterviewerManagement() {
   const [isConfirmBlockModalOpen, setIsConfirmBlockModalOpen] = useState(false);
   const [isVerificationAcceptModalOpen, setIsVerificationAccept] =
@@ -69,11 +70,15 @@ function AdminInterviewerManagement() {
     useState<IInterviewerProfile | null>(null);
 
   const { fetchInterviewers, loading } = useAdminInterviewers();
-  const [interviewers, setInterviewers] = useState<IInterviewerProfile[] | []>([]);
+  const [interviewers, setInterviewers] = useState<IInterviewerProfile[] | []>(
+    []
+  );
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const { updatedInterviewer } = useInterviewerUpdate();
+
+  const { socket } = useSocketStore();
 
   const showConfirmModal = async (interviewerId: string) => {
     console.log(interviewerId);
@@ -106,7 +111,7 @@ function AdminInterviewerManagement() {
   const handleInterviewerVerification = async (
     interviewerId: string,
     isApproved: boolean,
-    reasonForRejection?:string
+    reasonForRejection?: string
   ) => {
     let matchedInterviewer = interviewers.find((i) => i._id === interviewerId);
     const response = await verifyOrRejectInterviewer(
@@ -116,10 +121,15 @@ function AdminInterviewerManagement() {
       matchedInterviewer?.email!,
       reasonForRejection
     );
+
     if (!response.success) {
       errorToast(response.message);
       return;
     }
+    socket.emit("user:status", {
+      userId: interviewerId,
+      status: isApproved ? "approved" : "rejected",
+    });
     if (response.data && isApproved === true) {
       successToast("Interviewer Verified successfully");
       setInterviewers(
@@ -135,7 +145,7 @@ function AdminInterviewerManagement() {
           (interviewer) => interviewer._id !== response.data._id
         )
       );
-      setIsVerificationRejectModalOpen(false)
+      setIsVerificationRejectModalOpen(false);
     }
   };
 
@@ -143,7 +153,6 @@ function AdminInterviewerManagement() {
     interviewerId: string,
     isVerifyOrReject: boolean
   ) => {
-   
     setSelectedInterviewerId(interviewerId);
     if (isVerifyOrReject) {
       setIsVerificationAccept(true);
@@ -173,7 +182,7 @@ function AdminInterviewerManagement() {
   });
 
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
@@ -204,8 +213,7 @@ function AdminInterviewerManagement() {
             : setIsVerificationAccept(false)
         }
         onConfirm={
-        
-             isConfirmBlockModalOpen
+          isConfirmBlockModalOpen
             ? handleToggleBlock
             : () => handleInterviewerVerification(selectedInterviewerId!, true)
         }
@@ -216,11 +224,13 @@ function AdminInterviewerManagement() {
         }
         {...(isVerificationRejectModalOpen && {
           reasonOptions: interviewerVerificationReasons,
-          onConfirmWithReason: (reason:string) => handleInterviewerVerification(selectedInterviewerId!, false,reason)
-
+          onConfirmWithReason: (reason: string) =>
+            handleInterviewerVerification(
+              selectedInterviewerId!,
+              false,
+              reason
+            ),
         })}
-        
-
       />
 
       {selectedInterviewerForDetails && (
@@ -235,7 +245,7 @@ function AdminInterviewerManagement() {
         />
       )}
 
-      <div className="min-h-screen pl-64 bg-gradient-to-br from-black via-black to-violet-950">
+      <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
         <div className="py-5 px-8">
           <div className="mb-5">
             <h1 className="text-2xl font-bold text-violet-100 mb-4">
@@ -290,4 +300,4 @@ function AdminInterviewerManagement() {
   );
 }
 
-export default AdminInterviewerManagement
+export default AdminInterviewerManagement;

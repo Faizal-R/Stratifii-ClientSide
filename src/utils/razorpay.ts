@@ -1,20 +1,16 @@
 import { IRazorpayResponse, RazorpayPaymentError } from "@/types/IRazorpay";
 import { toast } from "sonner";
-
-
+import { errorToast } from "./customToast";
 
 export const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
   });
 };
-
-
-
 
 interface RazorpayConfig {
   amount: number;
@@ -28,7 +24,7 @@ interface RazorpayConfig {
     contact: string;
   };
   onSuccess: (response: IRazorpayResponse) => Promise<void>;
-  onFailure?: (error:RazorpayPaymentError) => void;
+  onFailure?: () => void; // Remove error parameter since you don't need it
 }
 
 export const initiateRazorpayPayment = async ({
@@ -44,9 +40,7 @@ export const initiateRazorpayPayment = async ({
   const isScriptLoaded = await loadRazorpayScript();
 
   if (!isScriptLoaded) {
-    toast("Razorpay SDK failed to load. Are you online?",{
-      className:"custom-error-toast"
-    });
+    errorToast("Razorpay SDK failed to load. Are you online?")
     return;
   }
 
@@ -64,9 +58,14 @@ export const initiateRazorpayPayment = async ({
       try {
         await onSuccess(response);
       } catch (err) {
-        console.error(err);
+        errorToast("razorpay")
+      }
+    },
+    modal: {
+      ondismiss:async function() {
+        // Handle when user closes the modal without paying
         if (onFailure) {
-          onFailure(err as RazorpayPaymentError);
+          await onFailure();
         }
       }
     },
@@ -77,5 +76,16 @@ export const initiateRazorpayPayment = async ({
   };
 
   const razorpay = new (window as any).Razorpay(options);
+
+  // REMOVE THIS ENTIRE EVENT HANDLER - it's causing the double calls
+  // razorpay.on("payment.failed", async(error: RazorpayPaymentError) => {
+  //   console.error("Payment Failed:", error);
+  //   if (onFailure) {
+  //     await onFailure(error);
+  //   } else {
+  //     errorToast("Payment failed. Please try again.")
+  //   }
+  // });
+
   razorpay.open();
 };

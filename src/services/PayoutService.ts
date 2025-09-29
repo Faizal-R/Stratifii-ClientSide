@@ -30,4 +30,19 @@ export const PayoutService = {
       );
     }
   },
+ updateInterviewerPayoutStatus:async(payoutRequestId:string,status:string)=>{
+   try {
+     const response = await apiClient.patch(
+       `${PayoutRoutes.UPDATE_INTERVIEWER_PAYOUT_REQUEST_STATUS}${payoutRequestId}`,
+       {status}
+     );
+     return response.data;
+   } catch (error) {
+     return parseAxiosError(
+       error,
+       "An error occurred while approving the payout request."
+     );
+   }
+ }
+
 };

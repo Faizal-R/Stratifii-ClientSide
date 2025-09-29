@@ -32,7 +32,8 @@ import { RiseLoader } from "react-spinners";
 import PaymentProceedModal from "@/components/ui/Modals/PaymentProceedModal";
 import {
   usePaymentOrderCreation,
-  usePaymentVerificationAndCreatePaymentRecord,
+  useHandleInterviewProcessInitializationPayment,
+  useHandleRetryInterviewProcessInitializationPayment,
 } from "@/hooks/api/usePayment";
 import { initiateRazorpayPayment } from "@/utils/razorpay";
 import {
@@ -41,8 +42,6 @@ import {
   IDelegatedCandidate,
   IInterviewRound,
 } from "@/types/ICandidate";
-import { IInterview } from "@/types/IInterview";
-import FinalInterviewFeedback from "@/components/features/company/delegation/FinalInterviewFeedback";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import { useGetAllSlotsByInterviewer } from "@/hooks/api/useSlot";
@@ -50,6 +49,7 @@ import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
 import InterviewRoundsModal from "../../../../../../components/features/interviewer/interview/InterviewRoundsModal";
 import { errorToast, successToast } from "@/utils/customToast";
 import { useAuthStore } from "@/features/auth/authStore";
+
 type TabType = "all" | "in-progress" | "completed";
 
 interface TabConfig {
@@ -63,7 +63,7 @@ interface TabConfig {
 }
 
 function JobManagementPage() {
-  const {user} =useAuthStore()
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>("all");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,10 +80,18 @@ function JobManagementPage() {
   const [isInterviewProcessInitiated, setIsInterviewProcessInitiated] =
     useState(false);
 
+  const [hasPaymentRetryAttempted, setHasPaymentRetryAttempted] =
+    useState(false);
+
   const {
-    paymentVerificationAndCreatePaymentRecord,
+    handleInterviewProcessInitializationPayment,
     loading: initPaymentLoading,
-  } = usePaymentVerificationAndCreatePaymentRecord();
+  } = useHandleInterviewProcessInitializationPayment();
+
+  const {
+    handleRetryInterviewProcessInitializationPayment,
+    loading: retryInitPaymentLoading,
+  } = useHandleRetryInterviewProcessInitializationPayment();
 
   const jobId = useParams().id as string;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,35 +110,54 @@ function JobManagementPage() {
   const handleModalConfirmation = async (totalAmount: number) => {
     const response = await paymentOrderCreation(totalAmount);
     if (!response.success) {
-     errorToast(response.message);
+      errorToast(response.message);
       return;
     }
     const { id: orderId, amount } = response.data;
     initiateRazorpayPayment({
       amount: amount,
       orderId: orderId,
-      name:"Stratifii Interviews", 
+      name: "Stratifii Interviews",
       description: "Payment for Interview Process",
       image: "https://your-image-url",
       prefill: {
         name: user?.name!,
         email: user?.email!,
-        contact:"1234567890",
+        contact: "1234567890",
       },
       onSuccess: async (response) => {
-        const res = await paymentVerificationAndCreatePaymentRecord(
-          response,
-          jobId,
-          candidates.length
-        );
+        const res = hasPaymentRetryAttempted
+          ? await handleRetryInterviewProcessInitializationPayment(jobId)
+          : await handleInterviewProcessInitializationPayment(
+              response,
+              jobId,
+              candidates.length
+            );
         if (!res.success) {
-          errorToast(res.message)
+          errorToast(res.message);
           return;
         }
 
         setIsInterviewProcessInitiated(true);
         setIsConfirmationModalOpen(false);
+        if(hasPaymentRetryAttempted)setHasPaymentRetryAttempted(false);
         successToast(res.message);
+      },
+      onFailure: async () => {
+        const isPaymentFailed = true;
+        const res = await handleInterviewProcessInitializationPayment(
+          null, // or handle error appropriately
+          jobId,
+          candidates.length,
+          isPaymentFailed
+        );
+        if (!res.success) {
+          errorToast(res.message);
+          return;
+        }
+
+        setHasPaymentRetryAttempted(true);
+        setIsConfirmationModalOpen(false);
       },
     });
   };
@@ -145,7 +172,7 @@ function JobManagementPage() {
 
     const response = await uploadResumesAndCreateCandidates(jobId!, formData);
     if (!response.success) {
-     errorToast(response.message);
+      errorToast(response.message);
       return;
     }
     console.log(response.data);
@@ -179,8 +206,6 @@ function JobManagementPage() {
     if (!currentCandidate) return;
 
     try {
-      console.log("currentCandidate", currentCandidate);
-
       const res = await scheduleInterview({
         candidate: (currentCandidate.candidate as ICandidateProfile)._id,
         slot,
@@ -189,7 +214,7 @@ function JobManagementPage() {
         isFollowUpScheduling: true,
       });
       if (!res.success) {
-        errorToast(res.message)
+        errorToast(res.message);
         return;
       }
       // Update candidate status and add new interview round
@@ -254,19 +279,17 @@ function JobManagementPage() {
     const fetchCandidates = async () => {
       const response = await getCandidatesByJob(jobId);
       if (!response.success) {
-       errorToast(response.message);
+        errorToast(response.message);
         return;
       }
-      if (
-        response.data[0] &&
-        response.data[0]?.job &&
-        response.data[0]?.job.paymentTransaction?.status
-      )
-        if (response.data[0].job.paymentTransaction?.status === "PAID") {
-          setIsInterviewProcessInitiated(true);
-        }
+      if (response.data.jobPaymentStatus === "PAID") {
+        setIsInterviewProcessInitiated(true);
+      }
+      if (response.data.jobPaymentStatus === "FAILED") {
+        setHasPaymentRetryAttempted(true);
+      }
 
-      setCandidates(response.data);
+      setCandidates(response.data.candidates);
       console.log(response.data);
     };
 
@@ -313,40 +336,6 @@ function JobManagementPage() {
     }
 
     return filtered;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const inProgressStatuses = [
-      "in_interview_process",
-      "mock_started",
-      "shortlisted",
-    ];
-    const completedStatuses = ["completed", "hired"];
-
-    if (inProgressStatuses.includes(status)) {
-      return (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/40">
-          In Progress
-        </span>
-      );
-    } else if (completedStatuses.includes(status)) {
-      return (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-          Completed
-        </span>
-      );
-    } else {
-      return (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-gray-300 border border-gray-500/40">
-          Pending
-        </span>
-      );
-    }
-  };
-
-  const getLatestInterviewRound = (interviewRounds: any[]) => {
-    if (!interviewRounds || interviewRounds.length === 0) return null;
-    return interviewRounds[interviewRounds.length - 1];
   };
 
   const getStatusIcon = (status: string) => {
@@ -423,7 +412,7 @@ function JobManagementPage() {
     setSelectedCandidateForRounds(candidate);
     setIsRoundsModalOpen(true);
   };
-  const activeTabConfig = tabs.find((tab) => tab.id === activeTab)!;
+
   const getLatestCompletedRound = (interviewRounds: IInterviewRound[]) => {
     // const completedRounds = interviewRounds.filter(
     //   (r) => r.status === "completed" && r.feedback
@@ -470,11 +459,11 @@ function JobManagementPage() {
     return { type: "next-round", reason: "Continue interview process" };
   };
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className="ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 pb-3">
+    <div className="custom-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 pb-3">
       {/* Header */}
       <div className="relative overflow-hidden">
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 blur-3xl rounded-full" />
@@ -503,15 +492,28 @@ function JobManagementPage() {
                       Upload Resume
                     </div>
                   </button>
-
                   <button
                     onClick={() => setIsConfirmationModalOpen(true)}
-                    className="group relative px-6 py-3 min-w-6 min-h-3 bg-gradient-to-r from-emerald-600/80 to-green-600/80 text-white rounded-xl border border-emerald-500/30 hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-emerald-500/25"
+                    className={`group relative px-6 py-3 min-w-6 min-h-3 text-white rounded-xl border transition-all duration-300 shadow-lg 
+    ${
+      hasPaymentRetryAttempted
+        ? "bg-gradient-to-r from-red-600/80 to-pink-600/80 border-red-500/30 hover:from-red-500 hover:to-pink-500 hover:shadow-red-500/25"
+        : "bg-gradient-to-r from-emerald-600/80 to-green-600/80 border-emerald-500/30 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/25"
+    }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-600 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity" />
+                    <div
+                      className={`absolute inset-0 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity 
+      ${
+        hasPaymentRetryAttempted
+          ? "bg-gradient-to-r from-red-600 to-pink-600"
+          : "bg-gradient-to-r from-emerald-600 to-green-600"
+      }`}
+                    />
                     <div className="relative flex items-center justify-center">
                       <PlayCircle className="mr-2 h-5 w-5 animate-pulse" />
-                      Initiate Interview Process
+                      {hasPaymentRetryAttempted
+                        ? "Retry Payment"
+                        : "Initiate Interview Process"}
                     </div>
                   </button>
                 </div>
@@ -767,7 +769,7 @@ function JobManagementPage() {
                             </div>
                             {profile.resume ? (
                               <a
-                                href={`https://docs.google.com/viewer?url=${profile.resume}&embedded=true`}
+                                href={profile.resume}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center px-3 py-1 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded-lg text-xs font-medium hover:bg-violet-500/30 hover:border-violet-400 transition-all duration-200"

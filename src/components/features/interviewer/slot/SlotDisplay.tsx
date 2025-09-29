@@ -42,7 +42,7 @@ const SlotDisplay: React.FC<SlotDisplayProps> = ({ slots }) => {
   const availabilityRate = Math.round((availableSlots / totalSlots) * 100);
 
   return (
-    <div className="mt-8 space-y-6 ml-64 px-8  pb-3 bg-gradient-to-br  from-black via-black to-violet-950">
+    <div className="mt-8 space-y-6  px-8  pb-3 bg-gradient-to-br  from-black via-black to-violet-950">
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Total */}

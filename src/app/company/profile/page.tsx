@@ -30,18 +30,19 @@ import {
   CompanyProfileSchema,
   ICompanyProfile,
 } from "@/validations/CompanySchema";
-import { toast } from "sonner";
+
 import { RiseLoader } from "react-spinners";
 import { StatusCodes } from "@/constants/enums/statusCodes";
 
 import { SelectField } from "@/components/ui/FormFields/SelectField";
 import { convertBlobUrlToFile } from "@/utils/fileConversion";
 import { useAuthStore } from "@/features/auth/authStore";
-import SubscriptionCard from "@/components/features/company/profile/ProfileSubscriptionCard";
+
 import { useGetSubscriptionDetails } from "@/hooks/api/useSubscription";
 import { ISubscriptionDetails } from "@/types/ISubscription";
 import { errorToast, successToast } from "@/utils/customToast";
 import TabsNav from "@/components/reusable/tabsNav/TabsNav";
+import SubscriptionPlanDetailsCard from "@/components/reusable/cards/subscription-card/SubscriptionPlanDetailsCard";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -110,6 +111,7 @@ function CompanyProfilePage() {
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
+        console.log(issue.message)
         errorToast(issue.message);
       }
       return;
@@ -144,6 +146,7 @@ function CompanyProfilePage() {
         logout();
       }
     } else {
+      console.log("userData:",response.data.companyLogo)
       setLogoPreview(response.data.companyLogo);
       setCompanyData(response.data);
     }
@@ -170,13 +173,17 @@ function CompanyProfilePage() {
 
   const companySizeOptions = ["Small", "Medium", "Startup", "Enterprise"];
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
-    <div className="min-h-screen ml-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
+    <div className="min-h-screen custom-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
       {/* Navigation Tabs */}
-   <TabsNav activeTab={activeTab} onTabChange={(key)=>setActiveTab(key as "profile" | "subscription")} tabs={tabs} />
+      <TabsNav
+        activeTab={activeTab}
+        onTabChange={(key) => setActiveTab(key as "profile" | "subscription")}
+        tabs={tabs}
+      />
 
       {/* Main Content */}
       <main className="p-6 overflow-y-auto">
@@ -373,10 +380,10 @@ function CompanyProfilePage() {
             <div className="space-y-8">
               <div className="text-center">
                 <h1 className="text-3xl font-bold mb-2">
-                  Subscription Management
+                  Subscription Details
                 </h1>
                 <p className="text-gray-400">
-                  Manage your subscription plan and billing details
+                  Your subscription plan and billing details
                 </p>
               </div>
 
@@ -385,7 +392,7 @@ function CompanyProfilePage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
                 </div>
               ) : subscription ? (
-                <SubscriptionCard subscription={subscription} />
+                <SubscriptionPlanDetailsCard subscription={subscription!} />
               ) : (
                 <div className="bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-800 text-center">
                   <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />

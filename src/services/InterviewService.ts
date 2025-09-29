@@ -2,6 +2,7 @@ import apiClient from "@/config/apiClient";
 import { InterviewRoutes } from "@/constants/routes/api/InterviewRoutes";
 import { IInterviewFeedback } from "@/types/IInterview";
 import { parseAxiosError } from "@/utils/parseAxiosError";
+import axios from "axios";
 
 export const InterviewService = {
   getMockInterviewQuestions: async (delegationId: string) => {
@@ -110,6 +111,30 @@ export const InterviewService = {
         "An error occurred while completing candidate interview process."
       );
     }
-  }
+  },
+  compileAndRunCode: async (code: string, languageId:number) => {
+    try {
+      const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_JUDGE0_API_URL}?base64_encoded=false&wait=true`,
+      {
+        source_code: code,
+        language_id: languageId ?? 63, // default to JS
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": process.env.NEXT_PUBLIC_JUDGE0_RAPIDAPI_KEY as string,
+          "X-RapidAPI-Host": process.env.NEXT_PUBLIC_JUDGE0_RAPIDAPI_HOST as string,
+        },
+      }
+    );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while compiling and running code."
+      );
+    }
+  },
 
 };
