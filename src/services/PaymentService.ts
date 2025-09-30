@@ -26,24 +26,37 @@ export const PaymentService = {
     }
   },
 
-  verifyPaymentAndCreatePaymentRecord: async ({
+  handleInterviewProcessInitializationPayment: async ({
     razorpay_response,
     jobId,
     candidatesCount,
+    isPaymentFailed
   }: {
-    razorpay_response: IRazorpayResponse;
+    razorpay_response: IRazorpayResponse|null;
     jobId: string;
     candidatesCount: number;
+    isPaymentFailed:boolean
   }) => {
     try {
       const response = await apiClient.post(PaymentRoutes.VERIFY, {
         ...razorpay_response,
         jobId,
         candidatesCount,
+        isPaymentFailed
       });
       return response.data;
     } catch (error) {
       return parseAxiosError(error, "An error occurred while verifying payment");
     }
   },
+  handleRetryInterviewProcessInitializationPayment: async (jobId: string) => {
+    try {
+      const response = await apiClient.patch(`${PaymentRoutes.RETRY}/${jobId}`);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while retrying payment");
+    }
+  },
 };
+
+

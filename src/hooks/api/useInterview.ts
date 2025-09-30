@@ -65,3 +65,19 @@ export const useGetScheduledInterviews = function () {
   }, []);
   return { getAllScheduledInterviews, loading };
 };
+
+
+
+export const useGetAllInterviewsByCandidateId = function () {
+  const [loading, setLoading] = useState(false);
+  const getAllInterviewsByCandidateId = useCallback(async (candidateId:string) => {
+    try {
+      setLoading(true);
+      const response = await InterviewService.getAllInterviewsByCandidateId(candidateId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { getAllInterviewsByCandidateId, loading };
+};

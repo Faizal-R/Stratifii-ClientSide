@@ -13,6 +13,7 @@ export enum StatusCodes {
     METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
     UNPROCESSABLE_ENTITY = 422,
+    LOCKED = 423,
   
     // Server Errors
     INTERNAL_SERVER_ERROR = 500,

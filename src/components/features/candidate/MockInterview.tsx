@@ -26,7 +26,7 @@ const MockInterview: React.FC<MockInterviewProps> = ({
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [timeLeft, setTimeLeft] = useState(90);
+  const [timeLeft, setTimeLeft] = useState(40);
   const [showResults, setShowResults] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -53,7 +53,7 @@ const MockInterview: React.FC<MockInterviewProps> = ({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           handleNextQuestion();
-          return 90;
+          return 40;
         }
         return prev - 1;
       });
@@ -79,7 +79,7 @@ const MockInterview: React.FC<MockInterviewProps> = ({
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setTimeLeft(90);
+      setTimeLeft(40);
     } else {
       setShowResults(true);
     }

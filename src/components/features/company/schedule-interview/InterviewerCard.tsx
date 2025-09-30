@@ -17,6 +17,7 @@ import {  IInterviewSlot } from "@/types/ISlotTypes";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { useGetMatchedInterviewersByJobDescription } from "@/hooks/api/useJob";
 import { toast } from "sonner";
+import { errorToast } from "@/utils/customToast";
 
 interface InterviewerCardProps {
   interviewer: IInterviewerProfile;
@@ -69,9 +70,7 @@ export const InterviewerCard: React.FC<InterviewerCardProps> = ({
         setInterviewers(res.data);
         console.log(res.data);
       } else {
-        toast.error(res.error || "Failed to fetch interviewers", {
-          className: "custom-error-toast",
-        });
+        errorToast(res.message || "Failed to fetch interviewers")
       }
       setLoading(false);
     };

@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSignIn, useVerifyUserAccount } from "@/hooks/api/useAuth";
+import {
+  useGoogleAuth,
+  useSignIn,
+  useVerifyUserAccount,
+} from "@/hooks/api/useAuth";
 import {
   Mail,
   Lock,
@@ -28,6 +32,10 @@ import { Roles } from "@/constants/enums/roles";
 import Link from "next/link";
 import { StatusCodes } from "@/constants/enums/statusCodes";
 import useSubscriptionStore from "@/features/company/subscriberStore";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "@/config/firebase";
+import { errorToast, successToast } from "@/utils/customToast";
+import { useSocketStore } from "@/features/socket/Socket";
 
 const roles = [
   {
@@ -51,12 +59,14 @@ const roles = [
 ];
 
 function App() {
+  const {socket}=useSocketStore()
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("candidate");
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
     useState(false);
   const { signIn, loading } = useSignIn();
   const { setSubscription } = useSubscriptionStore();
+  const { googleAuth } = useGoogleAuth();
 
   const { verifyUserAccount } = useVerifyUserAccount();
   const router = useRouter();
@@ -83,27 +93,29 @@ function App() {
         setIsVerifyAccountModalOpen(true);
         return;
       }
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+      if (response.status === StatusCodes.LOCKED) {
+        errorToast(response.message)
+        return;
+      }
+      errorToast(response.message)
 
       return;
     }
-    console.log(response);
-    toast(response.message);
-    const { email, _id: id, name } = response.data.user;
+    
+    successToast(response.message);
+    const { email, _id: id, name,status } = response.data.user;
     console.log(response.data.user);
 
     if (selectedRole === Roles.COMPANY) {
       setSubscription(response.data.subscription);
     }
-
+   socket.emit("user:loggedIn",id)
     setUser({
       email,
       id,
       role: selectedRole as Roles,
-      token: response.data.accessToken,
       name,
+      status
     });
   };
   const handleModalConfirm = () => {
@@ -119,21 +131,61 @@ function App() {
   const handleForgotPassword = () => {
     setShowModal(true);
   };
+
   useEffect(() => {
     if (errors.email) {
-      toast.error(errors.email.message, {
-        className: "custom-error-toast",
-      });
+      errorToast(errors.email.message!)
     } else if (errors.password) {
-      toast.error(errors.password.message, {
-        className: "custom-error-toast",
-      });
+      errorToast(errors.password.message!)
     }
   }, [errors]);
 
+  const handleOAuthLogin = async () => {
+    const { user } = await signInWithPopup(auth, provider);
+    console.log(user);
+
+    const response = await googleAuth({
+      email: user.email!,
+      name: user.displayName!,
+      avatar: user.photoURL!,
+    });
+    if(!response.success){
+      if(response.status === StatusCodes.FORBIDDEN){
+        setIsVerifyAccountModalOpen(true);
+        return
+      }else if(response.status === StatusCodes.LOCKED){
+        errorToast(response.message)
+        return
+      }
+      errorToast(response.message)
+      return
+    }
+  
+
+    const authUser = response.data;
+
+    if(authUser.isVerified){
+      setUser({
+        email: authUser.email,
+        id: authUser._id,
+        role: Roles.INTERVIEWER,
+        name: authUser.name,
+        status:authUser.status
+      });
+      router.push(`${Roles.INTERVIEWER}/profile`);
+    }else{
+      router.push(
+          `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`
+        );
+    }
+    
+  };
+
   useEffect(() => {
     if (user) {
-      router.push(`/${user.role}`);
+      if(user.role === Roles.INTERVIEWER){
+        router.push(`${Roles.INTERVIEWER}/profile`);
+      }else router.push(`/${user.role}/dashboard`);
     }
   }, [user, router]);
 
@@ -277,7 +329,9 @@ function App() {
             )}
           </div>
           <div className="mt-5">
-            {selectedRole === "interviewer" && <GoogleAuthButton />}
+            {selectedRole === "interviewer" && (
+              <GoogleAuthButton handleGoogleAuth={handleOAuthLogin} />
+            )}
           </div>
         </div>
       </div>

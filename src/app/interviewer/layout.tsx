@@ -1,25 +1,29 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   Calendar,
   CreditCard,
   LayoutDashboard,
   UserCircle,
   Wallet,
-  CalendarCheck
+  CalendarCheck,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 
-import withProtectedRoute from "@/lib/withProtectedRoutes";
 import { Roles } from "@/constants/enums/roles";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { toast } from "sonner";
-import { useAuthStore } from "@/features/auth/authStore";
+import { AuthUser, useAuthStore } from "@/features/auth/authStore";
+import { errorToast, successToast } from "@/utils/customToast";
+import { useSidebarCollapseStore } from "@/features/sidebar/sidebarCollapseStore";
+import { getInterviewerSidebarRoutes } from "@/constants/routes/sidebar/InterviewerSidebarRoutes";
+import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import { useUserSocket } from "@/hooks/socket/useUserSocket";
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/interviewer" },
   {
     id: "profile",
     label: "Profile",
@@ -39,36 +43,44 @@ const navItems = [
     route: "/interviewer/interviews",
   },
   { id: "wallet", label: "Wallet", icon: Wallet, route: "/interviewer/wallet" },
-  {
-    id: "payment",
-    label: "Payment",
-    icon: CreditCard,
-    route: "/interviewer/payment",
-  },
-
+  // {
+  //   id: "payment",
+  //   label: "Payment",
+  //   icon: CreditCard,
+  //   route: "/interviewer/payment",
+  // },
 ];
 
 const InterviewerLayout = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
- const {logout}=useAuthStore()
-  const {signoutUser}=useSignoutUser()
+  const { logout, user } = useAuthStore();
+  const { isSidebarCollapsed } = useSidebarCollapseStore();
+  const { signoutUser } = useSignoutUser();
+
+  useUserSocket(); // make sure socket updates user status in real-time
+
   function handleModalState(state: boolean) {
     setIsModalOpen(state);
   }
+
   async function handleModalConfirm() {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+      errorToast(response.message);
+      return;
     }
-    toast.success(response.message);
-    logout()
+    successToast(response.message);
+    logout();
     router.push("/signin");
   }
 
+  // Wait until user is loaded
+  if (!user) return null; // or a loading spinner
+
+  const navItems = getInterviewerSidebarRoutes(user.status === "approved");
+  
   return (
     <>
       <Modal
@@ -84,9 +96,15 @@ const InterviewerLayout = ({ children }: { children: ReactNode }) => {
         isModalOpen={isModalOpen}
         handleModalState={handleModalState}
       />
-      {children}
+      <div
+        className="transition-all duration-300 h-screen"
+        style={{ marginLeft: isSidebarCollapsed ? 80 : 256 }}
+      >
+        {children}
+      </div>
     </>
   );
 };
 
-export default withProtectedRoute(InterviewerLayout,[Roles.INTERVIEWER]);
+
+export default InterviewerLayout;

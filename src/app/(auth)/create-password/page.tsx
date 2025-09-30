@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 
 import { useSetupCandidateProfile } from "@/hooks/api/useCandidate";
-import { toast } from "sonner";
+
 import { useRouter, useSearchParams } from "next/navigation";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function CandidatePasswordCreation() {
   const token = useSearchParams().get("token");
@@ -107,12 +108,10 @@ function CandidatePasswordCreation() {
       try {
         const resposne = await setupCandidatProfile(formDataToSend);
         if (!resposne.success) {
-          toast.error(resposne.error, {
-            className: "custom-error-toast",
-          });
+          errorToast(resposne.message)
           return
         }
-        toast.success(resposne.message);
+        successToast(resposne.message);
         
         router.push("/signin");
       } catch (error) {

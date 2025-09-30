@@ -50,11 +50,11 @@ export const AdminService = {
     }
   },
 
-  handleCompanyVerification: async (companyId: string, isApproved: boolean) => {
+  handleCompanyVerification: async (companyId: string, isApproved: boolean,reasonForRejection?: string) => {
     try {
       const response = await apiClient.patch(
         `${AdminRoutes.UPDATE_COMPANY_STATUS}/${companyId}/verify`,
-        { isApproved }
+        { isApproved,reasonForRejection }
       );
       return response.data;
     } catch (error) {
@@ -82,6 +82,18 @@ export const AdminService = {
       return response.data;
     } catch (error) {
       return parseAxiosError(error, "An error occurred during interviewer verification");
+    }
+  },
+
+   getAdminDashboard: async () => {
+    try {
+      const response = await apiClient.get(AdminRoutes.GET_DASHBOARD);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching company dashboard data."
+      );
     }
   },
 };

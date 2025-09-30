@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import SessionProviders from "@/components/providers/SessionProvider";
+import { useUserSocket } from "@/hooks/socket/useUserSocket";
+import SocketProvider from "@/components/providers/SocketProviders";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Stratifii",
   description: "Outsourcing Interview Platform",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,13 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <title>Stratifii Interviews</title>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-black via-black to-violet-950`}
       >
-        <SessionProviders>{children}</SessionProviders>
+        <SocketProvider>{children}</SocketProvider>
 
         <Toaster
           position="bottom-right"

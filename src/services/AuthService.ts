@@ -110,6 +110,15 @@ const AuthService = {
       return parseAxiosError(error, "Account verification failed");
     }
   },
+
+  googleAuthLogin: async (payload:{email:string,name:string,avatar:string}) => {
+    try {
+      const response = await apiClient.post(AuthRoutes.GOOGLE_AUTH, payload);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "Google authentication failed");
+    }
+  },
 };
 
 export default AuthService;

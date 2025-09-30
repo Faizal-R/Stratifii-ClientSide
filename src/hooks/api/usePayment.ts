@@ -32,22 +32,24 @@ export const usePaymentOrderCreation = function () {
 
   return { loading, paymentOrderCreation };
 };
-export const usePaymentVerificationAndCreatePaymentRecord = function () {
+export const useHandleInterviewProcessInitializationPayment = function () {
   const [loading, setLoading] = useState(false);
 
-  const paymentVerificationAndCreatePaymentRecord = useCallback(
+  const handleInterviewProcessInitializationPayment = useCallback(
     async (
-      razorpay_response: IRazorpayResponse,
+      razorpay_response: IRazorpayResponse|null,
       jobId: string,
-      candidatesCount: number
+      candidatesCount: number,
+      isPaymentFailed:boolean=false
     ) => {
       try {
         setLoading(true);
         const response =
-          await PaymentService.verifyPaymentAndCreatePaymentRecord({
+          await PaymentService.handleInterviewProcessInitializationPayment({
             razorpay_response,
             jobId,
             candidatesCount,
+            isPaymentFailed
           });
         return response;
       } finally {
@@ -57,5 +59,30 @@ export const usePaymentVerificationAndCreatePaymentRecord = function () {
     []
   );
 
-  return { loading, paymentVerificationAndCreatePaymentRecord };
+  return { loading, handleInterviewProcessInitializationPayment };
 };
+
+
+export const useHandleRetryInterviewProcessInitializationPayment=function(){
+  const [loading, setLoading] = useState(false);
+  const handleRetryInterviewProcessInitializationPayment = useCallback(
+    async (
+      jobId: string,
+     
+    ) => {
+      try {
+        setLoading(true);
+        console.log("Retrying payment for jobId:", jobId);
+        const response =
+          await PaymentService.handleRetryInterviewProcessInitializationPayment(
+            jobId,);
+        return response
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { loading, handleRetryInterviewProcessInitializationPayment };
+}

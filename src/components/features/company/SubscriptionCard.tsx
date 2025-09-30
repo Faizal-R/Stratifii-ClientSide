@@ -1,4 +1,5 @@
 import { ISubscription, ISubscriptionDetails } from "@/types/ISubscription";
+import { errorToast } from "@/utils/customToast";
 import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,10 +24,8 @@ const SubscriptionCard = ({
       premium?.planDetails.price &&
       subscription.price < premium.planDetails.price
     ) {
-      toast.error("You are already subscribed to a higher plan.",
-        {
-            className:"custom-error-toast"
-        }
+      errorToast("You are already subscribed to a higher plan.",
+    
       );
       return;
     }

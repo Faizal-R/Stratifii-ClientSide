@@ -20,9 +20,11 @@ import {
 import {
   useGetInterviewerSlotGenerationRule,
   useSlotGeneration,
+  useUpdateInterviewerSlotGenerationRule,
 } from "@/hooks/api/useSlot";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/authStore";
+import { errorToast, successToast } from "@/utils/customToast";
 
 interface ISlotGenerationProps {
   sendSlotsToParent: (newSlots: IInterviewSlot[]) => void;
@@ -43,14 +45,13 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
     bufferRate: 15,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
-  const {
-    getInterviewerSlotGenerationRule,
-  } = useGetInterviewerSlotGenerationRule();
+  const { getInterviewerSlotGenerationRule } =
+    useGetInterviewerSlotGenerationRule();
+  const { updateInterviewerSlotGenerationRule, loading: updateLoading } =
+    useUpdateInterviewerSlotGenerationRule();
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [preview, setPreview] = useState<SlotPreview | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-
   const { generateSlots, loading } = useSlotGeneration();
 
   const dayNames = [
@@ -83,9 +84,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
           setIsExistingRule(true);
         }
       } else {
-        toast.error(response.error, {
-          className: "custom-toast-error",
-        });
+        errorToast(response.message);
       }
     };
     fetchInterviewerSlotGenerationRule();
@@ -153,44 +152,43 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
     // if (!validateForm()) return;
     if (!formData.bufferRate) {
-      toast.error("Buffer Time cannot be emtpy", {
-        className: "custom-error-toast",
-      });
+      errorToast("Buffer Time cannot be emtpy");
       return;
     }
     console.log("Form Data:", formData);
-    const response = await generateSlots(formData);
+    if (isExistingRule) {
+      const response = await updateInterviewerSlotGenerationRule(
+        user?.id as string,
+        formData
+      );
+      if (!response.success) {
+        errorToast(
+          response.error || "Failed to update rule. Please try again."
+        );
 
-    if (!response.success) {
-      toast(response.error || "Failed to generate slots. Please try again.", {
-        className: "custom-error-toast",
-      });
-      return;
-    }
-    console.log("Generated Slots:", response);
-
-    setSlots(response.data || []);
-    setShowSuccess(true);
-    setTimeout(() => {
-      sendSlotsToParent(response.data || []);
-    }, 1000);
-    toast.success("Slots generated successfully!");
-    // Scroll to results
-    setTimeout(() => {
-      const resultsSection = document.getElementById("results-section");
-      if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: "smooth" });
+        return;
       }
-    }, 100);
-  };
+      sendSlotsToParent(response.data.slots);
+      successToast("Rule updated successfully!");
+    } else {
+      const response = await generateSlots(formData);
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
+      if (!response.success) {
+        errorToast(response.message || "Failed to generate slots. Please try again.")
+        return;
+      }
+      console.log("Generated Slots:", response);
+
+      setSlots(response.data || []);
+
+      sendSlotsToParent(response.data || []);
+
+      successToast("Slots generated successfully!");
+    }
   };
 
   return (
-    <div className=" bg-gradient-to-br from-black via-black to-violet-950 min-h-screen py-8 px-4 ml-64 bg">
+    <div className=" bg-gradient-to-br from-black via-black to-violet-950  py-8 px-4 custom-64 bg">
       <div className="max-w-7xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -461,6 +459,11 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                       Generating Slots...
                     </>
+                  ) : updateLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Updating Rule...
+                    </>
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-3" />
@@ -473,34 +476,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
               </div>
             </div>
           </div>
-
-          {/* Submit Button */}
         </form>
-
-        {/* Success Message */}
-        {showSuccess && slots.length > 0 && (
-          <div
-            id="results-section"
-            className="mt-8 p-6 rounded-xl backdrop-blur-sm"
-            style={{
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.3)",
-            }}
-          >
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-4">
-                <Sparkles className="w-8 h-8 text-emerald-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Slots Generated Successfully!
-              </h3>
-              <p className="text-emerald-300">
-                Your interview schedule is ready. {slots.length} slots have been
-                created.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

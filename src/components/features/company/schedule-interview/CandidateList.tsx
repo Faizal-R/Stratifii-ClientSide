@@ -33,17 +33,7 @@ const CandidateList: React.FC<any> = ({
     return "text-red-400 bg-red-900/30 border-red-500/30";
   };
 
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+
 
   useEffect(() => {
     if (!selectedJob) return;

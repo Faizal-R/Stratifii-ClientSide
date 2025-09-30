@@ -1,9 +1,11 @@
 import { X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { ISubscription, ISubscriptionFeatures } from "@/types/ISubscription";
 import { toast } from "sonner";
-import { Input } from "../Buttons/FormFields/FormInput";
-import { Toggle } from "../Buttons/FormFields/ToggleInput";
+import { Input } from "../FormFields/FormInput";
+import { Toggle } from "../FormFields/ToggleInput";
+import { set } from "zod";
+import { errorToast } from "@/utils/customToast";
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -67,14 +69,14 @@ export default function SubscriptionModal({
 
   const onSave = () => {
     if (!name || !price) {
-      toast.error("Please fill in all required fields");
+      errorToast("Please fill in all required fields");
       return;
     }
     if (
       features.candidateSlotPerMonth <= 0 ||
       features.jobPostLimitPerMonth <= 0
     ) {
-      toast.error("Please enter valid numbers for slots and limits");
+      errorToast("Please enter valid numbers for slots and limits");
       return;
     }
 
@@ -107,8 +109,8 @@ export default function SubscriptionModal({
             <Input
               label="Plan Name *"
               value={name}
-              onChange={setName}
               disabled={isEditMode}
+              onChange={(val)=>setName(val as string)}
             />
             <Input
               label="Price (INR) *"

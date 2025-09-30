@@ -11,35 +11,41 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
-import { useGetAllUpcomingInterviews } from "@/hooks/api/useInterview";
+import {
+  useGetAllInterviewsByCandidateId,
+  useGetAllUpcomingInterviews,
+} from "@/hooks/api/useInterview";
 import { useRouter } from "next/navigation";
-
-// Mock data - replace with actual API call
-
+import { CandidateHistoryModal } from "@/components/features/interviewer/interview/CandidateInterivewHistoryModal";
+import { ICandidateProfile } from "@/types/ICandidate";
+import { RiseLoader } from "react-spinners";
 
 const InterviewsPage: React.FC = () => {
   const router = useRouter();
-  const { getAllUpcomingInterviews } = useGetAllUpcomingInterviews();
-  const [upcomingInterviews, setUpcomingInterviews] =
-    useState<IInterview[]>([]);
-  const [filteredInterviews, setFilteredInterviews] =
-    useState<IInterview[]>([]);
+  const { getAllUpcomingInterviews, loading } = useGetAllUpcomingInterviews();
+  const [upcomingInterviews, setUpcomingInterviews] = useState<IInterview[]>(
+    []
+  );
+  const [filteredInterviews, setFilteredInterviews] = useState<IInterview[]>(
+    []
+  );
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
- 
- 
 
+  const [isCandidateHistoryModalOpen, setIsCandidateHistoryModalOpen] =
+    useState(false);
+  const [selectedCandidate, setSelectedCandidate] =
+    useState<ICandidateProfile | null>(null);
+  const [pastInterviewsOfCandidate, setPastInterviewsOfCandidate] = useState<
+    IInterview[]
+  >([]);
 
-  /**
-   * Redirects the user to the interview room page
-   * @param meetingLink - The meeting link of the interview
-   */
-  const handleJoinMeeting = (meetingLink: string,interviewId:string) => {
+  const { getAllInterviewsByCandidateId } = useGetAllInterviewsByCandidateId();
+
+  const handleJoinMeeting = (meetingLink: string, interviewId: string) => {
     router.push(`/interviews/${interviewId}?room=${meetingLink}`);
   };
   console.log("upcomingInterviews", upcomingInterviews);
-
-
 
   const filterInterviews = () => {
     let filtered = [...upcomingInterviews];
@@ -97,6 +103,7 @@ const InterviewsPage: React.FC = () => {
     const fetchUpcomingInterviews = async () => {
       const res = await getAllUpcomingInterviews();
       if (res.success) {
+        console.log(res.data);
         setUpcomingInterviews(res.data);
       }
     };
@@ -129,8 +136,20 @@ const InterviewsPage: React.FC = () => {
 
   const stats = getStats();
 
+  const onShowCandidateHistory = async (candidateId: string) => {
+    const response = await getAllInterviewsByCandidateId(candidateId);
+    const candidate = upcomingInterviews.find(
+      (interview) => interview.candidate._id === candidateId
+    );
+    if (response.success) {
+      setPastInterviewsOfCandidate(response.data);
+      setSelectedCandidate(candidate?.candidate as ICandidateProfile);
+      setIsCandidateHistoryModalOpen(true);
+    }
+  };
+
   return (
-    <div className=" ml-64 min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
+    <div className="  min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -198,34 +217,39 @@ const InterviewsPage: React.FC = () => {
         />
 
         {/* Interviews List */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-4 ">
           {filteredInterviews.length > 0 ? (
             filteredInterviews.map((interview) => (
               <InterviewCard
                 key={interview._id}
                 interview={interview}
                 onJoinMeeting={handleJoinMeeting}
-                
+                onShowCandidateHistory={onShowCandidateHistory}
               />
             ))
           ) : (
-            <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-12 text-center">
-              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">
-                No upcomingInterviews found
-              </h3>
-              <p className="text-gray-300">
-                {statusFilter || dateFilter
-                  ? "Try adjusting your filters to see more results."
-                  : "No Interviews have been scheduled yet."}
-              </p>
+            <div className="col-span-full flex justify-center mt-10">
+              <div className=" rounded-lg border-white/10 p-12 text-center">
+                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">
+                  No upcoming Interviews found
+                </h3>
+                <p className="text-gray-300">
+                  {statusFilter || dateFilter
+                    ? "Try adjusting your filters to see more results."
+                    : "No Interviews have been scheduled yet."}
+                </p>
+              </div>
             </div>
           )}
         </div>
-
-       
-      
       </div>
+      <CandidateHistoryModal
+        interviews={pastInterviewsOfCandidate}
+        candidate={selectedCandidate}
+        onClose={() => setIsCandidateHistoryModalOpen(false)}
+        isOpen={isCandidateHistoryModalOpen}
+      />
     </div>
   );
 };

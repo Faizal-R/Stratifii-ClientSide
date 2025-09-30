@@ -1,87 +1,127 @@
-
 import React from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, MoreVertical } from 'lucide-react';
-import { Roles } from '@/constants/enums/roles';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageCircle, ScreenShare as Screen, Code2, Settings, Users, ScreenShare, ScreenShareOff } from 'lucide-react';
 
 interface VideoControlsProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
+  isScreenSharing?: boolean;
+  isChatOpen: boolean;
+  isCompilerOpen: boolean;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
-  onEndCall: () => void;
   onToggleChat: () => void;
-  isChatOpen: boolean;
-  role?:Roles
+  onToggleCompiler: () => void;
+  onStartScreenShare: () => void;
+  onStopScreenShare: () => void;
+  onEndCall: () => void;
 }
 
-export const VideoControls: React.FC<VideoControlsProps> = ({
+const VideoControls: React.FC<VideoControlsProps> = ({
   isAudioEnabled,
   isVideoEnabled,
+  isScreenSharing = false,
+  isChatOpen,
+  isCompilerOpen,
   onToggleAudio,
   onToggleVideo,
-  onEndCall,
   onToggleChat,
-  isChatOpen,
+  onToggleCompiler,
+  onStartScreenShare,
+  onStopScreenShare,
+  onEndCall,
 }) => {
-
+  const controlButtonClass = "p-3 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg backdrop-blur-md border";
+  
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="flex items-center space-x-3 bg-gray-800/90 backdrop-blur-sm rounded-full px-6 py-4 shadow-2xl border border-gray-700">
+    <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-30">
+      <div className="flex items-center space-x-4 bg-black/40 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-2xl">
         {/* Audio Toggle */}
         <button
           onClick={onToggleAudio}
-          className={`p-3 rounded-full transition-all duration-200 ${
-            isAudioEnabled 
-              ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-              : 'bg-red-600 hover:bg-red-700 text-white'
+          className={`${controlButtonClass} ${
+            isAudioEnabled
+              ? 'bg-white/20 border-white/30 text-white hover:bg-white/30'
+              : 'bg-red-600/80 border-red-500/50 text-white hover:bg-red-500/90'
           }`}
-          title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+          title={isAudioEnabled ? 'Mute Audio' : 'Unmute Audio'}
         >
-          {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+          {isAudioEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
         </button>
-        
+
         {/* Video Toggle */}
         <button
           onClick={onToggleVideo}
-          className={`p-3 rounded-full transition-all duration-200 ${
-            isVideoEnabled 
-              ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-              : 'bg-red-600 hover:bg-red-700 text-white'
+          className={`${controlButtonClass} ${
+            isVideoEnabled
+              ? 'bg-white/20 border-white/30 text-white hover:bg-white/30'
+              : 'bg-red-600/80 border-red-500/50 text-white hover:bg-red-500/90'
           }`}
-          title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+          title={isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
         >
-          {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+          {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
         </button>
-        
+
+        {/* Screen Share */}
+        <button
+          onClick={isScreenSharing ? onStopScreenShare : onStartScreenShare}
+          className={`${controlButtonClass} ${
+            isScreenSharing
+              ? 'bg-blue-600/80 border-blue-500/50 text-white hover:bg-blue-500/90'
+              : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
+          }`}
+          title={isScreenSharing ? 'Stop Screen Share' : 'Start Screen Share'}
+        >
+          {isScreenSharing ? <ScreenShareOff className="w-6 h-6" /> : <ScreenShare className="w-6 h-6" />}
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-8 bg-white/20"></div>
+
+        {/* Compiler Toggle */}
+        <button
+          onClick={onToggleCompiler}
+          className={`${controlButtonClass} ${
+            isCompilerOpen
+              ? 'bg-violet-600/80 border-violet-500/50 text-white hover:bg-violet-500/90'
+              : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
+          }`}
+          title={isCompilerOpen ? 'Close Compiler' : 'Open Compiler'}
+        >
+          <Code2 className="w-6 h-6" />
+        </button>
+
         {/* Chat Toggle */}
         <button
           onClick={onToggleChat}
-          className={`p-3 rounded-full transition-all duration-200 ${
+          className={`${controlButtonClass} relative ${
             isChatOpen
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-gray-700 hover:bg-gray-600 text-white'
+              ? 'bg-green-600/80 border-green-500/50 text-white hover:bg-green-500/90'
+              : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
           }`}
-          title="Toggle chat"
+          title={isChatOpen ? 'Close Chat' : 'Open Chat'}
         >
-          <MessageSquare className="w-5 h-5" />
+          <MessageCircle className="w-6 h-6" />
+          {/* Chat notification dot */}
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
         </button>
-        
-        {/* More Options */}
-        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition-all duration-200">
-          <MoreVertical className="w-5 h-5" />
-        </button>
-        
+
+        {/* Divider */}
+        <div className="w-px h-8 bg-white/20"></div>
+
         {/* End Call */}
         <button
           onClick={onEndCall}
-          className="p-3 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all duration-200 ml-2"
-          title="Leave call"
+          className={`${controlButtonClass} bg-red-600/90 border-red-500/50 text-white hover:bg-red-500 hover:scale-110`}
+          title="End Call"
         >
-          <PhoneOff className="w-5 h-5" />
+          <PhoneOff className="w-6 h-6" />
         </button>
+
+       
+       
       </div>
     </div>
   );
 };
 
-
+export default VideoControls;

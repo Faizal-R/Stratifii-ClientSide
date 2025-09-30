@@ -11,14 +11,7 @@ import {
 } from "lucide-react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
-// interface Interviewer {
-//   _id: string;
-//   name: string;
-//   email: string;
-//   createdAt: string;
-//   isBlocked: boolean;
-//   status: string; // "pending" | "approved" | "rejected"
-// }
+
 
 export const getAdminInterviewerColumns = ({
   onView,
@@ -28,9 +21,9 @@ export const getAdminInterviewerColumns = ({
   onOpenVerificationModal
 }: {
   onView: (interviewer: IInterviewerProfile) => void;
-  onBlockToggle: (id: string) => void;
+  onBlockToggle: (interviewerId: string) => void;
   activeTab: string;
-  onOpenVerificationModal: (interviewer: string,isVerifyOrReject:boolean) => void
+  onOpenVerificationModal: (interviewerId: string,isVerifyOrReject:boolean) => void
 }): ColumnDef<IInterviewerProfile>[] => [
   {
     accessorKey: "name",

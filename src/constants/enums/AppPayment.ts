@@ -1,7 +1,7 @@
 export enum PaymentConfig {
-     RATE_PER_CANDIDATE = 2500,
-     PLATFORM_FEE = 499,
-     GST_RATE = 0.18
+     RATE_PER_CANDIDATE = 1500,
+     PLATFORM_FEE = 299,
+     GST_RATE = 0.5
   }
   
  

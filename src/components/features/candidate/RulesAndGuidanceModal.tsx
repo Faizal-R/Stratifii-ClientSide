@@ -9,7 +9,7 @@ interface RulesModalProps {
 const RulesModal: React.FC<RulesModalProps> = ({ onClose, onAccept }) => {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-black via-black to-violet-950 rounded-2xl p-8 max-w-2xl w-full border border-violet-500/30 max-h-[90vh] overflow-y-auto">
+      <div className="bg-gradient-to-br from-black via-black to-violet-950 rounded-2xl p-8 max-w-2xl w-full border border-violet-500/30 max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
@@ -76,7 +76,7 @@ const RulesModal: React.FC<RulesModalProps> = ({ onClose, onAccept }) => {
               <div>
                 <h4 className="text-white font-medium">Answer Submission</h4>
                 <p className="text-gray-400 text-sm">
-                  Each question has a 90-second timer. Submit your answer before time expires.
+                  Each question has a 40-second timer. Submit your answer before time expires.
                 </p>
               </div>
             </div>

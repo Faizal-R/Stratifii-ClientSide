@@ -27,12 +27,14 @@ import { RiseLoader } from "react-spinners";
 // import { ICandidateJob } from "@/types/IJob";
 import { HttpStatusCode } from "axios";
 import { IJob } from "@/types/IJob";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function InterviewDelegation() {
   const router = useRouter();
   const { createJob, loading } = useCreateJob();
   const { deleteJob } = useDeleteJob();
   const { getJobs } = useGetJobs();
+  const [hasFetchedJobs, setHasFetchedJobs] = useState(false);
   const { updateJob } = useUpdateJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJobEditing, setIsJobEditing] = useState(false);
@@ -45,106 +47,91 @@ function InterviewDelegation() {
     experienceRequired: "",
   });
   const [skillInput, setSkillInput] = useState("");
+  const validateJob = (job: Omit<IJob, "_id"> | IJob) => {
+    if (!job.position.trim()) {
+      errorToast("Position is required");
+      return false;
+    }
+
+    if (
+      job.experienceRequired === "" ||
+      isNaN(Number(job.experienceRequired)) ||
+      Number(job.experienceRequired) < 0
+    ) {
+      errorToast("Experience must be a valid non-negative number");
+      return false;
+    }
+
+    if (!job.requiredSkills || job.requiredSkills.length === 0) {
+      errorToast("At least one skill is required");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleAddSkill = () => {
     const trimmed = skillInput.trim();
-    if (trimmed.length === 0) return;
-    if (isJobEditing && selectedJob.requiredSkills?.includes(trimmed)) return;
+    if (!trimmed) return errorToast("Skill cannot be empty");
 
-if (isJobEditing) {
-  setSelectedJob({
-    ...selectedJob,
-    requiredSkills: [...(selectedJob.requiredSkills || []), trimmed],
-  });
-  setSkillInput("");
-} else {
-  setNewJob({
-    ...newJob,
-    requiredSkills: [...(newJob.requiredSkills || []), trimmed],
-  });
-  setSkillInput("");
-}
+    const targetJob = isJobEditing ? selectedJob : newJob;
 
+    if (targetJob.requiredSkills?.includes(trimmed)) {
+      return errorToast("Skill already added");
+    }
+
+    const updatedSkills = [...(targetJob.requiredSkills || []), trimmed];
+
+    if (isJobEditing) {
+      setSelectedJob({ ...selectedJob, requiredSkills: updatedSkills });
+    } else {
+      setNewJob({ ...newJob, requiredSkills: updatedSkills });
+    }
+
+    setSkillInput("");
   };
 
   const handleDeleteSkill = (skillToRemove: string) => {
-    if(isJobEditing) {
-      selectedJob.requiredSkills = selectedJob.requiredSkills.filter(
-        (skill) => skill !== skillToRemove
-      );
-    }else{
+    const targetJob = isJobEditing ? selectedJob : newJob;
+    const updatedSkills = targetJob.requiredSkills.filter(
+      (skill) => skill !== skillToRemove
+    );
 
-      newJob.requiredSkills = newJob.requiredSkills.filter(
-        (skill) => skill !== skillToRemove
-      );
-    }
+    if (isJobEditing)
+      setSelectedJob({ ...selectedJob, requiredSkills: updatedSkills });
+    else setNewJob({ ...newJob, requiredSkills: updatedSkills });
   };
 
   const handleEditJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedJob.position || !selectedJob.requiredSkills.length) {
-      toast("Please fill all fields");
-      return;
-    }
+    if (!selectedJob) return;
+
+    if (!validateJob(selectedJob)) return;
+
     const res = await updateJob({
       ...selectedJob,
-
       experienceRequired: Number(selectedJob.experienceRequired),
     });
+
     if (!res.success) {
-      toast(res.error);
+      errorToast(res.message);
       return;
     }
-    toast.success("Job updated successfully");
+
+    successToast("Job updated successfully");
     setJobs((prev) =>
       prev.map((job) => (job._id === selectedJob._id ? selectedJob : job))
     );
     setIsJobEditing(false);
     setIsModalOpen(false);
   };
-  const handleCreateJob = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newJob.position || !newJob.requiredSkills.length) {
-      toast("Please fill all  fields");
-      return;
-    }
-
-    const response = await createJob(
-      newJob.position,
-      newJob.description,
-
-      Number(newJob.experienceRequired),
-      newJob.requiredSkills
-    );
-    if (!response.success) {
-      toast(response.error, {
-        className: "custom-error-toast",
-      });
-      setTimeout(() => {
-        if (response.status === HttpStatusCode.Forbidden) {
-          router.push("/company/subscription");
-        }
-      }, 1500);
-      return;
-    }
-    setJobs([...jobs, response.data]);
-    setIsModalOpen(false);
-    toast.success(response.message);
-    setNewJob({
-      position: "",
-      description: "",
-      requiredSkills: [],
-
-      experienceRequired: "",
-    });
-  };
   const handleJobDelete = async (jobId: string) => {
     const res = await deleteJob(jobId);
     if (!res.success) {
-      toast(res.error);
+      errorToast(res.message);
       return;
     }
-    toast.success(res.message);
+    successToast(res.message);
     setJobs((prev) => prev.filter((job) => job._id !== jobId));
   };
 
@@ -172,6 +159,38 @@ if (isJobEditing) {
   };
 
   const hasFetched = useRef(false);
+  const handleCreateJob = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateJob(newJob)) return;
+
+    const response = await createJob(
+      newJob.position,
+      newJob.description,
+      Number(newJob.experienceRequired),
+      newJob.requiredSkills
+    );
+
+    if (!response.success) {
+      errorToast(response.message);
+      if (response.status === HttpStatusCode.Forbidden) {
+        setTimeout(() => router.push("/company/subscription"), 1500);
+      }
+      return;
+    }
+
+    setJobs([...jobs, response.data]);
+    setIsModalOpen(false);
+    successToast(response.message);
+
+    // Reset form
+    setNewJob({
+      position: "",
+      description: "",
+      requiredSkills: [],
+      experienceRequired: "",
+    });
+  };
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -181,21 +200,31 @@ if (isJobEditing) {
     const fetchJobs = async () => {
       const response = await getJobs();
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
       setJobs(response.data);
+      setHasFetchedJobs(true);
       console.log(response.data);
     };
 
     fetchJobs();
   }, [getJobs]);
 
+  if (!hasFetchedJobs) {
+    // API is still fetching → show loader only
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <RiseLoader color="white" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-8 pl-72">
+    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-8 ">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto text-violet-200">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <Briefcase className="text-violet-600" size={32} />
             <h1 className="text-3xl font-bold ">Interview Delegation</h1>
@@ -203,7 +232,7 @@ if (isJobEditing) {
           {jobs.length > 0 && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all duration-200 hover:scale-105 transform"
+              className="flex items-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all duration-200 hover:scale-105 transform mt-3"
             >
               <Plus size={20} />
               Create Job
@@ -257,7 +286,16 @@ if (isJobEditing) {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+          <div
+            className={`
+            grid 
+            grid-cols-1  
+           sm:grid-cols-2  
+          lg:grid-cols-3      
+            xl:grid-cols-3      
+          gap-6 
+         relative`}
+          >
             {jobs.map((job) => (
               <div
                 key={job._id}
@@ -450,20 +488,22 @@ if (isJobEditing) {
 
                   {/* Skill tags */}
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {(isJobEditing ? selectedJob : newJob).requiredSkills.map((skill, index) => (
-                      <div
-                        key={index}
-                        className="bg-violet-500 text-white px-3 py-1 rounded-full flex items-center space-x-2"
-                      >
-                        <span>{skill}</span>
-                        <button
-                          onClick={() => handleDeleteSkill(skill)}
-                          className="text-white hover:text-gray-200 text-sm"
+                    {(isJobEditing ? selectedJob : newJob).requiredSkills.map(
+                      (skill, index) => (
+                        <div
+                          key={index}
+                          className="bg-violet-500 text-white px-3 py-1 rounded-full flex items-center space-x-2"
                         >
-                          ×
-                        </button>
-                      </div>
-                    ))}
+                          <span>{skill}</span>
+                          <button
+                            onClick={() => handleDeleteSkill(skill)}
+                            className="text-white hover:text-gray-200 text-sm"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>

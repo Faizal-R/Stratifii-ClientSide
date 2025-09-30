@@ -1,10 +1,11 @@
 import { StatusCodes } from "@/constants/enums/statusCodes";
+import { AuthRoutes } from "@/constants/routes/api/AuthRoutes";
+import { errorToast } from "@/utils/customToast";
 import axios from "axios";
+import { toast } from "sonner";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  // baseURL:"http://192.168.1.91:8000/api/v1",
-
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
@@ -12,63 +13,68 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-async function refreshAccessToken(role: string) {
-  try {
-  
-    const response = await apiClient.post("/auth/refresh-token", { role });
-    console.log("Refreshing token...", response.data);
-    const newAccessToken = response.data.data.accessToken;
-    const user = localStorage.getItem("user");
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      parsedUser.token = newAccessToken; // Update stored token
-      localStorage.setItem("user", JSON.stringify(parsedUser));
-    }
+// ✅ Track if we're currently logging out
+let isLoggingOut = false;
 
-    return newAccessToken;
-  } catch (error) {
-    console.error("Refresh token failed", error);
-    return null; // Return null to indicate failure
+// ✅ Function to handle logout
+export function handleLogout() {
+  isLoggingOut = true;
+
+  // Clear any pending requests
+  apiClient.defaults.timeout = 1; // Cancel pending requests quickly
+  localStorage.clear();
+  // Redirect to signin
+  if (typeof window !== "undefined") {
+    window.location.href = "/signin";
   }
 }
 
+// ✅ Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    if (typeof window !== "undefined") {
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-      const token = user?.token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    // Don't make requests if logging out
+    if (isLoggingOut) {
+      return Promise.reject(new Error("Logging out"));
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// ✅ Response Interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log("response", originalRequest);
+
+    // ✅ Don't retry if logging out
+    if (isLoggingOut) {
+      return Promise.reject(error);
+    }
+
+    // If we get 401, it means both access and refresh tokens are invalid
+    if (error.response?.status === StatusCodes.UNAUTHORIZED) {
+      console.error("❌ Authentication failed - redirecting to signin");
+      handleLogout();
+      return Promise.reject(error);
+    }
 
     if (
-      error.response?.status === StatusCodes.UNAUTHORIZED &&
-      !originalRequest._retry
+      error.response?.status === StatusCodes.FORBIDDEN &&
+      !originalRequest?.url?.includes(AuthRoutes.SIGN_IN)
     ) {
-      originalRequest._retry = true;
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-      // console.log(user.role)
-      if(user){
-        const newAccessToken = await refreshAccessToken(user.role);
-        console.log("newAccessToken", newAccessToken); // Backend call
-  
-        if (newAccessToken) {
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-  
-          return apiClient(originalRequest);
-        }
+      errorToast("You are not authorized to access this resource.");
+      if (typeof window !== "undefined") {
+        window.location.href = "/unauthorized";
       }
+    }
+
+    // Handle Forbidden
+    if (error.response?.status === StatusCodes.LOCKED &&!originalRequest?.url?.includes("/auth")) {
+      errorToast(error.response.data.message);
+      setTimeout(() => {
+        window.location.href = "/signin";
+      }, 1000);
     }
 
     return Promise.reject(error);

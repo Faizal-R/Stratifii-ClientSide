@@ -60,3 +60,22 @@ export const useChangeCompanyPassword = () => {
 
   return { changeCompanyPassword, loading };
 };
+
+
+export const useGetCompanyDashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const getCompanyDashboard = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await CompanyService.getCompanyDashboard();
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { getCompanyDashboard, loading };
+};

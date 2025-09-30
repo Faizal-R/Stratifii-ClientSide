@@ -30,6 +30,16 @@ export const SlotService = {
       return parseAxiosError(error, "An error occurred while fetching slots.");
     }
   },
+  getAllSlotsByInterviewer: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${SlotRoutes.GET_ALL_INTERVIEWER_SLOTS}/${interviewerId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching slots.");
+    }
+  },
 
   getInterviewerSlotGenerationRule: async (interviewerId: string) => {
     try {
@@ -50,6 +60,7 @@ export const SlotService = {
     slot: IInterviewSlot;
     candidate: string;
     job: string;
+    isFollowUpScheduling: boolean;
   }) => {
     try {
       const response = await apiClient.post(
@@ -64,4 +75,22 @@ export const SlotService = {
       );
     }
   },
+
+  updateInterviewerSlotGenerationRule: async (interviewerId:string,ruleData:ISlotGenerationRequest)=>{
+    try {
+      const response = await apiClient.put(
+       `${SlotRoutes.UPDATE_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`,
+        ruleData
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating slot generation rule."
+      );
+    }
+  }
 };
+
+
+

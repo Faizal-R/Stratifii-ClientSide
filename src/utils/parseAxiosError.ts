@@ -1,5 +1,5 @@
 // src/utils/parseAxiosError.ts
-import { AxiosError, isAxiosError } from "axios";
+import { AxiosError, HttpStatusCode, isAxiosError } from "axios";
 
 export const parseAxiosError = (
   error: AxiosError | Error | unknown,
@@ -9,12 +9,14 @@ export const parseAxiosError = (
     return {
       success: false,
       status: error.response?.status,
-      error: error.response?.data?.message || defaultMessage,
+      message: error.response?.data?.message || defaultMessage,
+    error:true
     };
   }
 
   return {
     success: false,
-    error: "Unexpected error occurred",
+    message: "Unexpected error occurred",
+    status:HttpStatusCode.InternalServerError
   };
 };
