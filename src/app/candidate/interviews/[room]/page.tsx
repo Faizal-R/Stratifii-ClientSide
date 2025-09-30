@@ -1,10 +1,9 @@
 "use client";
 import { useSocketStore } from '@/features/socket/Socket';
 import { useWebRTC } from '@/hooks/webRTC/useWebRTC';
+import { successToast } from '@/utils/customToast';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { toast } from 'sonner';
-
 const InterviewRoomPage = () => {
   const { socket } = useSocketStore();
   const [targetId, setTargetId] = useState('');
@@ -54,10 +53,7 @@ const InterviewRoomPage = () => {
     user: { name: string; role: string }; 
     id: string 
   }) => {
-    toast.success(`${data.user.role}: ${data.user.name} ${data.id} has joined the meet`, {
-      className: "custom-error-toast",
-      duration: 5000
-    });
+    successToast(`${data.user.role}: ${data.user.name} ${data.id} has joined the meet`)
     setTargetId(data.id);
   }, []);
 

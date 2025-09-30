@@ -6,34 +6,43 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
-import { CalendarSearchIcon, CreditCard, LayoutDashboard, UserCircle } from "lucide-react";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
+import {
+  CalendarSearchIcon,
+  CreditCard,
+  LayoutDashboard,
+  UserCircle,
+} from "lucide-react";
+import { errorToast, successToast } from "@/utils/customToast";
+import { useSidebarCollapseStore } from "@/features/sidebar/sidebarCollapseStore";
 
 const navItems = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    route: "/candidate",
+    route: "/candidate/dashboard",
+    isDisabled: false,
   },
   {
     id: "profile",
     label: "Profile",
     icon: UserCircle,
     route: "/candidate/profile",
+    isDisabled: false,
   },
   {
     id: "interviews",
     label: "Interviews",
-    icon:CalendarSearchIcon,
+    icon: CalendarSearchIcon,
     route: "/candidate/interviews",
+    isDisabled: false,
   },
 ];
 
 const CandidateLayout = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const {isSidebarCollapsed}=useSidebarCollapseStore()
   const { logout } = useAuthStore();
   const { signoutUser } = useSignoutUser();
   function handleModalState(state: boolean) {
@@ -43,11 +52,9 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
     setIsModalOpen(false);
     const response = await signoutUser();
     if (!response.success) {
-      toast.error(response.error, {
-        className: "custom-error-toast",
-      });
+     errorToast(response.message);
     }
-    toast.success(response.message);
+    successToast(response.message);
     logout();
     router.push("/signin");
   }
@@ -66,9 +73,14 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
         isModalOpen={isModalOpen}
         handleModalState={handleModalState}
       />
-      {children}
+      <div
+        className="transition-all duration-300"
+        style={{ marginLeft: isSidebarCollapsed ? 80 : 256 }}
+      >
+        {children}
+      </div>
     </>
   );
 };
 
-export default withProtectedRoute(CandidateLayout,[Roles.CANDIDATE,Roles.INTERVIEWER]);
+export default CandidateLayout;

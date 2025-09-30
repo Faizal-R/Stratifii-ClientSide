@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { InterviewerService } from "@/services/InterviewerService";
+import { IBankDetails } from "@/validations/InterviewerSchema";
 
 export const useFetchInterviewerProfile = () => {
   const [loading, setLoading] = useState(false);
@@ -19,15 +20,17 @@ export const useFetchInterviewerProfile = () => {
   return { interviewerProfile, loading };
 };
 
-export const useUpadteInterviewerProfile = () => {
+export const useUpdateInterviewerProfile = () => {
   const [loading, setLoading] = useState(false);
 
   const updateInterviewerProfile = useCallback(
-    async ( updatedInterviewer: IInterviewerProfile,) => {
+    async ( updatedInterviewer: IInterviewerProfile,avatar?: string,resume?: string|null) => {
       try {
         setLoading(true);
         const response = await InterviewerService.updateInterviewerProfile(
           updatedInterviewer,
+          avatar,
+          resume
           
         );
         return response;
@@ -45,7 +48,7 @@ export const useSetupInterviewerAccount = () => {
   const [loading, setLoading] = useState(false);
 
   const setupInterviewerAccount = useCallback(
-    async ( updatedInterviewer: IInterviewerProfile,interviewerId:string) => {
+    async ( updatedInterviewer: any,interviewerId:string) => {
       try {
         setLoading(true);
         const response = await InterviewerService.setupInterviewerAccount(
@@ -71,7 +74,7 @@ export const useChangeInterviewerPassword = () => {
     async (currentPassword: string, newPassword: string) => {
       try {
         setLoading(true);
-        const response = await InterviewerService.changeCompanyPassword(
+        const response = await InterviewerService.changeInterviewerPassword(
           {
             currentPassword,
             newPassword,
@@ -87,3 +90,54 @@ export const useChangeInterviewerPassword = () => {
 
   return { changeInterviewerPassword, loading };
 };
+
+export const useAddBankDetails = () => {
+  const [loading, setLoading] = useState(false);
+  const addBankDetails = useCallback(
+    async (bankDetails: IBankDetails) => {
+      try {
+        setLoading(true);
+        const response = await InterviewerService.addBankDetails(bankDetails);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { addBankDetails, loading };
+}
+
+export const useUpdateBankDetails = () => {
+  const [loading, setLoading] = useState(false);
+  const updateBankDetails = useCallback(
+    async (bankDetails: IBankDetails) => {
+      try {
+        setLoading(true);
+        const response = await InterviewerService.updateBankDetails(bankDetails);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { updateBankDetails, loading };
+}
+
+export const useGetInterviewerWallet = () => {
+  const [loading, setLoading] = useState(false);
+  const getInterviewerWallet = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await InterviewerService.getInterviewerWallet();
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { getInterviewerWallet, loading };
+}

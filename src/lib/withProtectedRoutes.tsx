@@ -2,7 +2,7 @@
 import { ComponentType, ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 
 import { useAuthStore } from "@/features/auth/authStore";
 

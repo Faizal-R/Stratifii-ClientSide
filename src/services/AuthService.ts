@@ -1,8 +1,9 @@
 import { isAxiosError } from "axios";
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
-
-import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration } from "@/validations/AuthSchema";
+import { AuthRoutes } from "@/constants/routes/api/AuthRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export interface LoginResponse {
   accessToken: string;
@@ -10,191 +11,114 @@ export interface LoginResponse {
 }
 
 const AuthService = {
-  // Login and store tokens
   signIn: async (email: string, password: string, role: string) => {
-    console.log("role",role)
     try {
-      const response = await apiClient.post("/auth/signin", {
+      const response = await apiClient.post(AuthRoutes.SIGN_IN, {
         email,
         password,
         role,
       });
-      // setAuthTokens(response.data.accessToken, response.data.refreshToken);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        console.log("axios", error);
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data?.message || "An error occurred during login",
-        };
-      }
-      console.log("Error",error)
-      return {
-        success: false,
-        error: "Unexpected error occurred While SignIn",
-      };
+      return parseAxiosError(error, "An error occurred during login");
     }
   },
 
   companyRegister: async (company: ICompany) => {
-    console.log("company : ", company);
     try {
-      const response = await apiClient.post("/auth/register/company", company);
+      const response = await apiClient.post(AuthRoutes.COMPANY_REGISTER, company);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        console.log("axios", error);
-        return {
-          success: false,
-          error: error.response?.data.message || "Request failed",
-        };
-      }
-      return { success: false, error: "Unknown error" };
+      return parseAxiosError(error, "Company registration failed");
     }
   },
-interviewerRegister: async (interviewer: IInterviewerRegistration) => {
-  console.log(interviewer);
 
-  const formData = new FormData();
+  interviewerRegister: async (interviewer: IInterviewerRegistration) => {
+    const formData = new FormData();
+    const { resume, ...rest } = interviewer;
 
-  
-  const { resume, ...rest } = interviewer;
+    if (resume instanceof File) {
+      formData.append("resume", resume);
+    }
 
- 
-  if (resume instanceof File) {
-    formData.append("resume", resume);
-  }
+    formData.append("data", JSON.stringify(rest));
 
-  
-  formData.append("data", JSON.stringify(rest));
-
-  try {
-    const response = await apiClient.post(
-      "/auth/register/interviewer",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Registration failed:", error);
-    throw error;
-  }
-},
-
-
-  verifyOtp: async (otp: string, email: string, role: string) => {
     try {
-      const response = await apiClient.post("/auth/otp/verify", {
-        otp,
-        email,
-        role,
+      const response = await apiClient.post(AuthRoutes.INTERVIEWER_REGISTER, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error: error.response?.data.message || "Request failed",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected Error Occured while verifying Otp",
-      };
+      return parseAxiosError(error, "Interviewer registration failed");
+    }
+  },
+
+  verifyOtp: async (otp: string, email: string, role: string) => {
+    try {
+      const response = await apiClient.post(AuthRoutes.OTP_VERIFY, { otp, email, role });
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "Failed to verify OTP");
     }
   },
 
   triggerOtpResend: async (email: string) => {
     try {
-      const response = await apiClient.post("/auth/otp/resend", { email });
+      const response = await apiClient.post(AuthRoutes.OTP_RESEND, { email });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message };
-      }
-      return {
-        success: false,
-        error: "Unexpected Error Occured while Resend Otp",
-      };
+      return parseAxiosError(error, "Failed to resend OTP");
     }
   },
 
-  sendForgotPasswordOtpRequest: async function (email: string, role: string) {
+  sendForgotPasswordOtpRequest: async (email: string, role: string) => {
     try {
-      const response = await apiClient.post("/auth/forgot-password", {
-        email,
-        role,
-      });
+      const response = await apiClient.post(AuthRoutes.FORGOT_PASSWORD, { email, role });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message };
-      }
-      return {
-        success: false,
-        error: "Unexpected Error Occured while Requesting Forgot Password",
-      };
+      return parseAxiosError(error, "Forgot password request failed");
     }
   },
 
-  resetPassword: async function (
-    password: string,
-    confirmPassword: string,
-    token: string
-  ) {
+  resetPassword: async (password: string, confirmPassword: string, token: string) => {
     try {
-      const response = await apiClient.post("/auth/reset-password", {
+      const response = await apiClient.post(AuthRoutes.RESET_PASSWORD, {
         password,
         confirmPassword,
         token,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message };
-      }
-      return {
-        success: false,
-        error: "Unexpected Error Occured while resetting Password",
-      };
+      return parseAxiosError(error, "Password reset failed");
     }
   },
 
-  // Logout and remove tokens
-  signOut:async () => {
-    try{
-      const response = await apiClient.post("/auth/signout",);
+  signOut: async () => {
+    try {
+      const response = await apiClient.post(AuthRoutes.SIGN_OUT);
       return response.data;
-    }catch(error){
-      if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message };
-      }
-      return { success: false, error: "Unexpected Error Occured" };
-    
+    } catch (error) {
+      return parseAxiosError(error, "Sign out failed");
     }
   },
 
   verifyUserAccount: async (email: string) => {
     try {
-      const response = await apiClient.post("/auth/verify-account", { email });
+      const response = await apiClient.post(AuthRoutes.VERIFY_ACCOUNT, { email });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return { success: false, error: error.response?.data.message };
-      }
-      return { success: false, error: "Unexpected Error Occured" };
+      return parseAxiosError(error, "Account verification failed");
     }
   },
 
-  
-  
+  googleAuthLogin: async (payload:{email:string,name:string,avatar:string}) => {
+    try {
+      const response = await apiClient.post(AuthRoutes.GOOGLE_AUTH, payload);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "Google authentication failed");
+    }
+  },
 };
 
 export default AuthService;

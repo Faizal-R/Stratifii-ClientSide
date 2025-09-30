@@ -1,99 +1,101 @@
 import apiClient from "@/config/apiClient";
-import { IInterviewerProfile } from "@/validations/InterviewerSchema";
-import { isAxiosError } from "axios";
+import {
+  IBankDetails,
+  IInterviewerProfile,
+} from "@/validations/InterviewerSchema";
+import { InterviewerRoutes } from "@/constants/routes/api/InterviewerRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
+import { convertBlobUrlToFile } from "@/utils/fileConversion";
+import { ApiResponse } from "@/types/api/ApiResponse";
 
 export const InterviewerService = {
-  getInterviewerProfile: async () => {
+  getInterviewerProfile: async (): Promise<
+    ApiResponse<IInterviewerProfile>
+  > => {
     try {
-      const response = await apiClient.get("/interviewer/profile");
+      const response = await apiClient.get(InterviewerRoutes.PROFILE);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Fetching Interviewer Profile",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Company Profile",
-      };
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching interviewer profile"
+      );
     }
   },
 
-  updateInterviewerProfile: async (interviewer:IInterviewerProfile) => {
-    try {
-      const response = await apiClient.put("/interviewer/profile", interviewer);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status:error.status,
-          error:
-            error.response?.data.message ||
-           "An error occurred while updating the interviewer profile. Please try again later."
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Interviewer Profile",
-      };
-    }
-  },
-setupInterviewerAccount: async (interviewer: IInterviewerProfile, interviewerId: string) => {
-  try {
+  updateInterviewerProfile: async (
+    interviewer: IInterviewerProfile,
+    avatar?: string,
+    resume?: string | null
+  ) => {
     const formData = new FormData();
-    const { resume} = interviewer;
-    console.log(resume)
-      if (resume instanceof File) {
-    formData.append("resume", resume);
-  }
-
-
-    // Create a new object that includes interviewer and interviewerId
-    const payload = {
-      interviewer,
-      interviewerId
-    };
-    console.log("payload", payload);
-
-    // Append the JSON payload as a string to the FormData
-    formData.append("data", JSON.stringify(payload));
-
-    const response = await apiClient.put(
-      "/auth/interviewer/account/setup",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
+    try {
+      if (avatar) {
+        const avatarFile = await convertBlobUrlToFile(avatar);
+        formData.append("avatar", avatarFile!);
       }
-    );
-
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      return {
-        success: false,
-        status: error.status,
-        error:
-          error.response?.data.message ||
-          "An error occurred while updating the interviewer profile. Please try again later."
-      };
+      if (resume) {
+        const resumeFile = await convertBlobUrlToFile(resume);
+        formData.append("resume", resumeFile!);
+      }
+      formData.append("interviewer", JSON.stringify(interviewer));
+      const response = await apiClient.put(
+        InterviewerRoutes.PROFILE,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating the interviewer profile. Please try again later."
+      );
     }
+  },
 
-    return {
-      success: false,
-      error: "Unexpected error occurred While Updating Interviewer Profile",
-    };
-  }
-},
+  setupInterviewerAccount: async (
+    interviewer: IInterviewerProfile,
+    interviewerId: string
+  ) => {
+    try {
+      const formData = new FormData();
+      const { resume } = interviewer;
 
-  changeCompanyPassword: async ({
+      if (resume instanceof File) {
+        formData.append("resume", resume);
+      }
+
+      const payload = {
+        interviewer,
+        interviewerId,
+      };
+
+      formData.append("data", JSON.stringify(payload));
+
+      const response = await apiClient.put(
+        InterviewerRoutes.ACCOUNT_SETUP,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while setting up interviewer account"
+      );
+    }
+  },
+
+  changeInterviewerPassword: async ({
     currentPassword,
     newPassword,
   }: {
@@ -101,31 +103,58 @@ setupInterviewerAccount: async (interviewer: IInterviewerProfile, interviewerId:
     newPassword: string;
   }) => {
     try {
-      const response = await apiClient.put("/interviewer/change-password", {
+      const response = await apiClient.put(InterviewerRoutes.CHANGE_PASSWORD, {
         currentPassword,
         newPassword,
       });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "An error occurred while updating the company password. Please try again later.",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Company Password",
-      };
+      return parseAxiosError(
+        error,
+        "An error occurred while updating the interviewer password. Please try again later."
+      );
     }
   },
 
-  
+  addBankDetails: async (bankDetails: IBankDetails) => {
+    try {
+      const response = await apiClient.post(
+        InterviewerRoutes.ADD_BANK_DETAILS,
+        bankDetails
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while adding bank details. Please try again later."
+      );
+    }
+  },
 
-  
+  updateBankDetails: async (bankDetails: IBankDetails) => {
+    try {
+      const response = await apiClient.put(
+        InterviewerRoutes.UPDATE_BANK_DETAILS,
+        bankDetails
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating bank details. Please try again later."
+      );
+    }
+  },
+
+  getInterviewerWallet: async () => {
+    try {
+      const response = await apiClient.get(InterviewerRoutes.GET_WALLET);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching interviewer wallet. Please try again later."
+      );
+    }
+  },
 };
-
-

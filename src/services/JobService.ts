@@ -1,92 +1,61 @@
 import apiClient from "@/config/apiClient";
 import { IJob } from "@/types/IJob";
 import { isAxiosError } from "axios";
+import { JobRoutes } from "@/constants/routes/api/JobRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export const JobService = {
   getJobs: async () => {
     try {
-      const response = await apiClient.get(`/company/jobs`);
+      const response = await apiClient.get(JobRoutes.BASE);
       return response.data;
     } catch (error) {
-      console.log(error);
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "Unexpected error occurred While Fetching Jobs",
-        };
+      return parseAxiosError(error, "Fetching Jobs");
     }
   },
+
   getInProgressJobs: async () => {
     try {
-      const response = await apiClient.get(`/company/jobs/in-progress`);
+      const response = await apiClient.get(JobRoutes.IN_PROGRESS);
       return response.data;
     } catch (error) {
-      console.log(error);
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "Unexpected error occurred While Fetching Jobs",
-        };
+      return parseAxiosError(error, "Fetching In-Progress Jobs");
     }
   },
+
   getJob: async (jobId: string) => {
     try {
-      const response = await apiClient.get(`/company/jobs/${jobId}`);
+      const response = await apiClient.get(`${JobRoutes.SINGLE}/${jobId}`);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error: "Unexpected error occurred While Fetching Job",
-        };
+      return parseAxiosError(error, "Fetching Single Job");
     }
   },
 
   createJob: async (job: IJob) => {
     try {
-      console.log("Creating Job", job);
-      const response = await apiClient.post("/company/jobs", job);
+      const response = await apiClient.post(JobRoutes.BASE, job);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error: error.response?.data.message,
-        };
+      return parseAxiosError(error, "Creating Job");
     }
   },
+
   updateJob: async (job: IJob) => {
     try {
-      const response = await apiClient.put("/company/jobs", job);
+      const response = await apiClient.put(JobRoutes.BASE, job);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error: "Unexpected error occurred While Updating Job",
-        };
+      return parseAxiosError(error, "Updating Job");
     }
   },
+
   deleteJob: async (id: string) => {
     try {
-      const response = await apiClient.delete(`/company/jobs/${id}`);
+      const response = await apiClient.delete(`${JobRoutes.SINGLE}/${id}`);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error))
-        return {
-          success: false,
-          status: error.status,
-          error: "Unexpected error occurred While Deleting Job",
-        };
+      return parseAxiosError(error, "Deleting Job");
     }
   },
 
@@ -96,7 +65,7 @@ export const JobService = {
   ) => {
     try {
       const response = await apiClient.post(
-        `/company/jobs/${jobId}/resumes`,
+        `${JobRoutes.UPLOAD_RESUMES}/${jobId}/resumes`,
         resumes,
         {
           headers: {
@@ -106,81 +75,50 @@ export const JobService = {
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error:
-            error.response?.data.message ||
-            "An Error occured While Uploading Resumes",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Uploading Resumes",
-      };
+      return parseAxiosError(error, "Uploading Resumes");
     }
   },
 
   getCandidatesByJobId: async (jobId: string) => {
     try {
-      const response = await apiClient.get(`/company/jobs/${jobId}/candidates`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An Error occurred While Fetching Candidates",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Candidates",
-      };
-    }
-  },
-  getQualifiedCandidatesByJobId: async (jobId: string) => {
-    try {
       const response = await apiClient.get(
-        `/company/jobs/${jobId}/qualified-candidates`
+        `${JobRoutes.CANDIDATES}/${jobId}/candidates`
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An Error occurred While Fetching Candidates",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Candidates",
-      };
+      return parseAxiosError(error, "Fetching Candidates");
     }
   },
 
-  getMatchedInterviewersByJobDescription: async (
-    jobId: string,
-  ) => {
+
+
+  getMatchedInterviewersByJobDescription: async (jobId: string) => {
     try {
       const response = await apiClient.get(
-        `company/jobs/${jobId}/matched-interviewers`
+        `${JobRoutes.MATCHED_INTERVIEWERS}/${jobId}/matched-interviewers`
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          status: error.status,
-          error: "An Error occurred While Fetching Candidates",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Candidates",
-      };
+      return parseAxiosError(error, "Fetching Matched Interviewers");
     }
   },
+   getMockQualifiedCandidatesByJob:async (jobId:string)=>{
+    try {
+      const response = await apiClient.get(`${JobRoutes.MOCK_QUALIFIED_CANDIDATES}/${jobId}/qualified-candidates`);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching mock qualified candidates");
+    }
+  },
+
+  getFinalInterviewCompletedCandidatesByJob: async (jobId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${JobRoutes.FINAL_INTERVIEW_COMPLETED_CANDIDATES}/${jobId}/final-completed`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "Fetching Final Interview Completed Candidates");
+    }
+  }
 };

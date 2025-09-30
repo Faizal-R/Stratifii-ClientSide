@@ -15,19 +15,22 @@ import {
   CheckCircle, 
   Menu, 
   X,
-  Award,
   Building2,
   Users
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useRouter } from 'next/navigation';
+import OrbitingSkills from '@/components/ui/Orbiting/Orbiting';
+import { Roles } from '@/constants/enums/roles';
 function LandingPage() {
 const {user}=useAuthStore();
 const router=useRouter();
 useEffect(()=>{
   if(user){
-    router.push(`/${user.role}`);
+    if(user.role === Roles.INTERVIEWER){
+      router.push(`/${user.role}/profile`);
+    }else router.push(`/${user.role}/dashboard`);
   }
 },[user,router])
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,6 +70,7 @@ useEffect(()=>{
       {isMenuOpen && (
         <div className="md:hidden bg-black/95 border-b border-violet-900/30 py-4">
           <div className="container mx-auto px-6 flex flex-col space-y-4">
+            <Link href="/signin" className="text-violet-200 hover:text-white py-2 transition">SignIn</Link>
             <Link href="#features" className="text-violet-200 hover:text-white py-2 transition">Features</Link>
             <Link href="#how-it-works" className="text-violet-200 hover:text-white py-2 transition">How It Works</Link>
             <Link href="#testimonials" className="text-violet-200 hover:text-white py-2 transition">Testimonials</Link>
@@ -80,9 +84,9 @@ useEffect(()=>{
 
       {/* Hero Section */}
       <section className="py-16 md:py-28 px-6 bg-gradient-to-br from-black via-black to-violet-950/30">
-        <div className="container mx-auto">
+        <div className="container mx-auto ">
           <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-12 md:mb-0">
+            <div className="md:w-1/2 mb-12 ml-5 md:mb-0">
               <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                 Revolutionize Your <span className="text-violet-400">Tech Hiring</span> Process
               </h1>
@@ -105,32 +109,9 @@ useEffect(()=>{
           </div>
              
             </div>
-            <div className="md:w-1/2">
-              <div className="relative">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-violet-600/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-violet-600/20 rounded-full blur-3xl"></div>
-                <Image 
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&auto=format&fit=crop&q=80" 
-                  alt="Technical Interview" 
-                  // layout='intrinsic'
-                  width={600}
-                  height={250}
-                  // fill
-                  className="rounded-xl border border-violet-900/30 shadow-2xl shadow-violet-900/20 relative z-10"
-                />
-                <div className="absolute -bottom-5 -right-5 bg-black/80 border border-violet-900/50 p-4 rounded-lg shadow-lg z-20">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-violet-900/30 p-2 rounded-full">
-                      <Award className="text-violet-400" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">Trusted by</p>
-                      <p className="text-xs text-violet-300">Fortune 500 Companies</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+             <div className="md:w-1/2">
+              <OrbitingSkills/>
+             </div>
           </div>
         </div>
       </section>

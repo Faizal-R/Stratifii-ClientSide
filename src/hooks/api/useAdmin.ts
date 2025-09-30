@@ -24,7 +24,7 @@ export const useAdminSignIn = () => {
 
 export const useAdminCompany = () => {
   const [loading, setLoading] = useState(false);
-  const companies = useCallback(async (status:string) => {
+  const companies = useCallback(async (status: string) => {
     setLoading(true);
 
     try {
@@ -40,7 +40,7 @@ export const useAdminCompany = () => {
 
 export const useAdminCompanyUpdate = () => {
   const [loading, setLoading] = useState(false);
-  const updateCompany = useCallback(async (companyId:string) => {
+  const updateCompany = useCallback(async (companyId: string) => {
     setLoading(true);
     try {
       const response = await AdminService.updateCompany(companyId);
@@ -53,10 +53,9 @@ export const useAdminCompanyUpdate = () => {
   return { updateCompany, loading };
 };
 
-
 export const useAdminInterviewers = () => {
   const [loading, setLoading] = useState(false);
-  const fetchInterviewers = useCallback(async (status:string) => {
+  const fetchInterviewers = useCallback(async (status: string) => {
     setLoading(true);
 
     try {
@@ -72,7 +71,7 @@ export const useAdminInterviewers = () => {
 
 export const useInterviewerUpdate = () => {
   const [loading, setLoading] = useState(false);
-  const updatedInterviewer = useCallback(async (interviewerId:string) => {
+  const updatedInterviewer = useCallback(async (interviewerId: string) => {
     setLoading(true);
     try {
       const response = await AdminService.updateInterviewer(interviewerId);
@@ -85,32 +84,73 @@ export const useInterviewerUpdate = () => {
   return { updatedInterviewer, loading };
 };
 
-
-export const useHandleCompanyVerification=()=>{
+export const useHandleCompanyVerification = () => {
   const [loading, setLoading] = useState(false);
-  const verifyOrRejectCompany = useCallback(async (companyId:string,isApproved:boolean) => {
-    setLoading(true);
-    try {
-      const response = await AdminService.handleCompanyVerification(companyId,isApproved);
-      return response;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const verifyOrRejectCompany = useCallback(
+    async (
+      companyId: string,
+      isApproved: boolean,
+      reasonForRejection?: string
+    ) => {
+      setLoading(true);
+      try {
+        const response = await AdminService.handleCompanyVerification(
+          companyId,
+          isApproved,
+          reasonForRejection
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   return { verifyOrRejectCompany, loading };
-}
-export const useHandleInterveiwerVerification=()=>{
+};
+export const useHandleInterveiwerVerification = () => {
   const [loading, setLoading] = useState(false);
-  const verifyOrRejectInterviewer = useCallback(async (interviewerId:string,isApproved:boolean,interviewerName:string,interviewerEmail:string,reasonForRejection?:string) => {
+  const verifyOrRejectInterviewer = useCallback(
+    async (
+      interviewerId: string,
+      isApproved: boolean,
+      interviewerName: string,
+      interviewerEmail: string,
+      reasonForRejection?: string
+    ) => {
+      setLoading(true);
+      try {
+        const response = await AdminService.handleInterviewerVerification(
+          interviewerId,
+          isApproved,
+          interviewerName,
+          interviewerEmail,
+          reasonForRejection
+        );
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { verifyOrRejectInterviewer, loading };
+};
+
+
+export const useGetAdminDashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const getAdminDashboard = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await AdminService.handleInterviewerVerification(interviewerId,isApproved,interviewerName,interviewerEmail,reasonForRejection);
+      const response = await AdminService.getAdminDashboard();
+      console.log("res", response);
       return response;
     } finally {
       setLoading(false);
     }
   }, []);
-
-  return { verifyOrRejectInterviewer, loading };
-}
+  return { getAdminDashboard, loading };
+};

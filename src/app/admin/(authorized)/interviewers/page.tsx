@@ -1,109 +1,170 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import { Search, Building2, ChevronLeft, ChevronRight, EyeIcon } from "lucide-react";
-import withProtectedRoute from "@/lib/withProtectedRoutes";
-import { Roles } from "@/constants/roles";
-import { useAdminInterviewers, useHandleInterveiwerVerification, useInterviewerUpdate } from "@/hooks/api/useAdmin";
+
+import {
+  useAdminInterviewers,
+  useHandleInterveiwerVerification,
+  useInterviewerUpdate,
+} from "@/hooks/api/useAdmin";
 import { toast } from "sonner";
 import { RiseLoader } from "react-spinners";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { IInterviewer } from "@/types/IInterviewer";
 import InterviewerDetailsModal from "@/components/ui/Modals/UserDetailsModal";
+import { GenericTable } from "@/components/reusable/table/GenericTable";
+import { getAdminInterviewerColumns } from "@/constants/table-columns/interviewerColumns";
+import { set } from "zod";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+import { errorToast, successToast } from "@/utils/customToast";
+const interviewerVerificationReasons = [
+  {
+    value: "less_experience",
+    label: "Less Than 3 Years of Professional Experience",
+  },
+  {
+    value: "incomplete_profile",
+    label: "Incomplete or Missing Profile Information",
+  },
+  {
+    value: "unverified_technical_background",
+    label: "Unverified or Weak Technical Background",
+  },
+  {
+    value: "suspicious_activity",
+    label: "Suspicious or Inconsistent Information Detected",
+  },
+  {
+    value: "invalid_linkedin",
+    label: "Invalid or Fake LinkedIn / Portfolio Link",
+  },
+  {
+    value: "communication_concerns",
+    label: "Lack of Clear Communication Skills",
+  },
+  {
+    value: "duplicate_account",
+    label: "Duplicate or Existing Interviewer Account",
+  },
+  {
+    value: "policy_violation",
+    label: "Violation of Platform Terms or Expectations",
+  },
+  { value: "other", label: "Other" },
+];
 
+import { useSocketStore } from "@/features/socket/Socket";
 function AdminInterviewerManagement() {
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isConfirmBlockModalOpen, setIsConfirmBlockModalOpen] = useState(false);
+  const [isVerificationAcceptModalOpen, setIsVerificationAccept] =
+    useState(false);
+  const [isVerificationRejectModalOpen, setIsVerificationRejectModalOpen] =
+    useState(false);
+
   const [selectedInterviewerId, setSelectedInterviewerId] = useState("");
-  
+
   const [activeTab, setActiveTab] = useState("approved");
-  const {verifyOrRejectInterviewer} = useHandleInterveiwerVerification();
-  
-  // FIX: Initialize as null instead of empty object
-  const [selectedInterviewerForDetails, setSelectedInterviewerForDetails] = useState<IInterviewer | null>(null);
+  const { verifyOrRejectInterviewer } = useHandleInterveiwerVerification();
+
+  const [selectedInterviewerForDetails, setSelectedInterviewerForDetails] =
+    useState<IInterviewerProfile | null>(null);
 
   const { fetchInterviewers, loading } = useAdminInterviewers();
-  const [interviewers, setInterviewers] = useState<IInterviewer[] | []>([]);
-  
+  const [interviewers, setInterviewers] = useState<IInterviewerProfile[] | []>(
+    []
+  );
+
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
   const { updatedInterviewer } = useInterviewerUpdate();
+
+  const { socket } = useSocketStore();
 
   const showConfirmModal = async (interviewerId: string) => {
     console.log(interviewerId);
     setSelectedInterviewerId(interviewerId);
-    setIsConfirmModalOpen(true);
+    setIsConfirmBlockModalOpen(true);
   };
 
   // FIX: Improved safety check and state setting
-  const showDetailsModal = (interviewer: IInterviewer) => {
+  const showDetailsModal = (interviewer: IInterviewerProfile) => {
     if (interviewer && interviewer._id) {
       setSelectedInterviewerForDetails(interviewer);
       setIsDetailsModalOpen(true);
     }
-  }
+  };
 
   async function handleToggleBlock() {
     if (!selectedInterviewerId) return;
     await updatedInterviewer(selectedInterviewerId);
     setInterviewers(
-      interviewers.map((interviewer: IInterviewer) =>
+      interviewers.map((interviewer: IInterviewerProfile) =>
         interviewer._id === selectedInterviewerId
           ? { ...interviewer, isBlocked: !interviewer.isBlocked }
           : interviewer
       )
     );
     setSelectedInterviewerId("");
-    setIsConfirmModalOpen(false);
+    setIsConfirmBlockModalOpen(false);
   }
 
-  const filteredInterviewers = interviewers.filter(
-    (interviewer) =>
-      interviewer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      interviewer.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleInterviewerVerification = async (
+    interviewerId: string,
+    isApproved: boolean,
+    reasonForRejection?: string
+  ) => {
+    let matchedInterviewer = interviewers.find((i) => i._id === interviewerId);
+    const response = await verifyOrRejectInterviewer(
+      interviewerId,
+      isApproved,
+      matchedInterviewer?.name!,
+      matchedInterviewer?.email!,
+      reasonForRejection
+    );
 
-  const totalPages = Math.ceil(filteredInterviewers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedInterviewers = filteredInterviewers.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleCompanyVerification = async(interviewerId: string, isApproved: boolean) => {
-    let matchedInterviewer=interviewers.find(i=>i._id===interviewerId)
-    const response = await verifyOrRejectInterviewer(interviewerId, isApproved,matchedInterviewer?.name!,matchedInterviewer?.email!);
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
       return;
-    }  
+    }
+    socket.emit("user:status", {
+      userId: interviewerId,
+      status: isApproved ? "approved" : "rejected",
+    });
     if (response.data && isApproved === true) {
-      toast.success("Interviewer Verified successfully"); // FIX: Changed message
+      successToast("Interviewer Verified successfully");
       setInterviewers(
         interviewers.map((interviewer) =>
-          interviewer._id === response.data._id
-            ? response.data
-            : interviewer
+          interviewer._id === response.data._id ? response.data : interviewer
         )
       );
       setActiveTab("approved");
     } else {
-      toast("Interviewer Verification rejected successfully.");
-      setInterviewers(interviewers.filter(interviewer => interviewer._id !== response.data._id)); // FIX: Changed !== instead of !=
+      successToast("Interviewer Verification rejected successfully.");
+      setInterviewers(
+        interviewers.filter(
+          (interviewer) => interviewer._id !== response.data._id
+        )
+      );
+      setIsVerificationRejectModalOpen(false);
     }
-  }
+  };
+
+  const showConfirmVerificationModal = async (
+    interviewerId: string,
+    isVerifyOrReject: boolean
+  ) => {
+    setSelectedInterviewerId(interviewerId);
+    if (isVerifyOrReject) {
+      setIsVerificationAccept(true);
+    } else {
+      setIsVerificationRejectModalOpen(true);
+    }
+  };
 
   const getInterviewers = useCallback(async () => {
     const response = await fetchInterviewers(activeTab);
     if (!response.success) {
-      toast.error(response.error);
+      errorToast(response.message);
     } else {
       setInterviewers(response.data);
     }
@@ -113,39 +174,80 @@ function AdminInterviewerManagement() {
     getInterviewers();
   }, [getInterviewers]);
 
+  const columns = getAdminInterviewerColumns({
+    onView: showDetailsModal,
+    onBlockToggle: showConfirmModal,
+    onOpenVerificationModal: showConfirmVerificationModal,
+    activeTab,
+  });
+
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
   ) : (
     <>
       <Modal
-        description={`Are you sure you want to ${
-          interviewers.find((i) => i._id === selectedInterviewerId)?.isBlocked
-            ? "unblock"
-            : "block"
-        } this interviewer?`}
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleToggleBlock}
-        title="Confirm Action"
+        description={
+          isConfirmBlockModalOpen
+            ? `Are you sure you want to ${
+                interviewers.find((i) => i._id === selectedInterviewerId)
+                  ?.isBlocked
+                  ? "unblock"
+                  : "block"
+              } this interviewer?`
+            : "Are you sure you want to verify this interviewer?"
+        }
+        isOpen={
+          isVerificationRejectModalOpen
+            ? isVerificationRejectModalOpen
+            : isConfirmBlockModalOpen
+            ? isConfirmBlockModalOpen
+            : isVerificationAcceptModalOpen
+        }
+        onClose={() =>
+          isVerificationRejectModalOpen
+            ? setIsVerificationRejectModalOpen(false)
+            : isConfirmBlockModalOpen
+            ? setIsConfirmBlockModalOpen(false)
+            : setIsVerificationAccept(false)
+        }
+        onConfirm={
+          isConfirmBlockModalOpen
+            ? handleToggleBlock
+            : () => handleInterviewerVerification(selectedInterviewerId!, true)
+        }
+        title={
+          isVerificationRejectModalOpen
+            ? "Reject Interviewer"
+            : "Confirm Action"
+        }
+        {...(isVerificationRejectModalOpen && {
+          reasonOptions: interviewerVerificationReasons,
+          onConfirmWithReason: (reason: string) =>
+            handleInterviewerVerification(
+              selectedInterviewerId!,
+              false,
+              reason
+            ),
+        })}
       />
 
-      {/* FIX: Add safety check and proper null handling */}
       {selectedInterviewerForDetails && (
         <InterviewerDetailsModal
           isOpen={isDetailsModalOpen}
           user={selectedInterviewerForDetails}
           onClose={() => {
             setIsDetailsModalOpen(false);
-            setSelectedInterviewerForDetails(null); // Reset to null
+            setSelectedInterviewerForDetails(null);
           }}
+          isCompany={false}
         />
       )}
 
-      <div className="min-h-screen pl-64 bg-gradient-to-br from-black via-black to-violet-950">
-        <div className="p-8">
-          <div className="mb-8">
+      <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950">
+        <div className="py-5 px-8">
+          <div className="mb-5">
             <h1 className="text-2xl font-bold text-violet-100 mb-4">
               Interviewer Management
             </h1>
@@ -170,7 +272,7 @@ function AdminInterviewerManagement() {
               >
                 Pending Approval
               </button>
-              <div className="relative w-80">
+              {/* <div className="relative w-80">
                 <Search
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                   size={20}
@@ -185,174 +287,12 @@ function AdminInterviewerManagement() {
                     setCurrentPage(1);
                   }}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <div className="border border-violet-900 rounded-lg shadow text-violet-200">
-            <div className="overflow-x-auto">
-              <table className="w-full text-violet-300">
-                <thead>
-                  <tr className="border-b border-violet-900">
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Interviewer {/* FIX: Changed from "Company" */}
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Email
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Joined Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-right text-sm font-bold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedInterviewers.map((interviewer) => (
-                    <tr
-                      key={interviewer._id}
-                      className="border-b text-violet-200 border-violet-900 hover:bg-slate-950"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <Building2
-                            className="text-violet-500 mr-3"
-                            size={24}
-                          />
-                          <span className="font-medium">
-                            {interviewer.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{interviewer.email}</td>
-                      <td className="px-6 py-4">
-                        {new Date(interviewer.createdAt!).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex mr-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            interviewer.isBlocked
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {interviewer.isBlocked ? "Blocked" : "Active"}
-                        </span>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            interviewer.isBlocked
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {activeTab === "approved" ? "verified" : "pending"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-4">
-                          <button
-                            onClick={() => showDetailsModal(interviewer)}
-                            className="text-violet-300 hover:text-violet-100 transition-colors"
-                            title="View Details"
-                          >
-                            <EyeIcon size={20} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              showConfirmModal(interviewer._id!);
-                            }}
-                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                              interviewer.isBlocked
-                                ? "bg-green-50 text-green-700 hover:bg-green-100"
-                                : "bg-red-50 text-red-700 hover:bg-red-100"
-                            } transition-colors`}
-                          >
-                            {interviewer.isBlocked ? "Unblock" : "Block"}
-                          </button>
-                          {activeTab === "pending" && (
-                            <div className="flex gap-2">
-                              <button
-                                className="hover:text-violet-400"
-                                onClick={() =>
-                                  handleCompanyVerification(interviewer._id!, false)
-                                }
-                              >
-                                <FaTimes />
-                              </button>
-                              <button
-                                className="hover:text-violet-400"
-                                onClick={() =>
-                                  handleCompanyVerification(interviewer._id!, true)
-                                }
-                              >
-                                <FaCheck />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="px-6 py-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  Showing {startIndex + 1} to{" "}
-                  {Math.min(
-                    startIndex + itemsPerPage,
-                    filteredInterviewers.length
-                  )}{" "}
-                  of {filteredInterviewers.length} interviewers
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`p-2 rounded-lg border ${
-                      currentPage === 1
-                        ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                        : "border-violet-500 text-violet-600 hover:bg-violet-50"
-                    }`}
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                          currentPage === page
-                            ? "bg-violet-500 text-white"
-                            : "text-gray-600 hover:bg-violet-50"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`p-2 rounded-lg border ${
-                      currentPage === totalPages
-                        ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                        : "border-violet-500 text-violet-600 hover:bg-violet-50"
-                    }`}
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className=" rounded-lg shadow text-violet-200">
+            <GenericTable columns={columns} data={interviewers} />
           </div>
         </div>
       </div>
@@ -360,4 +300,4 @@ function AdminInterviewerManagement() {
   );
 }
 
-export default withProtectedRoute(AdminInterviewerManagement, [Roles.ADMIN]);
+export default AdminInterviewerManagement;

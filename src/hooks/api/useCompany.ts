@@ -19,7 +19,7 @@ export const useFetchCompanyProfile = () => {
   return { companyProfile, loading };
 };
 
-export const useUpadteCompanyProfile = () => {
+export const useUpdateCompanyProfile = () => {
   const [loading, setLoading] = useState(false);
   const updateCompanyProfile = useCallback(
     async (updatedCompany: FormData) => {
@@ -59,4 +59,23 @@ export const useChangeCompanyPassword = () => {
   );
 
   return { changeCompanyPassword, loading };
+};
+
+
+export const useGetCompanyDashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const getCompanyDashboard = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await CompanyService.getCompanyDashboard();
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { getCompanyDashboard, loading };
 };

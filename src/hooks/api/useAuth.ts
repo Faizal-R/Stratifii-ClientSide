@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import AuthService from "@/services/AuthService";
 import { ICompany } from "@/types/ICompany";
-import { IInterviewerRegistration } from "@/validations/InterviewerSchema";
+import { IInterviewerRegistration } from "@/validations/AuthSchema";
 
 export const useSignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -178,3 +178,19 @@ export const useSignoutUser = () => {
   return { signoutUser, loading };
 };
 
+export const useGoogleAuth = () => {
+  const [loading, setLoading] = useState(false);
+  const googleAuth = useCallback(
+    async (payload: { email: string; name: string; avatar: string }) => {
+      try {
+        setLoading(true);
+        const response = await AuthService.googleAuthLogin(payload);
+        return response;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  return { googleAuth, loading };
+};

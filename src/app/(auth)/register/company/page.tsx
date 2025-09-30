@@ -21,12 +21,13 @@ import { RiseLoader } from "react-spinners";
 import{useRouter} from 'next/navigation'
 import { CompanyRegistrationSchema } from "@/validations/CompanySchema";
 import { handleCompanyRegistrationStep } from "@/utils/handleRegistrationStep";
+import { errorToast } from "@/utils/customToast";
 
 function CompanyRegistrationPage() {
     const router=useRouter()
 
   const [formData, setFormData] = useState({
-    companyName: "",
+    name: "",
     email: "",
     companyWebsite: "",
     registrationCertificateNumber: "",
@@ -59,23 +60,17 @@ function CompanyRegistrationPage() {
       if(!validatedCompany.success){
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-        toast.error(issue.message,{
-          className:'custom-error-toast'
-        });
+        errorToast(issue.message)
         return;
       }
     }
     if(formData.password!==formData.confirmPassword){
-      toast.error("Passwords do not match",{
-        className:'custom-error-toast'
-      });
+      errorToast("Passwords do not match")
       return;
     }
     const response = await registerCompany(validatedCompany.data!);
     if (!response.success) {
-      toast.error(response.error,{
-        className:'custom-error-toast'
-      });
+      errorToast(response.message);
       console.log("register error",response)
       return;
     } else {
@@ -91,9 +86,7 @@ function CompanyRegistrationPage() {
      if(!validCompany?.success){
       const errors = validCompany?.errors;
       for (const issue of errors!) {
-        toast.error(issue.message,{
-          className:'custom-error-toast'
-        });
+        errorToast(issue.message)
         return;
       }
      }
@@ -151,8 +144,8 @@ function CompanyRegistrationPage() {
                   />
                   <input
                     type="text"
-                    name="companyName"
-                    value={formData.companyName}
+                    name="name"
+                    value={formData.name}
                     onChange={onHandleChange}
                     className="w-full bg-black/80 border border-violet-900/50 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     placeholder="Company Name"
@@ -338,7 +331,7 @@ function CompanyRegistrationPage() {
                   />
                 </div>
 
-                <div className="flex items-center mb-4">
+                {/* <div className="flex items-center mb-4">
                   <input
                     id="terms"
                     type="checkbox"
@@ -364,7 +357,7 @@ function CompanyRegistrationPage() {
                       Privacy Policy
                     </a>
                   </label>
-                </div>
+                </div> */}
 
                 <div className="flex space-x-3">
                   <button

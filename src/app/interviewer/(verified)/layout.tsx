@@ -1,6 +1,9 @@
 "use client";
+import InterviewerRejectedPage from "@/components/features/interviewer/InterviewerResubmissionForm";
 import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
 import { IInterviewer } from "@/types/IInterviewer";
+import { errorToast } from "@/utils/customToast";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 
 import { CheckCircle, Hourglass, Info } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
@@ -8,36 +11,33 @@ import { RiseLoader } from "react-spinners";
 import { toast } from "sonner";
 const InterviewerVerifiedLayout = ({ children }: { children: ReactNode }) => {
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
-  const [interviewer, setInterviewer] = useState({} as IInterviewer);
+  const [interviewer, setInterviewer] = useState({} as IInterviewerProfile);
 
-  const hasFetched = useRef(false);
+  // const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (hasFetched.current) return;
+    // if (hasFetched.current) return;
 
-    hasFetched.current = true;
+    // hasFetched.current = true;
 
     const fetchInterviewer = async () => {
       const response = await interviewerProfile();
       console.log(response);
       if (!response.success) {
-        toast(response.error);
+        errorToast(response.message);
         return;
       }
-      setInterviewer(response.data);
+      setInterviewer(response.data as IInterviewerProfile);
       console.log("Interviewer in Layout", response.data);
     };
 
     fetchInterviewer();
   }, [interviewerProfile]);
-  console.log(interviewer);
   return loading ? (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
-  ) : interviewer.status === "approved" ? (
-    <div>{children}</div>
-  ) : (
+  ) : interviewer.status === "pending" ? (
     <div className="flex items-center justify-center min-h-screen">
       <div
         className=" text-white p-6 rounded-xl shadow-2xl flex flex-col items-center text-center max-w-md w-full transition-all duration-300 mx-auto 
@@ -78,6 +78,10 @@ const InterviewerVerifiedLayout = ({ children }: { children: ReactNode }) => {
         </p>
       </div>
     </div>
+  ) : interviewer.status === "rejected" ? (
+    <InterviewerRejectedPage interviewer={interviewer} />
+  ) : (
+    <div>{children}</div>
   );
 };
 

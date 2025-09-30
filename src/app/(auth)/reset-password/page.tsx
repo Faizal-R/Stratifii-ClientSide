@@ -6,6 +6,7 @@ import {  useSearchParams } from "next/navigation";
 import { useResetPassword } from "@/hooks/api/useAuth";
 import { RiseLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function ResetPassword() {
   
@@ -19,12 +20,16 @@ function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      toast("Passwords do not match");
-      return;
+    if(!newPassword.trim() || !confirmPassword.trim()) {
+      errorToast("All fields are required");
+      return
     }
     if (newPassword.length < 8) {
-      toast("Password must be at least 8 characters long");
+      errorToast("Password must be at least 8 characters long");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      errorToast("Passwords do not match");
       return;
     }
     const response = await resetPassword(
@@ -33,12 +38,10 @@ function ResetPassword() {
       token as string
     );
     if (!response.success) {
-      toast.error(response.error,{
-        className:"custom-error-toast"
-      });
+      errorToast(response.message)
       return;
     }
-    toast(response.message);
+    successToast(response.message);
     router.push('/signin')
   };
 
@@ -65,7 +68,7 @@ function ResetPassword() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full bg-black/80 border border-violet-900/50 text-violet-200 pl-3 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                 placeholder="Enter new password"
-                required
+                
               />
               <button
                 type="button"
@@ -92,7 +95,7 @@ function ResetPassword() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full bg-black/80 border border-violet-900/50 text-violet-200 pl-3 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                 placeholder="Confirm new password"
-                required
+                
               />
               <button
                 type="button"

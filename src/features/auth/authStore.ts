@@ -1,26 +1,26 @@
-import { Roles } from "@/constants/roles";
+import { Roles } from "@/constants/enums/roles";
 import { create } from "zustand";
 
-interface User {
+export interface AuthUser {
   id?: string;
   email: string;
-  name?:string;
-  phone?:string;
+  name: string;
   role: Roles;
-  token:string
+  status: string;
 }
 
-
 interface AuthState {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: AuthUser | null;
+  setUser: (user: AuthUser | null) => void;
   logout: () => void;
+  updateStatus: (status: string) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem("user") || "null")
-    : null,
+  user:
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user") || "null")
+      : null,
 
   setUser: (user) => {
     localStorage.setItem("user", JSON.stringify(user));
@@ -31,4 +31,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("user");
     set({ user: null });
   },
-})); 
+  updateStatus: (status) =>
+    set((state) => (state.user ? { user: { ...state.user, status } } : state)),
+}));

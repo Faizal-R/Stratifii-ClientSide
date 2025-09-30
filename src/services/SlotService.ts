@@ -1,45 +1,96 @@
 import apiClient from "@/config/apiClient";
-import { isAxiosError } from "axios";
-import { ISlotGenerationRequest } from "@/types/ISlotTypes";
+import { IInterviewSlot, ISlotGenerationRequest } from "@/types/ISlotTypes";
+import { SlotRoutes } from "@/constants/routes/api/SlotRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
+import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 
 export const SlotService = {
-    generateSlots: async (slotGenerationRule:ISlotGenerationRequest) => {
-        try {
-            const response = await apiClient.post(`/interviewer/generate-slots`,slotGenerationRule );
-            return response.data;
-        } catch (error) {
-            if (isAxiosError(error)) {
-                return {
-                    success: false,
-                    status: error.status,
-                    error: error.response?.data.message || "An error occurred while generating slots.",
-                };
-            }
-            return {
-                success: false,
-                error: "Unexpected error occurred while generating slots.",
-            };
-        }
-    },
-    getAllSlotsByInterviewerId: async (interviewerId: string) => {
-        try {
-            const response = await apiClient.get(`/interviewer/slots/${interviewerId}`);
-            return response.data;
-        } catch (error) {
-            if (isAxiosError(error)) {
-                console.log("error", error);
-                return {
-                    success: false,
-                    status: error.status,
-                    error: error.response?.data.message || "An error occurred while fetching slots.",
-                };
-            }
-            return {
-                success: false,
-                error: "Unexpected error occurred while fetching slots.",
-            };
-        }
+  generateSlots: async (slotGenerationRule: ISlotGenerationRequest) => {
+    try {
+      const response = await apiClient.post(
+        SlotRoutes.GENERATE_SLOTS,
+        slotGenerationRule
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while generating slots."
+      );
     }
+  },
+
+  getAllSlotsByRule: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${SlotRoutes.GET_INTERVIEWER_SLOTS}/${interviewerId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching slots.");
+    }
+  },
+  getAllSlotsByInterviewer: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${SlotRoutes.GET_ALL_INTERVIEWER_SLOTS}/${interviewerId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching slots.");
+    }
+  },
+
+  getInterviewerSlotGenerationRule: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.get(
+        `${SlotRoutes.GET_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching slot generation rule."
+      );
+    }
+  },
+
+  scheduleInterviewForCandidate: async (payloadForSlotBooking: {
+    interviewer: string;
+    slot: IInterviewSlot;
+    candidate: string;
+    job: string;
+    isFollowUpScheduling: boolean;
+  }) => {
+    try {
+      const response = await apiClient.post(
+        SlotRoutes.BOOK_SLOT_FOR_CANDIDATE,
+        payloadForSlotBooking
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while booking slot for candidate."
+      );
+    }
+  },
+
+  updateInterviewerSlotGenerationRule: async (interviewerId:string,ruleData:ISlotGenerationRequest)=>{
+    try {
+      const response = await apiClient.put(
+       `${SlotRoutes.UPDATE_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`,
+        ruleData
+      );
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while updating slot generation rule."
+      );
+    }
+  }
+};
 
 
-}
+

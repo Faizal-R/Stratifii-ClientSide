@@ -10,6 +10,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      isVerified?:boolean;
     }
   }
 }
@@ -21,7 +22,7 @@ declare module "next-auth/jwt" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    accessToken?: string;
+    isVerified?:boolean;
     error?:string
   }
 }

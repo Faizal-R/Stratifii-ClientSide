@@ -1,37 +1,47 @@
 "use client";
-import SlotDisplay from "@/components/features/interviewer/SlotDisplay";
-import SlotGeneratorPage from "@/components/features/interviewer/SlotGeneratorPage";
+import SlotDisplay from "@/components/features/interviewer/slot/SlotDisplay";
+import SlotGeneratorPage from "@/components/features/interviewer/slot/SlotGeneratorPage";
 import { useAuthStore } from "@/features/auth/authStore";
-import { useGetSlotsByInterviewerId } from "@/hooks/api/useSlot";
+import { Plus, RefreshCw, Eye } from "lucide-react";
+import { useGetAllSlotsByRule } from "@/hooks/api/useSlot";
 import { IInterviewSlot } from "@/types/ISlotTypes";
-import { get } from "http";
+
 import { Sparkles } from "lucide-react";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { RiseLoader } from "react-spinners";
-import { toast } from "sonner";
+
+import { errorToast } from "@/utils/customToast";
 
 const ScheduleManagmentPage = () => {
   const [slots, setSlots] = useState<IInterviewSlot[]>([]);
   const [isShownSlots, setIsShownSlots] = useState<boolean>(false);
+  const hasFetched = useRef(false);
   const { user } = useAuthStore();
-  const { getSlotsByInterviewerId, loading } = useGetSlotsByInterviewerId();
+  const { getSlotsByRule, loading } = useGetAllSlotsByRule();
+
   function updateSlotsFromChild(newSlots: IInterviewSlot[]) {
-    setSlots((prev) => [...prev, ...newSlots]);
-  }
-  async function getAllSlotsFromServer() {
-    const response = await getSlotsByInterviewerId(user?.id as string);
-    if (response.success) {
-      setSlots(response.data);
-      setIsShownSlots(true);
-    } else {
-      toast.error(response.error, {
-        className: "custom-toast-error",
-      });
-    }
+    setSlots(newSlots);
+    setIsShownSlots(true);
   }
 
   useEffect(() => {
-    getAllSlotsFromServer();
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
+    async function getAllSlotsBasedOnRule() {
+      const response = await getSlotsByRule(user?.id as string);
+      console.log(response);
+      if (response.success) {
+        setSlots(response.data);
+        if (response.data.length > 0) {
+          setIsShownSlots(true);
+        }
+      } else {
+        errorToast(response.message);
+      }
+    }
+    getAllSlotsBasedOnRule();
   }, []);
 
   return loading ? (
@@ -40,7 +50,7 @@ const ScheduleManagmentPage = () => {
     </div>
   ) : (
     <div className="">
-      <div className="text-center mb-8  pt-10 flex flex-col items-center justify-center pl-44">
+      <div className="text-center mb-8  pt-10 flex flex-col items-center justify-center ">
         <div className="flex justify-center mb-4">
           <div
             className="p-3 rounded-full animate-pulse"
@@ -62,16 +72,35 @@ const ScheduleManagmentPage = () => {
         </p>
         <button
           onClick={() => setIsShownSlots(!isShownSlots)}
-          className="absolute right-5 top-40 px-4 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 transition"
+          className="absolute right-5 top-40 flex items-center gap-2 px-3 py-1.5 text-sm font-medium 
+             bg-violet-600 text-white rounded-lg shadow-sm hover:bg-violet-700 
+             transition-all duration-200"
         >
-          {isShownSlots ? "+ Generate New Slots" : "See My Slots"}
+          {isShownSlots ? (
+            slots.length > 0 ? (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span>Update Slots</span>
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                <span>Generate Slots</span>
+              </>
+            )
+          ) : (
+            <>
+              <Eye className="w-4 h-4" />
+              <span>View Slots</span>
+            </>
+          )}
         </button>
       </div>
 
       {isShownSlots ? (
         <SlotDisplay slots={slots} />
       ) : (
-        <SlotGeneratorPage sendSlotsToParent={updateSlotsFromChild} />
+        <SlotGeneratorPage sendSlotsToParent={updateSlotsFromChild}  />
       )}
     </div>
   );

@@ -1,165 +1,99 @@
 import apiClient from "@/config/apiClient";
-import { isAxiosError } from "axios";
+import { AdminRoutes } from "@/constants/routes/api/AdminRoutes";
+import { parseAxiosError } from "@/utils/parseAxiosError";
 
 export const AdminService = {
   signIn: async (email: string, password: string) => {
     try {
-      const response = await apiClient.post("/admin/signin", {
-        email,
-        password,
-      });
-
+      const response = await apiClient.post("/admin/signin", { email, password });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        console.log("axios", error);
-        return {
-          success: false,
-          error:
-            error.response?.data?.message || "An error occurred during login",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While SignIn",
-     
-      };
-    }
-  },    
-
-  getCompanies: async function (status: string) {
-    try {
-      const response = await apiClient.get(`/admin/companies?status=${status}`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Fetching Companies",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Companies",
-      };
+      return parseAxiosError(error, "An error occurred during login");
     }
   },
 
-  updateCompany: async function (companyId: string) {
+  getCompanies: async (status: string) => {
     try {
-      const response = await apiClient.patch("/admin/companies", { companyId });
+      const response = await apiClient.get(`${AdminRoutes.GET_COMPANIES}${status}`);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Updating Companies",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Companies",
-      };
+      return parseAxiosError(error, "An error occurred while fetching companies");
     }
   },
 
-  getInterviewers: async function (status: string) {
+  updateCompany: async (companyId: string) => {
     try {
-      const response = await apiClient.get(
-        `/admin/interviewers?status=${status}`
-      );
+      const response = await apiClient.patch(AdminRoutes.UPDATE_COMPANY_STATUS, { companyId });
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Fetching Interviewers",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Fetching Interviewers",
-      };
+      return parseAxiosError(error, "An error occurred while updating company status");
     }
   },
-  updateInterviewer: async function (interviewerId: string) {
+
+  getInterviewers: async (status: string) => {
     try {
-      const response = await apiClient.patch("/admin/interviewers", {
+      const response = await apiClient.get(`${AdminRoutes.GET_INTERVIEWERS}${status}`);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while fetching interviewers");
+    }
+  },
+
+  updateInterviewer: async (interviewerId: string) => {
+    try {
+      const response = await apiClient.patch(AdminRoutes.UPDATE_INTERVIEWER_STATUS, {
         interviewerId,
       });
-      console.log(response);
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Updating Interviewer",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Updating Interviewer",
-      };
+      return parseAxiosError(error, "An error occurred while updating interviewer status");
     }
   },
 
-  handleCompanyVerification: async (companyId: string, isApproved: boolean) => {
+  handleCompanyVerification: async (companyId: string, isApproved: boolean,reasonForRejection?: string) => {
     try {
       const response = await apiClient.patch(
-        `/admin/companies/${companyId}/verify`,
-        {
-          isApproved,
-        }
+        `${AdminRoutes.UPDATE_COMPANY_STATUS}/${companyId}/verify`,
+        { isApproved,reasonForRejection }
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Company Verification",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Company Verification",
-      };
+      return parseAxiosError(error, "An error occurred during company verification");
     }
   },
-  handleInterviewerVerification: async (interviewerId: string, isApproved: boolean,interviewerName:string,interviewerEmail:string,reasonForRejection?:string) => {
+
+  handleInterviewerVerification: async (
+    interviewerId: string,
+    isApproved: boolean,
+    interviewerName: string,
+    interviewerEmail: string,
+    reasonForRejection?: string
+  ) => {
     try {
       const response = await apiClient.patch(
-        `/admin/interviewers/${interviewerId}/verify`,
+        `${AdminRoutes.UPDATE_INTERVIEWER_STATUS}/${interviewerId}/verify`,
         {
           isApproved,
           interviewerName,
           interviewerEmail,
-          reasonForRejection
+          reasonForRejection,
         }
       );
       return response.data;
     } catch (error) {
-      if (isAxiosError(error)) {
-        return {
-          success: false,
-          error:
-            error.response?.data.message ||
-            "An Error occured During Interviewer Verification",
-        };
-      }
-      return {
-        success: false,
-        error: "Unexpected error occurred While Interviewer Verification",
-      };
+      return parseAxiosError(error, "An error occurred during interviewer verification");
+    }
+  },
+
+   getAdminDashboard: async () => {
+    try {
+      const response = await apiClient.get(AdminRoutes.GET_DASHBOARD);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while fetching company dashboard data."
+      );
     }
   },
 };
