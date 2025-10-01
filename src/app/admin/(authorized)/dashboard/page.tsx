@@ -21,7 +21,7 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
-import { Line, Bar, Doughnut } from "react-chartjs-2";
+
 
 ChartJS.register(
   CategoryScale,
@@ -36,15 +36,9 @@ ChartJS.register(
 );
 
 import {
-  Users,
+
   Building2,
-  DollarSign,
-  TrendingUp,
-  UserCheck,
-  CreditCard,
-  Star,
-  Activity,
-  ArrowUpRight,
+
 } from "lucide-react";
 import KeyMetricsCards from "@/components/features/admin/dashboard/KeyMetrics";
 import ChartsSection from "@/components/features/admin/dashboard/ChartSection";
@@ -59,147 +53,12 @@ const subscriptionDistribution = [
   { name: "Enterprise Plan", value: 34, color: "#c4b5fd" },
 ];
 
-const recentCompanies = [
-  {
-    id: "1",
-    name: "TechCorp Inc.",
-    email: "admin@techcorp.com",
-    plan: "Enterprise",
-    status: "active",
-    joinedAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    name: "StartupXYZ",
-    email: "hr@startupxyz.com",
-    plan: "Pro",
-    status: "active",
-    joinedAt: "2024-01-14",
-  },
-  {
-    id: "3",
-    name: "Global Solutions",
-    email: "contact@global.com",
-    plan: "Basic",
-    status: "pending",
-    joinedAt: "2024-01-13",
-  },
-  {
-    id: "4",
-    name: "InnovateLab",
-    email: "team@innovate.com",
-    plan: "Pro",
-    status: "active",
-    joinedAt: "2024-01-12",
-  },
-  {
-    id: "5",
-    name: "FutureTech",
-    email: "info@future.com",
-    plan: "Enterprise",
-    status: "active",
-    joinedAt: "2024-01-11",
-  },
-];
-
-const topInterviewers = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah@email.com",
-    rating: 4.9,
-    expertise: "React, Node.js",
-    interviews: 45,
-  },
-  {
-    id: "2",
-    name: "Mike Chen",
-    email: "mike@email.com",
-    rating: 4.8,
-    expertise: "Python, ML",
-    interviews: 38,
-  },
-  {
-    id: "3",
-    name: "Emily Davis",
-    email: "emily@email.com",
-    rating: 4.7,
-    expertise: "Java, Spring",
-    interviews: 42,
-  },
-  {
-    id: "4",
-    name: "Alex Wilson",
-    email: "alex@email.com",
-    rating: 4.9,
-    expertise: "DevOps, AWS",
-    interviews: 51,
-  },
-  {
-    id: "5",
-    name: "Lisa Brown",
-    email: "lisa@email.com",
-    rating: 4.6,
-    expertise: "Mobile Dev",
-    interviews: 29,
-  },
-];
-
-const recentTransactions = [
-  {
-    id: "1",
-    company: "TechCorp Inc.",
-    amount: 2500,
-    type: "Interview Payment",
-    status: "PAID",
-    date: "2024-01-15",
-  },
-  {
-    id: "2",
-    company: "StartupXYZ",
-    amount: 599,
-    type: "Subscription",
-    status: "PAID",
-    date: "2024-01-14",
-  },
-  {
-    id: "3",
-    company: "Global Solutions",
-    amount: 1200,
-    type: "Interview Payment",
-    status: "PENDING",
-    date: "2024-01-14",
-  },
-  {
-    id: "4",
-    company: "InnovateLab",
-    amount: 299,
-    type: "Subscription",
-    status: "PAID",
-    date: "2024-01-13",
-  },
-  {
-    id: "5",
-    company: "FutureTech",
-    amount: 3200,
-    type: "Interview Payment",
-    status: "PAID",
-    date: "2024-01-13",
-  },
-];
 
 
 
-const subscriptionData = {
-  labels: subscriptionDistribution.map((d) => d.name),
-  datasets: [
-    {
-      data: subscriptionDistribution.map((d) => d.value),
-      backgroundColor: ["#8b5cf6", "#3b82f6", "#a855f7", "#ec4899"],
-      borderWidth: 2,
-    },
-  ],
-};
+
+
+
 
 
 
@@ -234,7 +93,7 @@ const AdminDashboard = () => {
       companyLogo:string|null
     }[]
   }>();
-  const { getAdminDashboard, loading: isAdminDashboardLoading } =
+  const { getAdminDashboard } =
     useGetAdminDashboard();
 
   const revenueTrendsData = useMemo(() => {

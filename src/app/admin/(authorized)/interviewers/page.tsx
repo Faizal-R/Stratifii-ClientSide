@@ -6,15 +6,15 @@ import {
   useHandleInterveiwerVerification,
   useInterviewerUpdate,
 } from "@/hooks/api/useAdmin";
-import { toast } from "sonner";
+
 import { RiseLoader } from "react-spinners";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
-import { FaCheck, FaTimes } from "react-icons/fa";
-import { IInterviewer } from "@/types/IInterviewer";
+
+
 import InterviewerDetailsModal from "@/components/ui/Modals/UserDetailsModal";
 import { GenericTable } from "@/components/reusable/table/GenericTable";
 import { getAdminInterviewerColumns } from "@/constants/table-columns/interviewerColumns";
-import { set } from "zod";
+
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { errorToast, successToast } from "@/utils/customToast";
 const interviewerVerificationReasons = [

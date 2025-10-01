@@ -1,14 +1,13 @@
 "use client";
 import Sidebar from "@/components/layout/Sidebar";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import {
   LayoutDashboard,
   Briefcase,
   Users,
   CreditCard,
   Receipt,
-  Wallet,
-  LogOut,
+
   FileText,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";

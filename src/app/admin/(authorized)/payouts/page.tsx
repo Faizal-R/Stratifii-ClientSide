@@ -3,18 +3,17 @@ import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
-  Eye,
-  Check,
+ 
   X,
   Clock,
   DollarSign,
-  Calendar,
+ 
   User,
   AlertCircle,
   CheckCircle,
   XCircle,
   Loader,
-  TrendingUp,
+ 
 } from "lucide-react";
 
 type PayoutStatus =
@@ -40,72 +39,6 @@ interface PayoutRequest {
 }
 
 // Mock data for demonstration
-const mockPayoutRequests: PayoutRequest[] = [
-  {
-    _id: "1",
-    interviewerId: "int_001",
-    interviewerName: "Sarah Johnson",
-    amount: 2500,
-    status: "pending",
-    requestedAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    _id: "2",
-    interviewerId: "int_002",
-    interviewerName: "Michael Chen",
-    amount: 1800,
-    status: "approved",
-    requestedAt: "2024-01-14T14:20:00Z",
-    approvedAt: "2024-01-14T16:45:00Z",
-    adminId: "admin_001",
-  },
-  {
-    _id: "3",
-    interviewerId: "int_003",
-    interviewerName: "Emily Rodriguez",
-    amount: 3200,
-    status: "completed",
-    requestedAt: "2024-01-13T09:15:00Z",
-    approvedAt: "2024-01-13T11:30:00Z",
-    processedAt: "2024-01-13T15:20:00Z",
-    payoutId: "pout_abc123",
-    adminId: "admin_002",
-  },
-  {
-    _id: "4",
-    interviewerId: "int_004",
-    interviewerName: "David Thompson",
-    amount: 950,
-    status: "rejected",
-    requestedAt: "2024-01-12T16:45:00Z",
-    approvedAt: "2024-01-12T17:30:00Z",
-    adminId: "admin_001",
-  },
-  {
-    _id: "5",
-    interviewerId: "int_005",
-    interviewerName: "Lisa Wang",
-    amount: 2100,
-    status: "processing",
-    requestedAt: "2024-01-11T13:25:00Z",
-    approvedAt: "2024-01-11T14:10:00Z",
-    payoutId: "pout_xyz789",
-    adminId: "admin_002",
-  },
-  {
-    _id: "6",
-    interviewerId: "int_006",
-    interviewerName: "Robert Brown",
-    amount: 4500,
-    status: "failed",
-    requestedAt: "2024-01-10T11:40:00Z",
-    approvedAt: "2024-01-10T12:15:00Z",
-    processedAt: "2024-01-10T14:30:00Z",
-    payoutId: "pout_def456",
-    failureReason: "Insufficient balance in payout account",
-    adminId: "admin_001",
-  },
-];
 
 const statusConfig = {
   pending: {
