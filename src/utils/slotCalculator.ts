@@ -1,4 +1,4 @@
-import { ISlotGenerationRequest, SlotPreview } from '@/types/ISlotTypes';
+
 
 export function calculateSlotPreview({
   availableDays,

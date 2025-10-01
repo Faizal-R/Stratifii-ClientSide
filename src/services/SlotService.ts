@@ -2,7 +2,7 @@ import apiClient from "@/config/apiClient";
 import { IInterviewSlot, ISlotGenerationRequest } from "@/types/ISlotTypes";
 import { SlotRoutes } from "@/constants/routes/api/SlotRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
-import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+
 
 export const SlotService = {
   generateSlots: async (slotGenerationRule: ISlotGenerationRequest) => {

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Plus,
   X,
-  Calendar,
+ 
   Briefcase,
   FolderPlus,
   Search,
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+
 import {
   useCreateJob,
   useDeleteJob,

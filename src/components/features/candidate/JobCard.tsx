@@ -7,7 +7,7 @@ import {
   Briefcase,
   Star,
   Calendar,
-  Clock,
+  
 } from "lucide-react";
 import { Timer } from "@/components/features/common/Timer";
 import { RiseLoader } from "react-spinners";
@@ -28,7 +28,6 @@ interface JobCardProps {
 const JobCard: React.FC<JobCardProps> = ({
   job,
   onStartMock,
-  formatStatus,
   isMockQuestionsLoading,
 }) => {
   console.log("JObCard:", job);

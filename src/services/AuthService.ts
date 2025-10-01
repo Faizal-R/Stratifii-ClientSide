@@ -1,4 +1,4 @@
-import { isAxiosError } from "axios";
+
 import apiClient from "../config/apiClient";
 import { ICompany } from "@/types/ICompany";
 import { IInterviewerRegistration } from "@/validations/AuthSchema";

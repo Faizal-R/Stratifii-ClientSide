@@ -1,6 +1,6 @@
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { ICompany } from "./ICompany";
-import { IInterviewer } from "./IInterviewer";
+
 import { IJob } from "./IJob";
 
 export interface ICandidateProfile {

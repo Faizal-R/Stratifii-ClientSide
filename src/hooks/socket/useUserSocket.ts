@@ -34,5 +34,5 @@ export const useUserSocket = () => {
     return () => {
       socket.off("user:status:updated");
     };
-  }, [user]);
+  }, [user,socket, updateStatus]);
 };

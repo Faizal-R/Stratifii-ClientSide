@@ -22,7 +22,6 @@ import {
   ArcElement,
 } from "chart.js";
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -35,32 +34,12 @@ ChartJS.register(
   Legend
 );
 
-import {
-
-  Building2,
-
-} from "lucide-react";
+import { Building2 } from "lucide-react";
 import KeyMetricsCards from "@/components/features/admin/dashboard/KeyMetrics";
 import ChartsSection from "@/components/features/admin/dashboard/ChartSection";
 import { useGetAdminDashboard } from "@/hooks/api/useAdmin";
 
 // Dummy data for dashboard
-
-
-const subscriptionDistribution = [
-  { name: "Basic Plan", value: 45, color: "#e9d5ff" },
-  { name: "Pro Plan", value: 89, color: "#a78bfa" },
-  { name: "Enterprise Plan", value: 34, color: "#c4b5fd" },
-];
-
-
-
-
-
-
-
-
-
 
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState<{
@@ -85,16 +64,15 @@ const AdminDashboard = () => {
       name: string;
       value: number;
     }[];
-    recentCompanies:{
-      name:string;
-      email:string;
-      _id:string;
-      status:string
-      companyLogo:string|null
-    }[]
+    recentCompanies: {
+      name: string;
+      email: string;
+      _id: string;
+      status: string;
+      companyLogo: string | null;
+    }[];
   }>();
-  const { getAdminDashboard } =
-    useGetAdminDashboard();
+  const { getAdminDashboard } = useGetAdminDashboard();
 
   const revenueTrendsData = useMemo(() => {
     return {
@@ -130,36 +108,36 @@ const AdminDashboard = () => {
         },
       ],
     };
-  }, [dashboardData])
+  }, [dashboardData]);
 
- const revenueBreakdownData = useMemo(() => {
-  return {
-    labels: dashboardData?.monthlyRevenue.map((d) => d.month),
+  const revenueBreakdownData = useMemo(() => {
+    return {
+      labels: dashboardData?.monthlyRevenue.map((d) => d.month),
+      datasets: [
+        {
+          label: "Subscriptions",
+          data: dashboardData?.monthlyRevenue.map((d) => d.subscriptions),
+          backgroundColor: "#8b5cf6",
+        },
+        {
+          label: "Interviews",
+          data: dashboardData?.monthlyRevenue.map((d) => d.interviews),
+          backgroundColor: "#3b82f6",
+        },
+      ],
+    };
+  }, [dashboardData]);
+
+  const subscriptionData = {
+    labels: dashboardData?.subscriptionDistribution.map((d) => d.name),
     datasets: [
       {
-        label: "Subscriptions",
-        data: dashboardData?.monthlyRevenue.map((d) => d.subscriptions),
-        backgroundColor: "#8b5cf6",
-      },
-      {
-        label: "Interviews",
-        data: dashboardData?.monthlyRevenue.map((d) => d.interviews),
-        backgroundColor: "#3b82f6",
+        data: dashboardData?.subscriptionDistribution.map((d) => d.value),
+        backgroundColor: ["#8b5cf6", "#3b82f6", "#a855f7", "#ec4899"],
+        borderWidth: 2,
       },
     ],
   };
-}, [dashboardData]);
-
-const subscriptionData = {
-  labels: dashboardData?.subscriptionDistribution.map((d) => d.name),
-  datasets: [
-    {
-      data: dashboardData?.subscriptionDistribution .map((d) => d.value),
-      backgroundColor: ["#8b5cf6", "#3b82f6", "#a855f7", "#ec4899"],
-      borderWidth: 2,
-    },
-  ],
-};
 
   const fetchDashboardData = async () => {
     const res = await getAdminDashboard();
@@ -232,7 +210,10 @@ const subscriptionData = {
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12 border-2 border-violet-500/20">
                         <AvatarImage
-                          src={company.companyLogo??`https://ui-avatars.com/api/?name=${company.name}&background=8b5cf6&color=fff`}
+                          src={
+                            company.companyLogo ??
+                            `https://ui-avatars.com/api/?name=${company.name}&background=8b5cf6&color=fff`
+                          }
                         />
                         <AvatarFallback>
                           {company.name.slice(0, 2).toUpperCase()}

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Calendar, Clock, Sparkles, TrendingUp } from "lucide-react";
+import { Calendar, Sparkles, TrendingUp } from "lucide-react";
 import { DelegatedJob } from "@/types/IJob";
 import JobCard from "@/components/features/candidate/JobCard";
 import InterviewCard, {
@@ -8,8 +8,7 @@ import InterviewCard, {
 } from "@/components/features/candidate/upcomingInterview/InterviewCard";
 import GuidanceModal from "@/components/features/candidate/RulesAndGuidanceModal";
 import {
-  getStatusColor,
-  getStatusIcon,
+ 
   formatStatus,
 } from "@/utils/interviewUtils";
 import {
@@ -23,12 +22,11 @@ import {
   useGetScheduledInterviews,
   useSubmitMockResultAndUpdateQualificationStatus,
 } from "@/hooks/api/useInterview";
-import { useSocketStore } from "@/features/socket/Socket";
+
 import { useAuthStore } from "@/features/auth/authStore";
 
 const CandidateInterviewsPage = () => {
   //socket
-  const { socket } = useSocketStore();
   const { user } = useAuthStore();
   const { getAllScheduledInterviews } = useGetScheduledInterviews();
 

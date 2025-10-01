@@ -13,7 +13,7 @@ import {
   X,
   Edit2,
   Save,
-  Image as ImageIcon,
+  
   Upload,
   FileText,
   Users,

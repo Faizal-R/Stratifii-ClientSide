@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { ReactNode, useState } from "react";
-import { toast } from "sonner";
+
 import {
   CalendarSearchIcon,
-  CreditCard,
+
   LayoutDashboard,
   UserCircle,
 } from "lucide-react";

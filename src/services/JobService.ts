@@ -1,6 +1,6 @@
 import apiClient from "@/config/apiClient";
 import { IJob } from "@/types/IJob";
-import { isAxiosError } from "axios";
+
 import { JobRoutes } from "@/constants/routes/api/JobRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
 

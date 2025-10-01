@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, User, Building2, Mail, Phone, Globe, FileText, Award, Calendar, MapPin, Star, ExternalLink, Download, Eye, Briefcase, GraduationCap, Clock, TrendingUp, Shield, CheckCircle } from "lucide-react";
+import { X, User, Building2, Mail, Phone, Globe, FileText, Star, ExternalLink, Download, Eye, Briefcase, Clock, TrendingUp, Shield, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { ICompany } from "@/validations/CompanySchema";
-import { IInterviewer } from "@/types/IInterviewer";
+
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 
 interface UserDetailsModalProps {
@@ -229,7 +229,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         {/* Content Area */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
           <div className="grid grid-cols-1 gap-6">
-            {getCurrentDetails().map((detail, index) => (
+            {getCurrentDetails().map((detail) => (
               <div 
                 key={detail.label} 
                 className="group hover:bg-violet-500/5 rounded-lg p-4 -m-2 transition-all duration-200 border border-transparent hover:border-violet-500/20"

@@ -1,5 +1,5 @@
 import { PayoutService } from "@/services/PayoutService";
-import { stat } from "fs";
+
 import { useCallback, useState } from "react";
 
 export const useCreatePayoutRequest = () => {

@@ -1,28 +1,18 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Star,
-  MapPin,
-  Mail,
-  Calendar,
-  Clock,
-  Award,
-  CheckCircle,
-  X,
-  ChevronLeft,
-  ChevronRight,
+
   Users,
   BookOpen,
 } from "lucide-react";
 import { IJob } from "@/types/IJob";
 import { useGetMatchedInterviewersByJobDescription } from "@/hooks/api/useJob";
-import { toast } from "sonner";
+
 import {
   IInterviewerProfile,
   ISkillExpertise,
 } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
-import { Badge } from "@/components/ui/badge";
 import SlotModal from "./AvailableSlotListingModal";
 import { errorToast } from "@/utils/customToast";
 

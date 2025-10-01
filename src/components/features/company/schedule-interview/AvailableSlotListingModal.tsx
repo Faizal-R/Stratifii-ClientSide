@@ -1,16 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Star,
+ 
   Calendar,
   Clock,
   Award,
   CheckCircle,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Users,
-  BookOpen,
+  X
 } from "lucide-react";
 import { IJob } from "@/types/IJob";
 
@@ -28,8 +24,7 @@ const SlotModal: React.FC<{
   onBookSlot: (interviewer: IInterviewerProfile, slot: IInterviewSlot) => void;
   selectedJob: IJob;
 }> = ({ isOpen, onClose, interviewer, onBookSlot, selectedJob }) => {
-  console.log(interviewer)
-  const [currentWeek, setCurrentWeek] = useState(0);
+  
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // Move all hook calls to the top, before any conditional returns

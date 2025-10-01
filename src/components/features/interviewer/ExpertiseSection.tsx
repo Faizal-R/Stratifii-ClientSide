@@ -1,5 +1,5 @@
 import React from "react";
-import { Briefcase, Star, Calendar, Plus, X, Code } from "lucide-react";
+import { Briefcase, Calendar, Plus, X, Code } from "lucide-react";
 import { ISkillExpertise } from "@/validations/InterviewerSchema";
 
 

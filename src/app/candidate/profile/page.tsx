@@ -7,9 +7,7 @@ import type { ICandidateProfile } from "@/types/ICandidate"
 import { errorToast } from "@/utils/customToast"
 
 // Mock toast function
-const toast = {
-  error: (message: string) => console.error(message),
-}
+
 
 // Mock RiseLoader component
 const RiseLoader = ({ className }: { className?: string }) => (

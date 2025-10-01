@@ -1,5 +1,5 @@
-import { IRazorpayResponse, RazorpayPaymentError } from "@/types/IRazorpay";
-import { toast } from "sonner";
+import { IRazorpayResponse } from "@/types/IRazorpay";
+
 import { errorToast } from "./customToast";
 
 export const loadRazorpayScript = (): Promise<boolean> => {
@@ -57,8 +57,9 @@ export const initiateRazorpayPayment = async ({
     handler: async (response: IRazorpayResponse) => {
       try {
         await onSuccess(response);
-      } catch (err) {
-        errorToast("razorpay")
+      } catch (_err) {
+        console.error(_err);
+        errorToast("Payment verification failed. Please contact support.");
       }
     },
     modal: {

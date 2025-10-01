@@ -1,14 +1,13 @@
 "use client";
 import InterviewerRejectedPage from "@/components/features/interviewer/InterviewerResubmissionForm";
 import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
-import { IInterviewer } from "@/types/IInterviewer";
 import { errorToast } from "@/utils/customToast";
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 
 import { CheckCircle, Hourglass, Info } from "lucide-react";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { RiseLoader } from "react-spinners";
-import { toast } from "sonner";
+
 const InterviewerVerifiedLayout = ({ children }: { children: ReactNode }) => {
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const [interviewer, setInterviewer] = useState({} as IInterviewerProfile);

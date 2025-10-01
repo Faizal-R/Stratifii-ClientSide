@@ -20,8 +20,7 @@ interface InterviewFeedbackModalProps {
 // Enhanced Score Input Component (1-10 scale)
 import EnhancedScoreInput from "../FormFields/ScoreInput";
 
-// Modern Toggle Switch Component
-import ToggleSwitch from "../FormFields/ToggleSwitch";
+
 
 // Compact Tag Input Component
 import { TagInput } from "../FormFields/InputField";

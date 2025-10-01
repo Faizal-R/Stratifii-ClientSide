@@ -1,6 +1,6 @@
 "use client"
-import React, { useState } from 'react';
-import { X, Calendar, Clock, Briefcase, Star, User, MessageSquare, Brain, Users, Target, CheckCircle, XCircle, AlertCircle, ChevronDown, Award, TrendingUp, FileText, Eye } from 'lucide-react';
+import React from 'react';
+import { X, Calendar, Briefcase, Star, User, MessageSquare, Brain, Users, Target, CheckCircle, XCircle, AlertCircle, TrendingUp, FileText } from 'lucide-react';
 import { IInterview } from '@/types/IInterview';
 import { ICandidateProfile } from '@/types/ICandidate';
 import Popover from '@/components/ui/Popover';

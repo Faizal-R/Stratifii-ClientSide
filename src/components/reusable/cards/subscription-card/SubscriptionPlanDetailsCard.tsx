@@ -1,17 +1,8 @@
-import useSubscriptionStore from "@/features/company/subscriberStore";
 import { Button } from "@/components/ui/Buttons/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Crown,
-  Calendar,
-  CreditCard,
-  TrendingUp,
-  Shield,
-  ArrowUpRight,
-} from "lucide-react";
+import { Crown, Calendar, Shield, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ISubscriptionDetails } from "@/types/ISubscription";
 
@@ -101,7 +92,10 @@ const SubscriptionPlanDetailsCard = ({
               Upgrade Plan
               <ArrowUpRight className="h-4 w-4 ml-2" />
             </Button>
-            <Button variant='none' className=" text-gray-400 hover:text-gray-500 ">
+            <Button
+              variant="none"
+              className=" text-gray-400 hover:text-gray-500 "
+            >
               View All Plans
             </Button>
           </div>

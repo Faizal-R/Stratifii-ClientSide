@@ -1,4 +1,4 @@
-import { ICompanyProfile } from "@/validations/CompanySchema";
+
 
 export interface IJob {
   _id?: string;

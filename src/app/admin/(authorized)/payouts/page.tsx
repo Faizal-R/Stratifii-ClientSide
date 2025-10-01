@@ -3,17 +3,14 @@ import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
- 
   X,
   Clock,
   DollarSign,
- 
   User,
   AlertCircle,
   CheckCircle,
   XCircle,
   Loader,
- 
 } from "lucide-react";
 
 type PayoutStatus =
@@ -120,21 +117,21 @@ function AdminPayouts() {
 
   const { updateInterviewerPayoutRequestStatus } =
     useUpdateStatusOfInterviewerPayoutRequest();
-  const { getAllInterviewersPayoutRequest, loading } =
+  const { getAllInterviewersPayoutRequest } =
     useGetAllInterviewersPayoutRequest();
 
-  const filteredRequests = useMemo(() => {
-    return payoutRequests.filter((request) => {
-      const matchesSearch =
-        request.interviewerName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        request.interviewerId.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || request.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [payoutRequests, searchTerm, statusFilter]);
+  // const filteredRequests = useMemo(() => {
+  //   return payoutRequests.filter((request) => {
+  //     const matchesSearch =
+  //       request.interviewerName
+  //         .toLowerCase()
+  //         .includes(searchTerm.toLowerCase()) ||
+  //       request.interviewerId.toLowerCase().includes(searchTerm.toLowerCase());
+  //     const matchesStatus =
+  //       statusFilter === "all" || request.status === statusFilter;
+  //     return matchesSearch && matchesStatus;
+  //   });
+  // }, [payoutRequests, searchTerm, statusFilter]);
 
   //   const stats = useMemo(() => {
   //     const totalRequests = payoutRequests.length;

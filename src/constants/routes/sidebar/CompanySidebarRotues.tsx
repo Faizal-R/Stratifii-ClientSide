@@ -3,7 +3,7 @@ import {
   CalendarSearchIcon, 
   CreditCard, 
   LayoutDashboard, 
-  Receipt, 
+
   UserCircle, 
   Wallet 
 } from "lucide-react";

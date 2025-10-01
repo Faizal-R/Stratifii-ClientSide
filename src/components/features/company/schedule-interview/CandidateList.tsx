@@ -5,12 +5,10 @@ import {
   CheckCircle,
   Circle,
   Award,
-  Clock,
   FileText,
-  AlertCircle,
+ 
   CalendarCheck,
-  Target,
-  Star,
+  
 } from "lucide-react";
 import { useGetMockQualifiedCandidates } from "@/hooks/api/useJob";
 

@@ -1,4 +1,4 @@
-import { IInterviewer } from "@/types/IInterviewer";
+
 import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { ColumnDef } from "@tanstack/react-table";
 import {

@@ -10,7 +10,7 @@ import SimplePeer from "simple-peer";
 import  VideoPlayer  from "./VideoPlayer";
 import  VideoControls from "./VideoControls";
 import { ChatPanel } from "./ChatPanel";
-import { Copy, Users, Clock } from "lucide-react";
+import {  Clock } from "lucide-react";
 import { IMessage, Note } from "@/types/IInterviewRoom";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useAuthStore } from "@/features/auth/authStore";

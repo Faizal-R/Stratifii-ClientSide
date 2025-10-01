@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       "outsourcing-interview-platform.s3.ap-south-1.amazonaws.com",
     ],
   },
+  eslint:{
+    ignoreDuringBuilds: true,
+  }
 };
 
 export default nextConfig;

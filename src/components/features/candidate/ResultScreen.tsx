@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, Home, TrendingUp, Target, Clock, Star, Trophy, CheckCircle, XCircle } from 'lucide-react';
+import { Award, Home, TrendingUp, Target, Star, Trophy, CheckCircle, XCircle } from 'lucide-react';
 
 interface ResultsScreenProps {
   score: {

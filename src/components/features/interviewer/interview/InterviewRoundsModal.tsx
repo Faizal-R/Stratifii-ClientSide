@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Star, Calendar, User, MessageSquare, Trophy, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Star, Calendar, User, MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { IInterviewRound } from '@/types/ICandidate';
 
 interface InterviewRoundsModalProps {

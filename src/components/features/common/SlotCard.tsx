@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Calendar, Users, Check, X } from 'lucide-react';
 import { IInterviewSlot } from '@/types/ISlotTypes';
-import { formatTime, formatDate, getDateString } from '@/utils/slotCalculator';
+import { formatTime, getDateString } from '@/utils/slotCalculator';
 
 interface SlotCardProps {
   slot: IInterviewSlot;

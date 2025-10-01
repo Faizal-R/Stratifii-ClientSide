@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCompanyRegister } from "@/hooks/api/useAuth";
-import { toast } from "sonner";
+
 import { RiseLoader } from "react-spinners";
 import{useRouter} from 'next/navigation'
 import { CompanyRegistrationSchema } from "@/validations/CompanySchema";

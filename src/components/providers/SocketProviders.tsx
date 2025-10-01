@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { useUserSocket } from "@/hooks/socket/useUserSocket";
 
 export default function SocketProvider({ children }: { children: ReactNode }) {

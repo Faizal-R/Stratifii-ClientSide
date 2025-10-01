@@ -2,7 +2,7 @@ import { StatusCodes } from "@/constants/enums/statusCodes";
 import { AuthRoutes } from "@/constants/routes/api/AuthRoutes";
 import { errorToast } from "@/utils/customToast";
 import axios from "axios";
-import { toast } from "sonner";
+
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,

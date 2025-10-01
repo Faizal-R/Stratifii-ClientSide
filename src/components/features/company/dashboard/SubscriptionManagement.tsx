@@ -12,12 +12,11 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import useSubscriptionStore from "@/features/company/subscriberStore";
-import { useRouter } from "next/navigation";
-import { dashboardData } from "@/constants/dummyData";
+
 import SubscriptionPlanDetailsCard from "@/components/reusable/cards/subscription-card/SubscriptionPlanDetailsCard";
 export function SubscriptionManagement() {
   const { subscription } = useSubscriptionStore();
-  const router = useRouter();
+ 
   // Mock subscription data
   const currentPlan = {
     name: "Professional",

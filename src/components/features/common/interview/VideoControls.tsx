@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageCircle, ScreenShare as Screen, Code2, Settings, Users, ScreenShare, ScreenShareOff } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageCircle, Code2, ScreenShare, ScreenShareOff } from 'lucide-react';
 
 interface VideoControlsProps {
   isAudioEnabled: boolean;

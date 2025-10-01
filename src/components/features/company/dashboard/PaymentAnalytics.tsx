@@ -1,8 +1,7 @@
   import React from 'react';
   import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-  import { Badge } from '@/components/ui/badge';
-  import { Progress } from '@/components/ui/progress';
-  import { DollarSign, CreditCard, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+
+  import { DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
   import { IPaymentTransaction } from '@/types/IJob';
   
   interface PaymentAnalyticsProps {
@@ -12,8 +11,7 @@
   export function PaymentAnalytics({ payments }: PaymentAnalyticsProps) {
     const paidPayments = payments.filter(payment => payment.status === 'PAID');
     const pendingPayments = payments.filter(payment => payment.status === 'PENDING');
-    const failedPayments = payments.filter(payment => payment.status === 'FAILED');
-    
+  
     const totalSpent = paidPayments.reduce((sum, payment) => sum + payment.finalPayableAmount, 0);
     const totalPending = pendingPayments.reduce((sum, payment) => sum + payment.finalPayableAmount, 0);
     const averagePerTransaction = paidPayments.length > 0 ? totalSpent / paidPayments.length : 0;

@@ -10,7 +10,7 @@ import {
   Clock,
   MapPin,
   Calendar,
-  FileText,
+ 
   Code,
   Star,
   Upload,
@@ -22,7 +22,7 @@ import {
   AlignCenterVertical as Certificate,
 } from "lucide-react";
 import { useInterviewerRegister } from "@/hooks/api/useAuth";
-import { toast } from "sonner";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { RiseLoader } from "react-spinners";
 
@@ -607,7 +607,7 @@ function InterviewerRegistrationPage() {
                                 {skill.skillSource.map((source) => {
                                   const Icon = getSourceIcon(source);
                                   return (
-                                    <div className="flex items-center gap-1 justify-center ">
+                                    <div key={source} className="flex items-center gap-1 justify-center ">
                                       <Icon
                                         key={source}
                                         size={14}

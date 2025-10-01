@@ -8,7 +8,7 @@ import {
   useGetAllSubscriptions,
   useUpdateSubscription,
 } from "@/hooks/api/useSubscription";
-import { toast } from "sonner";
+
 import { RiseLoader } from "react-spinners";
 
 import { ISubscription } from "@/types/ISubscription";

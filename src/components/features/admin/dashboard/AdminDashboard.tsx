@@ -26,11 +26,11 @@ import {
   TrendingUp, 
   UserCheck, 
   CreditCard,
-  Calendar,
+  
   Star,
   Activity,
   ArrowUpRight,
-  ArrowDownRight
+  
 } from 'lucide-react';
 
 // Dummy data for dashboard

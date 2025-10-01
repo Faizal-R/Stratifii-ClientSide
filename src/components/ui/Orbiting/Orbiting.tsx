@@ -462,7 +462,7 @@ GlowingOrbitPath.displayName = 'GlowingOrbitPath';
 // --- Main App Component ---
 export default function OrbitingSkills() {
   const [time, setTime] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused] = useState(false);
 
   useEffect(() => {
     if (isPaused) return;

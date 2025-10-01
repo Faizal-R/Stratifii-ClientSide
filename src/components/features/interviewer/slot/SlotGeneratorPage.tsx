@@ -2,11 +2,9 @@
 import React, {
   useState,
   useEffect,
-  useActionState,
-  useCallback,
   useRef,
 } from "react";
-import { Calendar, Clock, Users, Send, Sparkles } from "lucide-react";
+import { Calendar, Clock, Users, Send } from "lucide-react";
 import {
   ISlotGenerationRequest,
   SlotPreview,
@@ -22,7 +20,7 @@ import {
   useSlotGeneration,
   useUpdateInterviewerSlotGenerationRule,
 } from "@/hooks/api/useSlot";
-import { toast } from "sonner";
+
 import { useAuthStore } from "@/features/auth/authStore";
 import { errorToast, successToast } from "@/utils/customToast";
 
@@ -36,7 +34,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
   const { user } = useAuthStore();
   const hasFetched = useRef(false);
   const [isExistingRule, setIsExistingRule] = useState(false);
-  const [slots, setSlots] = useState<IInterviewSlot[]>([]);
+  const [_slots, setSlots] = useState<IInterviewSlot[]>([]);
   const [formData, setFormData] = useState<ISlotGenerationRequest>({
     availableDays: [],
     startHour: 9,

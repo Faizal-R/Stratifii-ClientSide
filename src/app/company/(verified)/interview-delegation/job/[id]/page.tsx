@@ -27,7 +27,7 @@ import {
   useUploadResumesAndCreateCandidates,
 } from "@/hooks/api/useJob";
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
+
 import { RiseLoader } from "react-spinners";
 import PaymentProceedModal from "@/components/ui/Modals/PaymentProceedModal";
 import {
@@ -37,7 +37,7 @@ import {
 } from "@/hooks/api/usePayment";
 import { initiateRazorpayPayment } from "@/utils/razorpay";
 import {
-  ICandidateJob,
+ 
   ICandidateProfile,
   IDelegatedCandidate,
   IInterviewRound,

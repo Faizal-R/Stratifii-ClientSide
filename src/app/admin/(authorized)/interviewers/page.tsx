@@ -113,12 +113,16 @@ function AdminInterviewerManagement() {
     isApproved: boolean,
     reasonForRejection?: string
   ) => {
-    let matchedInterviewer = interviewers.find((i) => i._id === interviewerId);
+    const matchedInterviewer = interviewers.find((i) => i._id === interviewerId);
+    if(!matchedInterviewer){
+      errorToast("Interviewer not found.");
+      return;
+    }
     const response = await verifyOrRejectInterviewer(
       interviewerId,
       isApproved,
-      matchedInterviewer?.name!,
-      matchedInterviewer?.email!,
+      matchedInterviewer?.name,
+      matchedInterviewer?.email,
       reasonForRejection
     );
 

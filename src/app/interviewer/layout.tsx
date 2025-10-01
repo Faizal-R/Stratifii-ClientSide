@@ -1,9 +1,8 @@
 "use client";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import {
   Calendar,
-  CreditCard,
-  LayoutDashboard,
+ 
   UserCircle,
   Wallet,
   CalendarCheck,
@@ -12,15 +11,14 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
 
-import { Roles } from "@/constants/enums/roles";
+
 import { useSignoutUser } from "@/hooks/api/useAuth";
-import { toast } from "sonner";
-import { AuthUser, useAuthStore } from "@/features/auth/authStore";
+
+import {  useAuthStore } from "@/features/auth/authStore";
 import { errorToast, successToast } from "@/utils/customToast";
 import { useSidebarCollapseStore } from "@/features/sidebar/sidebarCollapseStore";
 import { getInterviewerSidebarRoutes } from "@/constants/routes/sidebar/InterviewerSidebarRoutes";
-import { useFetchInterviewerProfile } from "@/hooks/api/useInterviewer";
-import { IInterviewerProfile } from "@/validations/InterviewerSchema";
+
 import { useUserSocket } from "@/hooks/socket/useUserSocket";
 
 const navItems = [

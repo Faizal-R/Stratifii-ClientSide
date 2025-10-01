@@ -1,19 +1,10 @@
 "use client"; // 👈 Add this at the top!
 
 import Sidebar from "@/components/layout/Sidebar";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import {
-  Calendar,
-  CalendarSearchIcon,
-  CreditCard,
-  LayoutDashboard,
-  Receipt,
-  UserCircle,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { ReactNode, useState } from "react";
+
 import { useRouter } from "next/navigation";
-import { AuthUser, useAuthStore } from "@/features/auth/authStore";
+import {  useAuthStore } from "@/features/auth/authStore";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useSignoutUser } from "@/hooks/api/useAuth";
 import { errorToast, successToast } from "@/utils/customToast";

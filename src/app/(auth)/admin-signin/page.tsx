@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { Lock, User, Shield } from "lucide-react";
 
-import { toast } from "sonner";
+
 import { useRouter } from "next/navigation";
 import { useAdminSignIn } from "@/hooks/api/useAdmin";
 import { useAuthStore } from "@/features/auth/authStore";
 import { Roles } from "@/constants/enums/roles";
 import { RiseLoader } from "react-spinners";
-import { errorToast } from "@/utils/customToast";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function AdminSignIn() {
   const router = useRouter();
@@ -29,7 +29,7 @@ function AdminSignIn() {
      errorToast(response.message);
       return;
     } else {
-      toast(response.message);
+      successToast(response.message);
       setUser({
         name:Roles.ADMIN,
         email,

@@ -8,8 +8,7 @@ import {
   Users,
   Clock,
   TrendingUp,
-  X,
-  ExternalLink,
+ 
 } from "lucide-react";
 import {
   useGetAllInterviewsByCandidateId,
@@ -18,7 +17,7 @@ import {
 import { useRouter } from "next/navigation";
 import { CandidateHistoryModal } from "@/components/features/interviewer/interview/CandidateInterivewHistoryModal";
 import { ICandidateProfile } from "@/types/ICandidate";
-import { RiseLoader } from "react-spinners";
+
 
 const InterviewsPage: React.FC = () => {
   const router = useRouter();

@@ -10,12 +10,11 @@ import {
   Info,
   TrendingUp,
   TrendingDown,
-  DollarSign,
 } from "lucide-react";
 import PayoutModal from "@/components/features/interviewer/wallet/PayoutModal";
-import { set } from "zod";
+
 import { useCreatePayoutRequest } from "@/hooks/api/usePayout";
-import { errorToJSON } from "next/dist/server/render";
+
 import { errorToast, successToast } from "@/utils/customToast";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useGetInterviewerWallet } from "@/hooks/api/useInterviewer";
@@ -100,8 +99,7 @@ const mockTransactions: Transaction[] = [
 function WalletPage() {
   const [payoutAmount, setPayoutAmount] = useState(0);
   const [wallet, setWallet] = useState<IWallet>();
-  const [transactions, setTransactions] =
-    useState<ITransaction[]>([]);
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
@@ -114,12 +112,12 @@ function WalletPage() {
 
   // Calculate wallet stats
   const currentBalance = 4600;
-  const totalEarned = mockTransactions
-    .filter((t) => t.type === "credit")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalSpent = mockTransactions
-    .filter((t) => t.type === "debit")
-    .reduce((sum, t) => sum + t.amount, 0);
+  // const totalEarned = mockTransactions
+  //   .filter((t) => t.type === "credit")
+  //   .reduce((sum, t) => sum + t.amount, 0);
+  // const totalSpent = mockTransactions
+  //   .filter((t) => t.type === "debit")
+  //   .reduce((sum, t) => sum + t.amount, 0);
 
   const minPayoutAmount = 500;
   const isPayoutEligible = currentBalance >= minPayoutAmount;
@@ -170,14 +168,14 @@ function WalletPage() {
   const fetchWalletDetails = async () => {
     const {
       success,
-      data:{wallet,transactions},
+      data: { wallet, transactions },
       message,
     } = await getInterviewerWallet();
     if (!success) {
       errorToast(message);
       return;
     }
-    
+
     setWallet(wallet);
     setTransactions(transactions);
   };

@@ -1,9 +1,9 @@
 "use client";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { Code, Play, X, Maximize2, Minimize2, Terminal } from "lucide-react";
 import { InterviewService } from "@/services/InterviewService";
-import { RiseLoader, SyncLoader } from "react-spinners";
+
 import { languages } from "@/constants/dummyData";
 import { useSocketStore } from "@/features/socket/Socket";
 interface CompilerPanelProps {

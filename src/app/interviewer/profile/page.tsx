@@ -7,14 +7,13 @@ import {
   Save,
   Mail,
   Phone,
-  MapPin,
+ 
   Linkedin,
   Briefcase,
-  Languages,
-  Calendar,
+ 
   Upload,
   ImageIcon,
-  Clock,
+
   Check,
   CreditCard,
   FileText,
@@ -40,8 +39,7 @@ import PasswordResetFormModal from "@/components/ui/Modals/PasswordResetFormModa
 import { Roles } from "@/constants/enums/roles";
 import { InputField } from "@/components/ui/FormFields/InputField";
 import { errorToast, successToast } from "@/utils/customToast";
-import TabsNav from "@/components/reusable/tabsNav/TabsNav";
-import { interviewerProfileTabs } from "@/constants/tabs/InterviewerProfileTabs";
+
 import BankDetailsModal from "@/components/ui/Modals/BankDetailsModal";
 import { IBankDetails } from "@/validations/InterviewerSchema";
 import InterviewerRejectedPage from "@/components/features/interviewer/InterviewerResubmissionForm";
