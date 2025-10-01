@@ -114,7 +114,7 @@ function AdminCompanyManagement() {
       setActiveTab("approved");
       setIsVerificationAccept(false);
     } else {
-      toast("Company verification rejected successfully");
+      successToast("Company verification rejected successfully");
       setCompanies(companies.filter((c) => c._id !== response.data._id));
       setIsVerificationRejectModalOpen(false);
     }

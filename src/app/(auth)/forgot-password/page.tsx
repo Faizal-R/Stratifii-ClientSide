@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { Mail, ArrowRight,  } from 'lucide-react';
-import { toast } from 'sonner';
+
 import { useSendForgotPasswordOtpRequest } from '@/hooks/api/useAuth';
 import {  useSearchParams } from 'next/navigation';
 import {  HashLoader } from 'react-spinners';
@@ -15,11 +15,11 @@ function ForgotPasswordPage() {
   const handleSubmit =async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      toast('Please enter your email address');
+      errorToast('Please enter your email address');
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast('Please enter a valid email address');
+      errorToast('Please enter a valid email address');
       return;
     }
   const response= await  sendForgotPasswordOtpRequest(email,role!);

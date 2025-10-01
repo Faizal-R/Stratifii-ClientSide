@@ -21,7 +21,7 @@ import { RiseLoader } from "react-spinners";
 import{useRouter} from 'next/navigation'
 import { CompanyRegistrationSchema } from "@/validations/CompanySchema";
 import { handleCompanyRegistrationStep } from "@/utils/handleRegistrationStep";
-import { errorToast } from "@/utils/customToast";
+import { errorToast, successToast } from "@/utils/customToast";
 
 function CompanyRegistrationPage() {
     const router=useRouter()
@@ -74,7 +74,7 @@ function CompanyRegistrationPage() {
       console.log("register error",response)
       return;
     } else {
-      toast(response.message);
+      successToast(response.message);
      setTimeout(()=>{
       router.push(`/verify-otp?email=${formData.email}&&role=company`)
      },200)
