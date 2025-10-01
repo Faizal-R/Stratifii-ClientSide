@@ -43,6 +43,14 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: Clean up Docker resources
+        run: |
+          sudo docker system prune -a -f --volumes
+          echo "Docker cleanup completed"
+      
+      - name: Remove old image if exists
+        run: sudo docker rmi 5zziiihhh/stratifii-client:latest || true
+      
       - name: Pull image from Docker Hub
         run: sudo docker pull 5zziiihhh/stratifii-client:latest
       
