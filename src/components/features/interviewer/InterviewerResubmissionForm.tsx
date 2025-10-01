@@ -17,7 +17,7 @@ import {
   Award,
 } from "lucide-react"
 import { IInterviewerProfile } from "@/validations/InterviewerSchema"
-import { TProficiencyLevel, TSkillSource } from "@/app/(auth)/register/interviewer/page"
+import { TProficiencyLevel, TSkillSource } from "@/app/(auth)/register/interviewer/InterviewerRegistrationPage"
 import { useUpdateInterviewerProfile } from "@/hooks/api/useInterviewer"
 import { errorToast, successToast } from "@/utils/customToast"
 

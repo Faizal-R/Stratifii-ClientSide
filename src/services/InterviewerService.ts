@@ -65,8 +65,8 @@ export const InterviewerService = {
       const formData = new FormData();
       const { resume } = interviewer;
 
-      if (resume instanceof File) {
-        formData.append("resume", resume);
+      if (typeof resume !== "string") {
+        formData.append("resume", resume as unknown as File);
       }
 
       const payload = {
