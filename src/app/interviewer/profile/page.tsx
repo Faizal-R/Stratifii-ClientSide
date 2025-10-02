@@ -446,9 +446,7 @@ function InterviewerProfilePage() {
                   interviewerData.resume &&
                   typeof interviewerData.resume === "string" && (
                     <a
-                      // href={`https://docs.google.com/viewer?url=${encodeURIComponent(
-                      //   interviewerData.resume as string
-                      // )}&embedded=true`}
+                
                       href={interviewerData.resume}
                       target="_blank"
                       rel="noopener noreferrer"

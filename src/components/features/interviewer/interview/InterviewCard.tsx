@@ -245,9 +245,7 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
             {/* Top Row - Resume & History */}
             <div className="flex items-center space-x-2">
               <a
-                href={`https://docs.google.com/viewer?url=${encodeURIComponent(
-                  interview.candidate.resume as string
-                )}&embedded=true`}
+                href={interview.candidate.resume}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-200 rounded-lg font-medium text-xs transition-all duration-200 border border-gray-600/50 hover:border-gray-500/50 hover:shadow-lg group/btn"

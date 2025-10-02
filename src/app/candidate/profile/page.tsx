@@ -139,9 +139,7 @@ function CandidateProfile() {
                 </h3>
                 {candidateProfile.resume ? (
                   <a
-                    href={`https://docs.google.com/viewer?url=${encodeURIComponent(
-                      candidateProfile.resume,
-                    )}&embedded=true`}
+                    href={candidateProfile.resume}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors font-medium"
