@@ -115,7 +115,7 @@ function CandidatePasswordCreation() {
         
         router.push("/signin");
       } catch (error) {
-        console.log(error)
+        
       }
     }
   };

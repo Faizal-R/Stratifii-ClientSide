@@ -33,6 +33,8 @@ export const CompanyProfileSchema = z.object({
   isVerified: z.boolean().optional(),
   isBlocked: z.boolean().optional(),
   activePlan: z.string().nullable().optional(),
+  resubmissionPeriod:z.string().nullable().optional(),
+    resubmissionNote:z.string().nullable().optional(),
   usage: z
     .object({
       jobPostsThisMonth: z.number().nonnegative().default(0),

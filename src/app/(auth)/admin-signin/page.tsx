@@ -39,7 +39,7 @@ function AdminSignIn() {
     setTimeout(() => {
       router.push("/admin/dashboard");
     }, 200);
-    console.log("Login attempt:", { email, password });
+    
   };
 
   return (

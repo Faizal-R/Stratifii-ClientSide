@@ -31,7 +31,7 @@ const ScheduleManagmentPage = () => {
 
     async function getAllSlotsBasedOnRule() {
       const response = await getSlotsByRule(user?.id as string);
-      console.log(response);
+      
       if (response.success) {
         setSlots(response.data);
         if (response.data.length > 0) {

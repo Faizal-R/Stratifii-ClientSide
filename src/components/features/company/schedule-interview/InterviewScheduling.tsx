@@ -37,7 +37,7 @@ const InterviewScheduling = () => {
       errorToast("Please select a candidate")
       return;
     }
-    console.log(interviewer, slot, selectedCandidate);
+    
     const res = await scheduleInterview({
       interviewer: interviewer._id!,
       slot,

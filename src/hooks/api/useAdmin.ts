@@ -10,7 +10,7 @@ export const useAdminSignIn = () => {
 
       try {
         const response = await AdminService.signIn(email, password);
-        console.log("res", response);
+        
         return response;
       } finally {
         setLoading(false);
@@ -29,7 +29,7 @@ export const useAdminCompany = () => {
 
     try {
       const response = await AdminService.getCompanies(status);
-      console.log("res", response);
+      
       return response;
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ export const useAdminInterviewers = () => {
 
     try {
       const response = await AdminService.getInterviewers(status);
-      console.log("res", response);
+      
       return response;
     } finally {
       setLoading(false);
@@ -90,14 +90,16 @@ export const useHandleCompanyVerification = () => {
     async (
       companyId: string,
       isApproved: boolean,
-      reasonForRejection?: string
+      reasonForRejection?: string,
+      isPermanentBan?:boolean
     ) => {
       setLoading(true);
       try {
         const response = await AdminService.handleCompanyVerification(
           companyId,
           isApproved,
-          reasonForRejection
+          reasonForRejection,
+          isPermanentBan
         );
         return response;
       } finally {
@@ -117,7 +119,8 @@ export const useHandleInterveiwerVerification = () => {
       isApproved: boolean,
       interviewerName: string,
       interviewerEmail: string,
-      reasonForRejection?: string
+      reasonForRejection?: string,
+      isPermanentBan?:boolean
     ) => {
       setLoading(true);
       try {
@@ -126,7 +129,8 @@ export const useHandleInterveiwerVerification = () => {
           isApproved,
           interviewerName,
           interviewerEmail,
-          reasonForRejection
+          reasonForRejection,
+          isPermanentBan
         );
         return response;
       } finally {
@@ -146,7 +150,7 @@ export const useGetAdminDashboard = () => {
     setLoading(true);
     try {
       const response = await AdminService.getAdminDashboard();
-      console.log("res", response);
+      
       return response;
     } finally {
       setLoading(false);

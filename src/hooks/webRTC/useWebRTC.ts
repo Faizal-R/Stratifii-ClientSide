@@ -26,7 +26,7 @@
 //           audio: true,
 //         });
 //         setLocalStream(stream);
-//         console.log("Local Stream: ", stream);
+//         
 //       } catch (error) {
 //         console.error("Error accessing media devices:", error);
 //       }
@@ -47,13 +47,13 @@
 //       // ✅ Only add tracks if localStream exists
 //       if (localStream) {
 //         localStream.getTracks().forEach((track) => {
-//           console.log("Adding local track:", track);
+//           
 //           pc.addTrack(track, localStream);
 //         });
 //       }
 
 //       pc.ontrack = (event) => {
-//         console.log("Received remote track:", event);
+//         
 //         if (event.streams && event.streams[0]) {
 //           setRemoteStream(event.streams[0]);
 //         }
@@ -63,7 +63,7 @@
 //         if (event.candidate && socket) {
 //           const targetId = recipientId || callerId;
 //           if (targetId) {
-//             console.log("Sending ICE candidate:", event.candidate);
+//             
 //             socket.emit("ice-candidate", {
 //               candidate: event.candidate,
 //               recipientId: targetId,
@@ -74,11 +74,11 @@
 
 //       // ✅ Add connection state monitoring
 //       pc.onconnectionstatechange = () => {
-//         console.log("Connection state:", pc.connectionState);
+//         
 //       };
 
 //       pc.oniceconnectionstatechange = () => {
-//         console.log("ICE connection state:", pc.iceConnectionState);
+//         
 //       };
 
 //     } catch (error) {
@@ -92,7 +92,7 @@
 //       return;
 //     }
 
-//     console.log("Initializing call to:", targetPeerId);
+//     
 //     setRecipientId(targetPeerId);
     
 //     // ✅ Create peer connection with existing localStream
@@ -106,7 +106,7 @@
 //           to: targetPeerId,
 //           offer,
 //         });
-//         console.log("Offer sent:", offer);
+//         
 //       }
 //     } catch (error) {
 //       console.error("Error creating/sending offer:", error);
@@ -120,8 +120,8 @@
 //     offer: RTCSessionDescriptionInit;
 //   }) => {
 //     const { offer, from } = data; 
-//     console.log("Received offer from:", from,offer);
-//     console.log("res")
+//     
+//     
     
 //     if (!localStream) {
 //       console.warn("Cannot handle offer: localStream not available");
@@ -139,7 +139,7 @@
 //       if (answer) {
 //         await peerConnectionRef.current?.setLocalDescription(answer);
 //         socket?.emit("answer", { to: from, answer });
-//         console.log("Answer sent:", answer);
+//         
 //       }
 //     } catch (error) {
 //       console.error("Error handling offer:", error);
@@ -150,7 +150,7 @@
 //     answer: RTCSessionDescriptionInit;
 //     from: string;
 //   }) => {
-//     console.log("Received answer from:", data.from);
+//     
     
 //     if (!peerConnectionRef.current) {
 //       console.warn("Cannot handle answer: no peer connection");
@@ -159,21 +159,21 @@
       
 //     try {
 //       await peerConnectionRef.current.setRemoteDescription(data.answer);
-//       console.log("Answer processed successfully");
+//       
 //     } catch (error) {
 //       console.error("Error handling answer:", error);
 //     }
 //   }, []);
 
 //   const handleNewICECandidate = useCallback(async (data: { candidate: RTCIceCandidateInit }) => {
-//     console.log("Received ICE candidate:", data.candidate);
+//     
     
 //     try {
 //       if (peerConnectionRef.current && peerConnectionRef.current.remoteDescription) {
 //         await peerConnectionRef.current.addIceCandidate(
 //           new RTCIceCandidate(data.candidate)
 //         );
-//         console.log("ICE candidate added successfully");
+//         
 //       } else {
 //         console.warn("Cannot add ICE candidate: no peer connection or remote description");
 //       }

@@ -30,7 +30,7 @@ const JobCard: React.FC<JobCardProps> = ({
   onStartMock,
   isMockQuestionsLoading,
 }) => {
-  console.log("JObCard:", job);
+  
   const cardVariant = (() => {
     if (job.isQualifiedForFinal)
       return {

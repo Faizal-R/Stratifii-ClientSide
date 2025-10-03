@@ -10,7 +10,7 @@ const CompanyVerifiedLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.status === "pending") {
+    if (user?.status === "pending" || user?.status === "rejected") {
       router.push("/company/profile");
     }
   }, [user, router]);

@@ -1,4 +1,5 @@
 import { CompanyService } from "@/services/CompanyService";
+import { ICompanyProfile } from "@/validations/CompanySchema";
 import { useCallback, useState } from "react";
 
 
@@ -9,7 +10,7 @@ export const useFetchCompanyProfile = () => {
     setLoading(true);
     try {
       const response = await CompanyService.getCompanyProfile();
-      console.log("res", response);
+      
       return response;
     } finally {
       setLoading(false);
@@ -22,7 +23,7 @@ export const useFetchCompanyProfile = () => {
 export const useUpdateCompanyProfile = () => {
   const [loading, setLoading] = useState(false);
   const updateCompanyProfile = useCallback(
-    async (updatedCompany: FormData) => {
+    async (updatedCompany: FormData|ICompanyProfile) => {
       try {
         setLoading(true);
         const response = await CompanyService.updateCompanyProfile(

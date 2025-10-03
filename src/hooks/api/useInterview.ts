@@ -81,3 +81,17 @@ export const useGetAllInterviewsByCandidateId = function () {
   }, []);
   return { getAllInterviewsByCandidateId, loading };
 };
+
+export const useCompleteCandidateInterviewProcess= function () {
+  const [loading, setLoading] = useState(false);
+  const completeCandidateInterviewProcess = useCallback(async (delegatedCandidateId:string) => {
+    try {
+      setLoading(true);
+      const response = await InterviewService.completeCandidateInterviewProcess(delegatedCandidateId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { completeCandidateInterviewProcess, loading };
+}

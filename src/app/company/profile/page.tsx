@@ -43,9 +43,11 @@ import { ISubscriptionDetails } from "@/types/ISubscription";
 import { errorToast, successToast } from "@/utils/customToast";
 import TabsNav from "@/components/reusable/tabsNav/TabsNav";
 import SubscriptionPlanDetailsCard from "@/components/reusable/cards/subscription-card/SubscriptionPlanDetailsCard";
+import CompanyResubmissionPage from "@/components/features/company/CompanyResubmissionForm";
 
 function CompanyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const {user}=useAuthStore()
   const [subscription, setSubscription] = useState<ISubscriptionDetails | null>(
     null
   );
@@ -98,7 +100,7 @@ function CompanyProfilePage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
-    console.log(file);
+   
     if (file) {
       const imageFile = URL.createObjectURL(file);
       setLogoPreview(imageFile);
@@ -106,12 +108,12 @@ function CompanyProfilePage() {
   };
 
   const handleSave = async () => {
-    console.log("handle save", companyData);
+    
     const validatedCompany = CompanyProfileSchema.safeParse(companyData);
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-        console.log(issue.message)
+       
         errorToast(issue.message);
       }
       return;
@@ -146,7 +148,7 @@ function CompanyProfilePage() {
         logout();
       }
     } else {
-      console.log("userData:",response.data.companyLogo)
+    
       setLogoPreview(response.data.companyLogo);
       setCompanyData(response.data);
     }
@@ -160,7 +162,7 @@ function CompanyProfilePage() {
     //   });
     if (response.success) {
       setSubscription(response.data);
-      console.log(response.data);
+      
     }
   };
   useEffect(() => {
@@ -176,8 +178,10 @@ function CompanyProfilePage() {
     <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
     </div>
-  ) : (
-    <div className="min-h-screen custom-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
+  ) :user?.status==="rejected"? (
+  <CompanyResubmissionPage company={companyData}/>
+  ):(
+      <div className="min-h-screen custom-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
       {/* Navigation Tabs */}
       <TabsNav
         activeTab={activeTab}
@@ -412,6 +416,6 @@ function CompanyProfilePage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 export default CompanyProfilePage;

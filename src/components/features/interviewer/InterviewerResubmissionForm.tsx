@@ -126,7 +126,7 @@ const InterviewerRejectedPage: React.FC<{ interviewer: IInterviewerProfile }> = 
 
   const handleResubmission = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Resubmission data:", formData)
+    
     const { resume, ...formDataWithoutResume } = formData;
     const response = await updateInterviewerProfile({
       ...formDataWithoutResume,

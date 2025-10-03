@@ -3,7 +3,7 @@ import { Calendar, CalendarCheck, UserCircle, Wallet } from "lucide-react";
 
 
 export const getInterviewerSidebarRoutes = (isAdminVerified: boolean) => {
-  console.log("isAdminVerified",isAdminVerified)
+  
   return [
     {
       id: "profile",

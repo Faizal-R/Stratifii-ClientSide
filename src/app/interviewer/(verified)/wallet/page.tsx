@@ -156,7 +156,7 @@ function WalletPage() {
   const handleSendPayoutRequest = async () => {
     alert(payoutAmount);
     const response = await createPayoutRequest(payoutAmount, user?.name!);
-    console.log(response);
+    
     if (!response?.success) {
       errorToast(response.message);
       return;

@@ -37,7 +37,7 @@ export default function SubscriptionPage() {
       );
       setIsEditing(false);
     } else {
-      console.log(subscription);
+      
       const response = await createSubscription(subscription);
       if (!response.success) {
         errorToast(response.message);

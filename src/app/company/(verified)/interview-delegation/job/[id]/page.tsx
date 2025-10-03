@@ -37,7 +37,6 @@ import {
 } from "@/hooks/api/usePayment";
 import { initiateRazorpayPayment } from "@/utils/razorpay";
 import {
- 
   ICandidateProfile,
   IDelegatedCandidate,
   IInterviewRound,
@@ -49,6 +48,7 @@ import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
 import InterviewRoundsModal from "../../../../../../components/features/interviewer/interview/InterviewRoundsModal";
 import { errorToast, successToast } from "@/utils/customToast";
 import { useAuthStore } from "@/features/auth/authStore";
+import { useCompleteCandidateInterviewProcess } from "@/hooks/api/useInterview";
 
 type TabType = "all" | "in-progress" | "completed";
 
@@ -75,6 +75,7 @@ function JobManagementPage() {
   const [currentCandidate, setCurrentCandidate] =
     useState<IDelegatedCandidate | null>(null);
   const { getSlotsByInterviewer } = useGetAllSlotsByInterviewer();
+  const {completeCandidateInterviewProcess}=useCompleteCandidateInterviewProcess()
 
   const { paymentOrderCreation } = usePaymentOrderCreation();
   const [isInterviewProcessInitiated, setIsInterviewProcessInitiated] =
@@ -140,7 +141,7 @@ function JobManagementPage() {
 
         setIsInterviewProcessInitiated(true);
         setIsConfirmationModalOpen(false);
-        if(hasPaymentRetryAttempted)setHasPaymentRetryAttempted(false);
+        if (hasPaymentRetryAttempted) setHasPaymentRetryAttempted(false);
         successToast(res.message);
       },
       onFailure: async () => {
@@ -175,7 +176,7 @@ function JobManagementPage() {
       errorToast(response.message);
       return;
     }
-    console.log(response.data);
+
     setCandidates((prev) => [...prev, ...response.data]);
     successToast(response.message);
     setIsModalOpen(false);
@@ -186,12 +187,10 @@ function JobManagementPage() {
     candidate: IDelegatedCandidate,
     interviewer: IInterviewerProfile
   ) => {
-    console.log(interviewer);
-
     const res = await getSlotsByInterviewer(interviewer._id!);
     if (res.success) {
       const slots = res.data;
-      console.log(interviewer, slots);
+
       setSelectedInterviewer({ interviewer, slots });
       setCurrentCandidate(candidate);
       setIsSlotModalOpen(true);
@@ -250,8 +249,13 @@ function JobManagementPage() {
   };
 
   // Handle completing candidate
-  const handleCompleteCandidate = async (candidateId: string) => {
+  const handleCompleteCandidateInterview = async (candidateId: string) => {
     try {
+      const res=await completeCandidateInterviewProcess(candidateId)
+      if(!res.success){
+        errorToast(res.message)
+        return
+      } 
       const updatedCandidates = candidates.map((c) => {
         if (c._id === candidateId) {
           return {
@@ -290,7 +294,6 @@ function JobManagementPage() {
       }
 
       setCandidates(response.data.candidates);
-      console.log(response.data);
     };
 
     fetchCandidates();
@@ -311,7 +314,6 @@ function JobManagementPage() {
             "in_interview_process",
             "mock_started",
             "mock_completed",
-            "shortlisted",
           ].includes(c.status)
         );
         break;
@@ -369,12 +371,11 @@ function JobManagementPage() {
     [
       "in_interview_process",
       "mock_started",
-      "shortlisted",
       "mock_completed",
     ].includes(c.status)
   ).length;
   const completedCount = candidates.filter((c) =>
-    ["completed", "hired", "shortlisted"].includes(c.status)
+    [ "hired", "shortlisted"].includes(c.status)
   ).length;
 
   const tabs: TabConfig[] = [
@@ -624,7 +625,7 @@ function JobManagementPage() {
                     const latestCompletedRound = getLatestCompletedRound(
                       candidateWrapper.interviewRounds
                     );
-                    const nextAction = getNextAction(candidateWrapper);
+                   
 
                     return (
                       <div
@@ -828,7 +829,7 @@ function JobManagementPage() {
 
                                         <button
                                           onClick={() =>
-                                            handleCompleteCandidate(
+                                            handleCompleteCandidateInterview(
                                               candidateWrapper._id!
                                             )
                                           }

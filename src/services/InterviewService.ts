@@ -101,7 +101,7 @@ export const InterviewService = {
 
  completeCandidateInterviewProcess: async (delegatedCandidateId: string) => {
     try {
-      const response = await apiClient.put(
+      const response = await apiClient.patch(
         `${InterviewRoutes.COMPLETE_CANDIDATE_INTERVIEW_PROCESS}/${delegatedCandidateId}`
       );
       return response.data;

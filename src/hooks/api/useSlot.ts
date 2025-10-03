@@ -11,7 +11,7 @@ export const useSlotGeneration = () => {
 
       try {
         const response = await SlotService.generateSlots(slotGenerationRule);
-        console.log("res", response);
+        
         return response;
       } finally {
         setLoading(false);

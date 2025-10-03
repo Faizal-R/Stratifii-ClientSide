@@ -55,7 +55,7 @@ function CompanyRegistrationPage() {
 
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    
      const validatedCompany=CompanyRegistrationSchema.safeParse({...formData,status: "pending"  });
       if(!validatedCompany.success){
       const errors = validatedCompany.error;
@@ -71,7 +71,7 @@ function CompanyRegistrationPage() {
     const response = await registerCompany(validatedCompany.data!);
     if (!response.success) {
       errorToast(response.message);
-      console.log("register error",response)
+      
       return;
     } else {
       successToast(response.message);

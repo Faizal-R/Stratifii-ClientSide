@@ -71,7 +71,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
         user?.id as string
       );
       if (response.success) {
-        console.log(response.data);
+        
         if (response.data) {
           setFormData((prev) => ({
             ...prev,
@@ -153,7 +153,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
       errorToast("Buffer Time cannot be emtpy");
       return;
     }
-    console.log("Form Data:", formData);
+    
     if (isExistingRule) {
       const response = await updateInterviewerSlotGenerationRule(
         user?.id as string,
@@ -175,7 +175,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
         errorToast(response.message || "Failed to generate slots. Please try again.")
         return;
       }
-      console.log("Generated Slots:", response);
+      
 
       setSlots(response.data || []);
 

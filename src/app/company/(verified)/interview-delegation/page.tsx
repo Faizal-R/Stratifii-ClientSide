@@ -153,7 +153,7 @@ function InterviewDelegation() {
     setIsModalOpen(true);
     const findedJob = jobs.find((job) => job._id === jobId);
     if (findedJob) {
-      console.log(findedJob);
+      
       setSelectedJob(findedJob);
     }
   };
@@ -205,7 +205,7 @@ function InterviewDelegation() {
       }
       setJobs(response.data);
       setHasFetchedJobs(true);
-      console.log(response.data);
+      
     };
 
     fetchJobs();

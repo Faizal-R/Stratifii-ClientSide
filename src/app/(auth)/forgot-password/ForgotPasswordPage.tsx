@@ -28,7 +28,7 @@ function ForgotPasswordPage() {
         errorToast(response.message)
         return;
      }
-     console.log(response)
+     
      successToast(response.message)
   };
 

@@ -88,7 +88,7 @@ function OtpVerificationPage() {
       errorToast("All the fields are required")
       return;
     }
-    console.log(verificationCode);
+    
     const response = await verifyOtp({
       otp: verificationCode.join(""),
       email,

@@ -52,13 +52,13 @@ import {
     //   route: "/company/payments",
     //   isDisabled: !isAdminVerified,
     // },
-    { 
-      id: "wallet", 
-      label: "Wallet", 
-      icon: Wallet, 
-      route: "/company/wallet",
-      isDisabled: !isAdminVerified,
-    },
+    // { 
+    //   id: "wallet", 
+    //   label: "Wallet", 
+    //   icon: Wallet, 
+    //   route: "/company/wallet",
+    //   isDisabled: !isAdminVerified,
+    // },
   ];
 };
 

@@ -81,7 +81,7 @@ function AdminInterviewerManagement() {
   const { socket } = useSocketStore();
 
   const showConfirmModal = async (interviewerId: string) => {
-    console.log(interviewerId);
+    
     setSelectedInterviewerId(interviewerId);
     setIsConfirmBlockModalOpen(true);
   };
@@ -111,7 +111,8 @@ function AdminInterviewerManagement() {
   const handleInterviewerVerification = async (
     interviewerId: string,
     isApproved: boolean,
-    reasonForRejection?: string
+    reasonForRejection?: string,
+    isPermanentBan?:boolean
   ) => {
     const matchedInterviewer = interviewers.find((i) => i._id === interviewerId);
     if(!matchedInterviewer){
@@ -123,7 +124,8 @@ function AdminInterviewerManagement() {
       isApproved,
       matchedInterviewer?.name,
       matchedInterviewer?.email,
-      reasonForRejection
+      reasonForRejection,
+      isPermanentBan
     );
 
     if (!response.success) {

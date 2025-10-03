@@ -35,7 +35,7 @@ const CompilerPanel: React.FC<CompilerPanelProps> = ({
         code,
         selectedLanguage
       );
-      console.log(res);
+      
       if (res.stdout) {
         setOutput(res.stdout);
       } else {
@@ -52,7 +52,7 @@ const CompilerPanel: React.FC<CompilerPanelProps> = ({
 
   const handleCodeChange = (newValue: string | undefined) => {
     setCode(newValue || "");
-    console.log(newValue)
+    
     socket.emit("code:changes", {
       roomId,
       code: newValue || "",
@@ -60,7 +60,7 @@ const CompilerPanel: React.FC<CompilerPanelProps> = ({
   };
   useEffect(() => {
     socket.on("receive:code:update", (newCode:string) => {
-      console.log("Received code update:", newCode);
+      
       setCode(newCode || "");
     });
     return () => {

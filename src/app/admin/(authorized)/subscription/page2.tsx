@@ -27,8 +27,8 @@ export default function SubscriptionPage() {
   const { updateSubscription } = useUpdateSubscription();
 
   const handleSaveSubscription = async (subscription: ISubscription) => {
-    console.log(subscription);
-    console.log(subscription);
+    
+    
     if (isEditing) {
       await updateSubscription(subscription._id!, subscription);
       setSubscriptions(
@@ -38,7 +38,7 @@ export default function SubscriptionPage() {
       );
       setIsEditing(false);
     } else {
-      console.log(subscription);
+      
       const response = await createSubscription(subscription);
       if (!response.success) {
         errorToast(response.message);

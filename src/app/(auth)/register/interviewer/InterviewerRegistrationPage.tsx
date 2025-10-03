@@ -120,7 +120,7 @@ function InterviewerRegistrationPage() {
       errorToast("Passwords does not match",)
       return;
     }
-    console.log(formData);
+    
 
     if (isGoogleVerified) {
       const response = await setupInterviewerAccount(
@@ -149,7 +149,7 @@ function InterviewerRegistrationPage() {
         ...formData,
         status: "pending",
       });
-      console.log(response); // Set default status
+       // Set default status
       if (!response.success) {
         errorToast(response.message);
       } else {

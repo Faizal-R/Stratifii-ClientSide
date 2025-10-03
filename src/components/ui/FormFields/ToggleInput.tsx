@@ -8,7 +8,7 @@ export const Toggle = ({
     onChange: () => void;
   }) => (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600">{label}</span>
+      <span className="text-sm text-gray-400 font-semibold">{label}</span>
       <button
         onClick={onChange}
         className={`w-10 h-6 flex items-center rounded-full p-1 ${

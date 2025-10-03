@@ -50,11 +50,11 @@ export const AdminService = {
     }
   },
 
-  handleCompanyVerification: async (companyId: string, isApproved: boolean,reasonForRejection?: string) => {
+  handleCompanyVerification: async (companyId: string, isApproved: boolean,reasonForRejection?: string,isPermanentBan?:boolean) => {
     try {
       const response = await apiClient.patch(
         `${AdminRoutes.UPDATE_COMPANY_STATUS}/${companyId}/verify`,
-        { isApproved,reasonForRejection }
+        { isApproved,reasonForRejection,isPermanentBan }
       );
       return response.data;
     } catch (error) {
@@ -67,7 +67,8 @@ export const AdminService = {
     isApproved: boolean,
     interviewerName: string,
     interviewerEmail: string,
-    reasonForRejection?: string
+    reasonForRejection?: string,
+    isPermanentBan?:boolean
   ) => {
     try {
       const response = await apiClient.patch(
@@ -77,6 +78,7 @@ export const AdminService = {
           interviewerName,
           interviewerEmail,
           reasonForRejection,
+          isPermanentBan
         }
       );
       return response.data;

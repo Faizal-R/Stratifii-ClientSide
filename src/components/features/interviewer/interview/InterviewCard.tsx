@@ -30,7 +30,7 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
   onShowCandidateHistory,
 }) => {
   const [showAllSkills, setShowAllSkills] = useState(false);
-  console.log("interview", interview);
+  
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("en-US", {

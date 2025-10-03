@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { RiseLoader } from "react-spinners";
+import { Toggle } from "../FormFields/ToggleInput";
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,7 +13,7 @@ interface ModalProps {
   cancelText?: string;
   // New props for reason functionality
   reasonOptions?: { value: string; label: string }[];
-  onConfirmWithReason?: (reason: string) => void;
+  onConfirmWithReason?: (reason: string, isPermanentBan?: boolean) => void;
   reasonLabel?: string;
   reasonPlaceholder?: string;
 }
@@ -34,19 +35,20 @@ export const Modal: React.FC<ModalProps> = ({
   const [customReason, setCustomReason] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isCompleting, setIsCompleting] = useState<boolean>(false);
+  const [isPermanentBan, setIsPermanentBan] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
-  const handleConfirm =async () => {
+  const handleConfirm = async () => {
     if (reasonOptions && onConfirmWithReason) {
-      setIsCompleting(true)
+      setIsCompleting(true);
       const finalReason =
         selectedReason === "other" ? customReason : selectedReason;
-     await onConfirmWithReason(finalReason);
-      setIsCompleting(false)
+      await onConfirmWithReason(finalReason, isPermanentBan);
+      setIsCompleting(false);
     } else {
       onConfirm();
-      onClose()
+      onClose();
     }
     // onClose();
   };
@@ -98,7 +100,6 @@ export const Modal: React.FC<ModalProps> = ({
                 <h3 className="text-xl font-semibold bg-gradient-to-r from-violet-200 to-white bg-clip-text text-transparent">
                   {title}
                 </h3>
-               
               </div>
 
               {/* Content */}
@@ -116,7 +117,7 @@ export const Modal: React.FC<ModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full px-3 py-2 bg-violet-950/30 border border-violet-500/30 rounded-lg text-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 flex items-center justify-between"
+                      className="w-full px-3 py-2 bg-violet-950/30 border border-violet-500/30 rounded-lg text-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 flex items-center justify-between mb-3"
                     >
                       <span
                         className={
@@ -137,7 +138,7 @@ export const Modal: React.FC<ModalProps> = ({
 
                     {/* Dropdown Options */}
                     {isDropdownOpen && (
-                      <div className="absolute h-[180px] overflow-y-auto top-full left-0 right-0 mt-1 bg-violet-950/95 border border-violet-500/30 rounded-lg shadow-xl z-10 backdrop-blur-sm">
+                      <div className="absolute h-[180px] overflow-y-auto top-full left-0 right-0 mt-1 bg-violet-950/95 border border-violet-500/30 rounded-lg shadow-xl z-10 backdrop-blur-sm ">
                         {reasonOptions.map((option) => (
                           <button
                             key={option.value}
@@ -154,7 +155,7 @@ export const Modal: React.FC<ModalProps> = ({
 
                   {/* Custom Input Field for "Other" */}
                   {selectedReason === "other" && (
-                    <div className="mt-3">
+                    <div className="mb-3 ">
                       <input
                         type="text"
                         value={customReason}
@@ -165,11 +166,17 @@ export const Modal: React.FC<ModalProps> = ({
                       />
                     </div>
                   )}
+              <Toggle
+               
+                label="Permanent Ban"
+                checked={isPermanentBan}
+                onChange={() => setIsPermanentBan(!isPermanentBan)}
+              />
                 </div>
               )}
 
               {/* Actions */}
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-end mt-2">
                 <button
                   onClick={handleClose}
                   className="px-4 py-2 rounded-lg text-violet-200/70 hover:text-violet-100 hover:bg-violet-500/10 border border-violet-500/20 transition-all duration-200"
@@ -185,7 +192,11 @@ export const Modal: React.FC<ModalProps> = ({
                       : "bg-violet-600/20 text-violet-200 hover:bg-violet-600/30 border-violet-500/30 hover:border-violet-500/50"
                   }`}
                 >
-                  {isCompleting?<RiseLoader size={11} color="#ffff"/>:confirmText}
+                  {isCompleting ? (
+                    <RiseLoader size={11} color="#ffff" />
+                  ) : (
+                    confirmText
+                  )}
                 </button>
               </div>
             </div>

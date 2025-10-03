@@ -72,7 +72,7 @@ export const useHandleRetryInterviewProcessInitializationPayment=function(){
     ) => {
       try {
         setLoading(true);
-        console.log("Retrying payment for jobId:", jobId);
+        
         const response =
           await PaymentService.handleRetryInterviewProcessInitializationPayment(
             jobId,);

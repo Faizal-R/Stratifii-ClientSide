@@ -90,12 +90,14 @@ function AdminCompanyManagement() {
   const handleCompanyVerification = async (
     companyId: string,
     isApproved: boolean,
-    reasonForRejection?: string
+    reasonForRejection?: string,
+    isPermanentBan?:boolean
   ) => {
     const response = await verifyOrRejectCompany(
       companyId,
       isApproved,
-      reasonForRejection
+      reasonForRejection,
+      isPermanentBan
     );
     if (!response.success) {
       errorToast(response.message);
@@ -115,6 +117,7 @@ function AdminCompanyManagement() {
       setIsVerificationAccept(false);
     } else {
       successToast("Company verification rejected successfully");
+      
       setCompanies(companies.filter((c) => c._id !== response.data._id));
       setIsVerificationRejectModalOpen(false);
     }
@@ -181,8 +184,8 @@ function AdminCompanyManagement() {
         }
         {...(isVerificationRejectModalOpen && {
           reasonOptions: companyVerificationReasons,
-          onConfirmWithReason: (reason: string) =>
-            handleCompanyVerification(selectedCompanyId!, false, reason),
+          onConfirmWithReason: (reason: string,isPermanentBan?:boolean) =>
+            handleCompanyVerification(selectedCompanyId!, false, reason,isPermanentBan),
         })}
       />
 

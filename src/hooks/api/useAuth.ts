@@ -20,7 +20,7 @@ export const useSignIn = () => {
 
       try {
         const response = await AuthService.signIn(email, password, role);
-        console.log("res", response);
+        
         return response;
       } finally {
         setLoading(false);

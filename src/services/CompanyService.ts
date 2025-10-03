@@ -1,6 +1,7 @@
 import apiClient from "@/config/apiClient";
 import { CompanyRoutes } from "@/constants/routes/api/CompanyRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
+import { ICompanyProfile } from "@/validations/CompanySchema";
 
 export const CompanyService = {
   getCompanyProfile: async () => {
@@ -15,7 +16,7 @@ export const CompanyService = {
     }
   },
 
-  updateCompanyProfile: async (company: FormData) => {
+  updateCompanyProfile: async (company: FormData|ICompanyProfile) => {
     try {
       const response = await apiClient.put(CompanyRoutes.PROFILE, company, {
         headers: {

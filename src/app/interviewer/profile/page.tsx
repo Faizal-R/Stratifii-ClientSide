@@ -69,12 +69,12 @@ function InterviewerProfilePage() {
   };
 
   const handleSave = async () => {
-    console.log(interviewerData);
+    
     const validatedInterviewer =
       InterviewerProfileSchema.safeParse(interviewerData);
     if (!validatedInterviewer.success) {
       const errors = validatedInterviewer.error;
-      console.log(errors.issues);
+      
       for (const issue of errors.issues) {
         errorToast(issue.message);
       }
@@ -185,7 +185,7 @@ function InterviewerProfilePage() {
   };
 
   const onSaveBankDetails = async (bankDetails: IBankDetails) => {
-    console.log("BankDetails", bankDetails);
+    
     const response = await addBankDetails(bankDetails);
     if (!response.success) {
       errorToast(response.message);

@@ -49,14 +49,14 @@ const CandidateInterviewsPage = () => {
 
   const fetchDelegatedJobs = async () => {
     const response = await getDelegatedJobs();
-    console.log(response.data);
+    console.log(response)
     setDelegatedJobs(response.data || []);
   };
 
   // Placeholder function for fetching upcoming interviews
-  const fetchUpcomingInterviews = async () => {
+  const fetchScheduledInterviews = async () => {
     try {
-      // TODO: Replace with actual API call
+
       // const response = await getUpcomingInterviews();
       // setUpcomingInterviews(response.data || []);
       const response = await getAllScheduledInterviews(user?.id as string);
@@ -70,11 +70,11 @@ const CandidateInterviewsPage = () => {
 
   useEffect(() => {
     fetchDelegatedJobs();
-    fetchUpcomingInterviews();
+    fetchScheduledInterviews();
   }, []);
 
   const mockInterviews = delegatedJobs.filter((job) =>
-    ["mock_pending", "mock_started", "mock_completed", "mock_failed"].includes(
+    ["mock_pending", "mock_started", "mock_completed", "mock_failed",].includes(
       job.mockStatus
     )
   );
@@ -248,7 +248,7 @@ const CandidateInterviewsPage = () => {
               }`}
             >
               <Calendar className="w-5 h-5" />
-              <span>Upcoming Interviews</span>
+              <span>Scheduled Interviews</span>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   activeTab === "upcoming"

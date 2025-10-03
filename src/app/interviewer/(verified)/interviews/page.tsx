@@ -44,7 +44,7 @@ const InterviewsPage: React.FC = () => {
   const handleJoinMeeting = (meetingLink: string, interviewId: string) => {
     router.push(`/interviews/${interviewId}?room=${meetingLink}`);
   };
-  console.log("upcomingInterviews", upcomingInterviews);
+  
 
   const filterInterviews = () => {
     let filtered = [...upcomingInterviews];
@@ -102,7 +102,7 @@ const InterviewsPage: React.FC = () => {
     const fetchUpcomingInterviews = async () => {
       const res = await getAllUpcomingInterviews();
       if (res.success) {
-        console.log(res.data);
+        
         setUpcomingInterviews(res.data);
       }
     };

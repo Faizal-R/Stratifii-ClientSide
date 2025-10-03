@@ -17,7 +17,7 @@ const JobSelection: React.FC<IJobSelectionProps> = ({
   const onJobSelect = (job: IJobWithQualifiedCandidatesCount) => {
     setSelectedJob(job);
     sendSelectedJob(job);
-    console.log("Selected job:", job.job);
+    
   };
 
   return (

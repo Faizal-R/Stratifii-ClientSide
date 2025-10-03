@@ -12,7 +12,6 @@ interface CandidatePipelineProps {
 export function CandidatePipeline({ candidates }: CandidatePipelineProps) {
   // Status counts
   const mockPending = candidates.filter(c => c.status === 'mock_pending');
-  const mockStarted = candidates.filter(c => c.status === 'mock_started');
   const mockCompleted = candidates.filter(c => c.status === 'mock_completed');
   const mockFailed = candidates.filter(c => c.status === 'mock_failed');
   const shortlisted = candidates.filter(c => c.status === 'shortlisted');
@@ -32,7 +31,7 @@ export function CandidatePipeline({ candidates }: CandidatePipelineProps) {
   // Pipeline stages with percentages
   const pipelineStages = [
     { name: 'Mock Pending', count: mockPending.length, color: 'bg-gray-500', icon: Clock },
-    { name: 'Mock Started', count: mockStarted.length, color: 'bg-blue-500', icon: Clock },
+   
     { name: 'Mock Completed', count: mockCompleted.length, color: 'bg-green-500', icon: UserCheck },
     { name: 'Mock Failed', count: mockFailed.length, color: 'bg-red-500', icon: UserX },
     { name: 'Shortlisted', count: shortlisted.length, color: 'bg-purple-500', icon: Target },

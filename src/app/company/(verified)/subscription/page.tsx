@@ -57,7 +57,7 @@ const CompanySubscriptionPage = () => {
           response,
           subscription._id!
         );
-        console.log(res);
+        
         if (!res.success) {
           errorToast(res.message);
           return;

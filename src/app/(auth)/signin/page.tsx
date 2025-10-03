@@ -59,7 +59,7 @@ const roles = [
 ];
 
 function App() {
-  const {socket}=useSocketStore()
+  const { socket } = useSocketStore()
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("candidate");
   const [isVerifyAccountModalOpen, setIsVerifyAccountModalOpen] =
@@ -101,15 +101,15 @@ function App() {
 
       return;
     }
-    
+
     successToast(response.message);
-    const { email, _id: id, name,status } = response.data.user;
-    console.log(response.data.user);
+    const { email, _id: id, name, status } = response.data.user;
+
 
     if (selectedRole === Roles.COMPANY) {
       setSubscription(response.data.subscription);
     }
-   socket.emit("user:loggedIn",id)
+    socket.emit("user:loggedIn", id)
     setUser({
       email,
       id,
@@ -142,50 +142,53 @@ function App() {
 
   const handleOAuthLogin = async () => {
     const { user } = await signInWithPopup(auth, provider);
-    console.log(user);
+
 
     const response = await googleAuth({
       email: user.email!,
       name: user.displayName!,
       avatar: user.photoURL!,
     });
-    if(!response.success){
-      if(response.status === StatusCodes.FORBIDDEN){
+    if (!response.success) {
+      if (response.status === StatusCodes.FORBIDDEN) {
         setIsVerifyAccountModalOpen(true);
         return
-      }else if(response.status === StatusCodes.LOCKED){
+      } else if (response.status === StatusCodes.LOCKED) {
         errorToast(response.message)
         return
       }
       errorToast(response.message)
       return
     }
-  
+
 
     const authUser = response.data;
 
-    if(authUser.isVerified){
+    if (authUser.isVerified) {
       setUser({
         email: authUser.email,
         id: authUser._id,
         role: Roles.INTERVIEWER,
         name: authUser.name,
-        status:authUser.status
+        status: authUser.status
       });
       router.push(`${Roles.INTERVIEWER}/profile`);
-    }else{
+    } else {
       router.push(
-          `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`
-        );
+        `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`
+      );
     }
-    
+
   };
 
   useEffect(() => {
     if (user) {
-      if(user.role === Roles.INTERVIEWER){
+      if (user.role === Roles.INTERVIEWER) {
         router.push(`${Roles.INTERVIEWER}/profile`);
-      }else router.push(`/${user.role}/dashboard`);
+      } else if (user.role === Roles.COMPANY && user.status === "rejected") {
+        router.push(`${Roles.COMPANY}/profile`);
+
+      } else router.push(`/${user.role}/dashboard`);
     }
   }, [user, router]);
 
@@ -233,11 +236,10 @@ function App() {
                   key={role.id}
                   type="button"
                   onClick={() => setSelectedRole(role.id)}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 ${
-                    selectedRole === role.id
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 ${selectedRole === role.id
                       ? "bg-violet-800/30 border-2 border-violet-500 text-white"
                       : "bg-black/80 border border-violet-900/50 text-violet-300 hover:bg-violet-900/20"
-                  }`}
+                    }`}
                 >
                   <role.icon
                     size={20}

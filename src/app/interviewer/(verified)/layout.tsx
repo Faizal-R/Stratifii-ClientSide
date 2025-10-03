@@ -21,13 +21,13 @@ const InterviewerVerifiedLayout = ({ children }: { children: ReactNode }) => {
 
     const fetchInterviewer = async () => {
       const response = await interviewerProfile();
-      console.log(response);
+     
       if (!response.success) {
         errorToast(response.message);
         return;
       }
       setInterviewer(response.data as IInterviewerProfile);
-      console.log("Interviewer in Layout", response.data);
+     
     };
 
     fetchInterviewer();

@@ -10,7 +10,7 @@ export const useFetchInterviewerProfile = () => {
     setLoading(true);
     try {
       const response = await InterviewerService.getInterviewerProfile();
-      console.log("res", response);
+      
       return response;
     } finally {
       setLoading(false);
