@@ -113,7 +113,7 @@ function CompanyProfilePage() {
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-       
+        console.log(issue);
         errorToast(issue.message);
       }
       return;

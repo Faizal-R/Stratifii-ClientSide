@@ -97,28 +97,28 @@ const MockInterview: React.FC<MockInterviewProps> = ({
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBackToDashboard}
-            className="flex items-center text-gray-400 hover:text-white transition-colors"
+            className="flex items-center text-gray-400 hover:text-white transition-colors text-sm"
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </button>
 
-          <div className="flex items-center space-x-4">
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-violet-500/20">
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg px-3 py-1 border border-violet-500/20">
               <span className="text-gray-400">Question </span>
               <span className="text-white font-semibold">
                 {currentQuestionIndex + 1} / {totalQuestions}
               </span>
             </div>
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-violet-500/20 flex items-center">
-              <Clock className="h-4 w-4 text-violet-400 mr-2" />
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg px-3 py-1 border border-violet-500/20 flex items-center">
+              <Clock className="h-3 w-3 text-violet-400 mr-1" />
               <span
-                className={`font-semibold ${
+                className={`font-semibold text-sm ${
                   timeLeft <= 10 ? "text-red-400" : "text-white"
                 }`}
               >
@@ -129,10 +129,10 @@ const MockInterview: React.FC<MockInterviewProps> = ({
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="bg-black/40 rounded-full h-2">
+        <div className="mb-6">
+          <div className="bg-black/40 rounded-full h-1">
             <div
-              className="bg-gradient-to-r from-violet-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-violet-500 to-purple-600 h-1 rounded-full transition-all duration-300"
               style={{
                 width: `${
                   ((currentQuestionIndex + 1) / totalQuestions) * 100
@@ -140,7 +140,7 @@ const MockInterview: React.FC<MockInterviewProps> = ({
               }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-sm text-gray-400">
+          <div className="flex justify-between mt-1 text-xs text-gray-400">
             <span>Progress</span>
             <span>
               {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%
