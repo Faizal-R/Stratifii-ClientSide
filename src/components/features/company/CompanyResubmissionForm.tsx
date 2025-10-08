@@ -20,7 +20,7 @@ import { AuthUser, useAuthStore } from "@/features/auth/authStore";
 const CompanyResubmissionPage: React.FC<{ company: ICompanyProfile }> = ({
   company,
 }) => {
-    const {setUser,user}=useAuthStore()
+  const { setUser, user } = useAuthStore();
   const rejectionReason =
     "Your company profile did not meet our verification standards.";
   const { updateCompanyProfile, loading } = useUpdateCompanyProfile();
@@ -48,11 +48,21 @@ const CompanyResubmissionPage: React.FC<{ company: ICompanyProfile }> = ({
 
   const handleResubmission = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await updateCompanyProfile({
-      ...formData,
-      status: "pending",
-      email: company.email,
-    } as ICompanyProfile);
+    const formDataForBackend = new FormData();
+    console.log("formData",formData)
+    formDataForBackend.append(
+      "company",
+      JSON.stringify({
+        ...formData,
+        status: "pending",
+        email: company.email,
+        resubmissionPeriod: company.resubmissionPeriod || null,
+        resubmissionCount: company.resubmissonCount || 0,
+
+      })
+    );
+   
+    const response = await updateCompanyProfile(formDataForBackend);
 
     if (!response.success) {
       errorToast(response.message);
@@ -60,8 +70,8 @@ const CompanyResubmissionPage: React.FC<{ company: ICompanyProfile }> = ({
     }
     setUser({
       ...user,
-      status: "pending"
-    }as AuthUser)
+      status: "pending",
+    } as AuthUser);
     successToast("Resubmission submitted successfully ✅");
   };
 

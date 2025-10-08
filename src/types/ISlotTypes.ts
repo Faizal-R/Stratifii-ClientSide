@@ -1,12 +1,31 @@
 export interface ISlotGenerationRequest {
   availableDays: number[];
-  startHour: number;
-  endHour: number;
+ startTime:{
+  hour:number,
+  minute:number,
+  meridian:"AM"|"PM"
+ }
+ endTime:{
+  hour:number,
+  minute:number,
+   meridian:"AM"|"PM"
+ }
+ 
   slotDuration: number;
-  bufferRate: number|string|undefined;
+  bufferRate: number;
+  timezone: string
+}
+export interface ISlotGenerationRequestForServer {
+  interviewerId:string;
+  availableDays: number[]; 
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  duration: number;
+  buffer: number;
   timezone?: string;
 }
-
 export interface SlotPreview {
   totalSlots: number;
   daysCount: number;

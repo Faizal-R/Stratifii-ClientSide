@@ -108,7 +108,7 @@ function CompanyProfilePage() {
   };
 
   const handleSave = async () => {
-    
+     console.log(companyData)
     const validatedCompany = CompanyProfileSchema.safeParse(companyData);
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;

@@ -1,36 +1,48 @@
-
-
+// utils/slotCalculator.ts
 export function calculateSlotPreview({
   availableDays,
-  startHour,
-  endHour,
+  startTime,
+  endTime,
   slotDuration,
-  bufferRate = 15
+  bufferRate = 15,
 }: {
   availableDays: number[];
-  startHour: number;
-  endHour: number;
+  startTime: { hour: number; minute: number; meridian: "AM" | "PM" };
+  endTime: { hour: number; minute: number; meridian: "AM" | "PM" };
   slotDuration: number;
   bufferRate?: number;
 }) {
-  // Calculate daily available time in minutes
-  const hoursPerDay = endHour - startHour;
-  const minutesPerDay = hoursPerDay * 60;
+  // Convert 12-hour time to minutes since midnight
+  const timeToMinutes = (time: { hour: number; minute: number; meridian: "AM" | "PM" }) => {
+    let hour = time.hour % 12;
+    if (time.meridian === "PM") hour += 12;
+    return hour * 60 + time.minute;
+  };
 
-  // Total time per slot
-  const totalSlotDuration = slotDuration + bufferRate;
+  const startMinutes = timeToMinutes(startTime);
+  const endMinutes = timeToMinutes(endTime);
 
-  // Slots per day
+  const minutesPerDay = Math.max(0, endMinutes - startMinutes);
+  if (minutesPerDay <= 0) return { slotsPerDay: 0, daysCount: 0, totalSlots: 0, bufferTime: bufferRate, hoursPerDay: 0 };
+
+  // Ensure numeric values
+  const safeSlotDuration = typeof slotDuration === 'number' ? slotDuration : Number(slotDuration) || 0;
+  const safeBufferRate = typeof bufferRate === 'number' ? bufferRate : Number(bufferRate) || 0;
+
+  const totalSlotDuration = safeSlotDuration + safeBufferRate;
+  if (totalSlotDuration <= 0) return { slotsPerDay: 0, daysCount: 0, totalSlots: 0, bufferTime: safeBufferRate, hoursPerDay: minutesPerDay / 60 };
+
   const slotsPerDay = Math.floor(minutesPerDay / totalSlotDuration);
 
   return {
     slotsPerDay,
     daysCount: availableDays.length,
     totalSlots: availableDays.length * slotsPerDay,
-    bufferTime: bufferRate,
-    hoursPerDay,
+    bufferTime: safeBufferRate,
+    hoursPerDay: minutesPerDay / 60,
   };
 }
+
 
 
 // export function validateSlotRequest(request: ISlotGenerationRequest): string[] {

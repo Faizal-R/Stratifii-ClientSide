@@ -222,7 +222,7 @@ function InterviewerProfilePage() {
   ) : user?.status === "rejected" || interviewerData.status === "rejected" ? (
     <InterviewerRejectedPage interviewer={interviewerData} />
   ) : (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white custom-64">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white ">
       {/* Main Section */}
       <main className=" p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-8">

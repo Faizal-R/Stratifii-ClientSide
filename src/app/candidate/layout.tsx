@@ -42,7 +42,7 @@ const navItems = [
 const CandidateLayout = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const {isSidebarCollapsed}=useSidebarCollapseStore()
+  const {isSidebarCollapsed,isMobileScreen}=useSidebarCollapseStore()
   const { logout } = useAuthStore();
   const { signoutUser } = useSignoutUser();
   function handleModalState(state: boolean) {
@@ -74,8 +74,10 @@ const CandidateLayout = ({ children }: { children: ReactNode }) => {
         handleModalState={handleModalState}
       />
       <div
-        className="transition-all duration-300"
-        style={{ marginLeft: isSidebarCollapsed ? 80 : 256 }}
+        className="transition-all duration-300 h-screen"
+        style={{
+          marginLeft: isMobileScreen ? 80 : isSidebarCollapsed ? 80 : 256,
+        }}
       >
         {children}
       </div>

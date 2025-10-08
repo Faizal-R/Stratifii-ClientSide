@@ -18,9 +18,7 @@ export const formatTime = (date: Date | string): string => {
   });
 };
 
-export const formatDateTime = (date: Date | string): string => {
-  return `${formatDate(date)} at ${formatTime(date)}`;
-};
+
 
 export const formatDuration = (minutes: number): string => {
   if (minutes < 60) {
@@ -39,4 +37,23 @@ export const isSlotAvailable = (slot: { startTime: Date | string; status: string
 
 export const getTimeZoneOffset = (): string => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
+};
+
+
+
+
+export const convertTo24Hour = (hour: number, minute: number, meridian: "AM" | "PM") => {
+  let h = hour % 12; // 12 AM or 12 PM edge case
+  if (meridian === "PM") h += 12;
+  return { hour: h, minute };
+};
+
+export const convertTo12Hour = (hour: number, minute: number):{
+  hour:number,
+  minute:number,
+  meridian:"AM"|"PM"
+} => {
+  const meridian = hour >= 12 ? "PM" : "AM";
+  const h = hour % 12 === 0 ? 12 : hour % 12;
+  return { hour: h, minute, meridian };
 };

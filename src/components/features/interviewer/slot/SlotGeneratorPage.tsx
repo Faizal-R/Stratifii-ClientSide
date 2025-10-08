@@ -1,9 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Calendar, Clock, Users, Send } from "lucide-react";
 import {
   ISlotGenerationRequest,
@@ -13,7 +9,6 @@ import {
 } from "@/types/ISlotTypes";
 import {
   calculateSlotPreview,
-  // validateSlotRequest,
 } from "@/utils/slotCalculator";
 import {
   useGetInterviewerSlotGenerationRule,
@@ -23,6 +18,9 @@ import {
 
 import { useAuthStore } from "@/features/auth/authStore";
 import { errorToast, successToast } from "@/utils/customToast";
+import TimeInput from "@/components/ui/FormFields/TimeInputSettings";
+import { convertTo12Hour, convertTo24Hour } from "@/utils/dateHelper";
+import { validateSlotGenerationForm } from "@/validations/slotGenerationFormValidation";
 
 interface ISlotGenerationProps {
   sendSlotsToParent: (newSlots: IInterviewSlot[]) => void;
@@ -37,8 +35,8 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
   const [_slots, setSlots] = useState<IInterviewSlot[]>([]);
   const [formData, setFormData] = useState<ISlotGenerationRequest>({
     availableDays: [],
-    startHour: 9,
-    endHour: 17,
+    startTime: { hour: 9, minute: 30, meridian: "AM" },
+    endTime: { hour: 5, minute: 30, meridian: "PM" },
     slotDuration: 60,
     bufferRate: 15,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -48,7 +46,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
   const { updateInterviewerSlotGenerationRule, loading: updateLoading } =
     useUpdateInterviewerSlotGenerationRule();
 
-  const [errors, setErrors] = useState<FormErrors>({});
+ 
   const [preview, setPreview] = useState<SlotPreview | null>(null);
   const { generateSlots, loading } = useSlotGeneration();
 
@@ -63,50 +61,66 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
   ];
 
   useEffect(() => {
-    if (hasFetched.current) return;
-
+    if (!user?.id || hasFetched.current) return;
     hasFetched.current = true;
+
     const fetchInterviewerSlotGenerationRule = async () => {
-      const response = await getInterviewerSlotGenerationRule(
-        user?.id as string
-      );
-      if (response.success) {
-        
-        if (response.data) {
-          setFormData((prev) => ({
-            ...prev,
-            ...response.data,
-            bufferRate: response.data.buffer,
-            slotDuration: response.data.duration,
-          }));
-          setIsExistingRule(true);
-        }
+      const response = await getInterviewerSlotGenerationRule(user.id!);
+      if (response.success && response.data) {
+        const start12 = convertTo12Hour(
+          response.data.startHour,
+          response.data.startMinute
+        );
+        const end12 = convertTo12Hour(
+          response.data.endHour,
+          response.data.endMinute
+        );
+
+        setFormData({
+          availableDays: response.data.availableDays || [],
+          startTime: start12,
+          endTime: end12,
+          slotDuration: Number(response.data.duration) || 60,
+          bufferRate: Number(response.data.buffer) || 15,
+          timezone:
+            response.data.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+        setIsExistingRule(true);
       } else {
-        errorToast(response.message);
+        // Only show error if it's not a "not found" case (optional)
+        // errorToast(response.message);
       }
     };
+
     fetchInterviewerSlotGenerationRule();
   }, [user?.id]);
 
   // Calculate preview
   useEffect(() => {
+    const { availableDays, startTime, endTime, slotDuration, bufferRate } =
+      formData;
+
     if (
-      formData.availableDays?.length > 0 &&
-      formData.startHour !== undefined &&
-      formData.endHour !== undefined &&
-      formData.slotDuration &&
-      formData.bufferRate !== undefined
+      availableDays?.length > 0 &&
+      startTime?.hour !== undefined &&
+      startTime?.minute !== undefined &&
+      endTime?.hour !== undefined &&
+      endTime?.minute !== undefined &&
+      slotDuration != null &&
+      bufferRate != null
     ) {
       try {
         const previewData = calculateSlotPreview({
-          ...formData,
-          bufferRate:
-            typeof formData.bufferRate === "number"
-              ? formData.bufferRate
-              : Number(formData.bufferRate) || 0,
+          availableDays,
+          startTime,
+          endTime,
+          slotDuration: Number(slotDuration),
+          bufferRate: Number(bufferRate),
         });
         setPreview(previewData);
-      } catch {
+      } catch (err) {
+        console.error("Preview calculation error:", err);
         setPreview(null);
       }
     } else {
@@ -114,8 +128,8 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
     }
   }, [
     formData.availableDays,
-    formData.startHour,
-    formData.endHour,
+    formData.startTime,
+    formData.endTime,
     formData.slotDuration,
     formData.bufferRate,
   ]);
@@ -124,17 +138,23 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
     field: K,
     value: ISlotGenerationRequest[K]
   ) => {
-    if (field === "bufferRate") {
-      if (typeof value === "number" && value > 0) {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-      } else {
-        setFormData((prev) => ({ ...prev, [field]: 0 }));
-      }
-    }
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+  
+    // Special handling for numeric fields
+    // if (field === "bufferRate" || field === "slotDuration") {
+    //   let numValue: number;
+    //   if (typeof value === "string") {
+    //     numValue = parseInt(value, 10);
+    //   } else if (typeof value === "number") {
+    //     numValue = value;
+    //   } else {
+    //     numValue = 0;
+    //   }
+
+    //   const safeValue = isNaN(numValue) || numValue < 0 ? 0 : numValue;
+    //   setFormData((prev) => ({ ...prev, [field]: safeValue }));
+    // } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    // }
   };
 
   const handleDayToggle = (dayIndex: number) => {
@@ -145,55 +165,70 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
     handleInputChange("availableDays", updatedDays);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    // if (!validateForm()) return;
-    if (!formData.bufferRate) {
-      errorToast("Buffer Time cannot be emtpy");
-      return;
-    }
-    
-    if (isExistingRule) {
-      const response = await updateInterviewerSlotGenerationRule(
-        user?.id as string,
-        formData
-      );
-      if (!response.success) {
-        errorToast(
-          response.error || "Failed to update rule. Please try again."
-        );
 
-        return;
-      }
-      sendSlotsToParent(response.data.slots);
-      successToast("Rule updated successfully!");
-    } else {
-      const response = await generateSlots(formData);
+  const validation = validateSlotGenerationForm(formData);
+  if (!validation.valid) {
+    errorToast(validation.message!);
+    return;
+  }
 
-      if (!response.success) {
-        errorToast(response.message || "Failed to generate slots. Please try again.")
-        return;
-      }
-      
+  const start24 = convertTo24Hour(
+    formData.startTime.hour,
+    formData.startTime.minute,
+    formData.startTime.meridian
+  );
+  const end24 = convertTo24Hour(
+    formData.endTime.hour,
+    formData.endTime.minute,
+    formData.endTime.meridian
+  );
 
-      setSlots(response.data || []);
-
-      sendSlotsToParent(response.data || []);
-
-      successToast("Slots generated successfully!");
-    }
+  // ✅ 4. Prepare payload
+  const payload = {
+    interviewerId: user?.id as string,
+    availableDays: formData.availableDays,
+    startHour: start24.hour,
+    startMinute: start24.minute,
+    endHour: end24.hour,
+    endMinute: end24.minute,
+    duration: formData.slotDuration,
+    buffer: formData.bufferRate,
+    timezone: formData.timezone,
   };
 
+  // ✅ 5. Submit to backend
+  let response;
+  if (isExistingRule) {
+    response = await updateInterviewerSlotGenerationRule(user?.id as string, payload);
+    if (!response.success) {
+      errorToast(response.error || "Failed to update rule. Please try again.");
+      return;
+    }
+    sendSlotsToParent(response.data.slots);
+    successToast("Rule updated successfully!");
+  } else {
+    response = await generateSlots(payload);
+    if (!response.success) {
+      errorToast(response.message || "Failed to generate slots. Please try again.");
+      return;
+    }
+    setSlots(response.data || []);
+    sendSlotsToParent(response.data || []);
+    successToast("Slots generated successfully!");
+  }
+};
+
+
   return (
-    <div className=" bg-gradient-to-br from-black via-black to-violet-950  py-8 px-4 custom-64 bg">
+    <div className="bg-gradient-to-br from-black via-black to-violet-950 py-8 px-4 custom-64 bg">
       <div className="max-w-7xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Form */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Date Range */}
-
               {/* Available Days */}
               <div
                 className="p-6 rounded-xl backdrop-blur-sm"
@@ -249,83 +284,51 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
 
               {/* Time Settings */}
               <div
-                className="p-6 rounded-xl backdrop-blur-sm"
+                className="p-6 rounded-xl backdrop-blur-sm w-full max-w-6xl mx-auto"
                 style={{
                   background: "rgba(143, 0, 187, 0.08)",
                   border: "1px solid rgba(255, 255, 255, 0.15)",
                 }}
               >
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-6">
                   <Clock className="w-5 h-5 text-violet-400 mr-3" />
-                  <h2 className="text-xl font-semibold text-white">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-white">
                     Time Settings
                   </h2>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-violet-300 mb-3">
-                      Start Hour
-                    </label>
-                    <select
-                      value={formData.startHour}
-                      onChange={(e) =>
-                        handleInputChange("startHour", parseInt(e.target.value))
-                      }
-                      className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                      }}
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i} className="bg-gray-900">
-                          {i.toString().padStart(2, "0")}:00
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-violet-300 mb-3">
-                      End Hour
-                    </label>
-                    <select
-                      value={formData.endHour}
-                      onChange={(e) =>
-                        handleInputChange("endHour", parseInt(e.target.value))
-                      }
-                      className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                      }}
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option
-                          key={i + 1}
-                          value={i + 1}
-                          className="bg-gray-900"
-                        >
-                          {(i + 1).toString().padStart(2, "0")}:00
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-violet-300 mb-3">
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Start Time */}
+                  <TimeInput
+                    label="Start Time"
+                    time={formData.startTime}
+                    onChange={(val) =>
+                      setFormData((p) => ({ ...p, startTime: val }))
+                    }
+                  />
+
+                  {/* End Time */}
+                  <TimeInput
+                    label="End Time"
+                    time={formData.endTime}
+                    onChange={(val) =>
+                      setFormData((p) => ({ ...p, endTime: val }))
+                    }
+                  />
+
+                  {/* Slot Duration */}
+                  <div className="flex flex-col">
+                    <label className="block text-sm sm:text-base font-medium text-violet-300 mb-2 sm:mb-3">
                       Slot Duration (min)
                     </label>
                     <input
                       type="number"
                       value={formData.slotDuration}
                       onChange={(e) =>
-                        handleInputChange(
-                          "slotDuration",
-                          parseInt(e.target.value)
-                        )
+                        handleInputChange("slotDuration", Number(e.target.value))
                       }
-                      min="15"
-                      max="480"
-                      step="15"
+                      
+                      step={15}
                       className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
                       style={{
                         background: "rgba(255, 255, 255, 0.1)",
@@ -333,23 +336,21 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                       }}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-emerald-300 mb-3">
+
+                  {/* Buffer Time */}
+                  <div className="flex flex-col">
+                    <label className="block text-sm sm:text-base font-medium text-emerald-300 mb-2 sm:mb-3">
                       Buffer Time (min)
                     </label>
                     <input
                       type="number"
                       value={formData.bufferRate}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value);
-                        handleInputChange(
-                          "bufferRate",
-                          isNaN(val) || val < 0 ? 0 : val
-                        );
-                      }}
-                      min="0"
-                      max="120"
-                      step="5"
+                      onChange={(e) =>
+                        handleInputChange("bufferRate", Number(e.target.value))
+                      }
+                      min={0}
+                      max={120}
+                      step={5}
                       className="w-full px-4 py-3 rounded-lg text-white transition-all duration-200 focus:scale-105"
                       style={{
                         background: "rgba(16, 185, 129, 0.1)",
@@ -358,14 +359,15 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                     />
                   </div>
                 </div>
+
                 <div
-                  className="mt-4 p-4 rounded-lg"
+                  className="mt-6 p-4 rounded-lg"
                   style={{
                     background: "rgba(16, 185, 129, 0.1)",
                     border: "1px solid rgba(16, 185, 129, 0.2)",
                   }}
                 >
-                  <p className="text-emerald-300 text-sm">
+                  <p className="text-emerald-300 text-sm sm:text-base">
                     <strong>Buffer Time:</strong> Extra time between interviews
                     for preparation and breaks.
                   </p>
@@ -411,7 +413,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                       <div className="flex justify-between">
                         <span className="text-gray-300">Hours per Day:</span>
                         <span className="text-white font-medium">
-                          {preview.hoursPerDay}
+                          {preview.hoursPerDay.toFixed(1)}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -423,7 +425,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                       <div className="flex justify-between">
                         <span className="text-emerald-300">Buffer Time:</span>
                         <span className="text-emerald-200 font-medium">
-                          {formData.bufferRate}min
+                          {preview.bufferTime}min
                         </span>
                       </div>
                     </div>
@@ -438,7 +440,7 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
               <div className="flex justify-center pt-6">
                 <button
                   type="submit"
-                  disabled={loading || !preview}
+                  disabled={loading || updateLoading || !preview}
                   className="
                 flex items-center px-8 py-4 font-semibold rounded-xl text-white
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -452,22 +454,17 @@ const SlotGeneratorPage: React.FC<ISlotGenerationProps> = ({
                     border: "1px solid rgba(139, 92, 246, 0.5)",
                   }}
                 >
-                  {loading ? (
+                  {loading || updateLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Generating Slots...
-                    </>
-                  ) : updateLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Updating Rule...
+                      {updateLoading ? "Updating Rule..." : "Generating Slots..."}
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-3" />
                       {isExistingRule
-                        ? " Update Generation Rule"
-                        : " Generate Interview Slots"}
+                        ? "Update Generation Rule"
+                        : "Generate Interview Slots"}
                     </>
                   )}
                 </button>

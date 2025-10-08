@@ -1,12 +1,12 @@
 import { SlotService } from "@/services/SlotService";
-import { IInterviewSlot, ISlotGenerationRequest } from "@/types/ISlotTypes";
+import { IInterviewSlot, ISlotGenerationRequest, ISlotGenerationRequestForServer } from "@/types/ISlotTypes";
 import { useCallback, useState } from "react";
 
 export const useSlotGeneration = () => {
   const [loading, setLoading] = useState(false);
 
   const generateSlots = useCallback(
-    async (slotGenerationRule: ISlotGenerationRequest) => {
+    async (slotGenerationRule: ISlotGenerationRequestForServer) => {
       setLoading(true);
 
       try {
@@ -107,7 +107,7 @@ export const useUpdateInterviewerSlotGenerationRule = () => {
   const [loading, setLoading] = useState(false);
 
   const updateInterviewerSlotGenerationRule = useCallback(
-    async (interviewerId: string, ruleData: ISlotGenerationRequest) => {
+    async (interviewerId: string, ruleData: ISlotGenerationRequestForServer) => {
       setLoading(true);
       try {
         const response = await SlotService.updateInterviewerSlotGenerationRule(
