@@ -86,3 +86,18 @@ export const useHandleRetryInterviewProcessInitializationPayment=function(){
 
   return { loading, handleRetryInterviewProcessInitializationPayment };
 }
+
+
+export const useGetCompanyPaymentHistory=function(){
+  const [loading, setLoading] = useState(false);
+  const getCompanyPaymentHistory = useCallback(async (companyId: string) => {
+    try {
+      setLoading(true);
+      const response = await PaymentService.getCompanyPaymentHistory(companyId);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { loading, getCompanyPaymentHistory };
+}

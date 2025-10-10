@@ -108,12 +108,10 @@ function CompanyProfilePage() {
   };
 
   const handleSave = async () => {
-     console.log(companyData)
     const validatedCompany = CompanyProfileSchema.safeParse(companyData);
     if (!validatedCompany.success) {
       const errors = validatedCompany.error;
       for (const issue of errors.issues) {
-        console.log(issue);
         errorToast(issue.message);
       }
       return;

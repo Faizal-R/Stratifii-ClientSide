@@ -49,7 +49,7 @@ const CompanyResubmissionPage: React.FC<{ company: ICompanyProfile }> = ({
   const handleResubmission = async (e: React.FormEvent) => {
     e.preventDefault();
     const formDataForBackend = new FormData();
-    console.log("formData",formData)
+   
     formDataForBackend.append(
       "company",
       JSON.stringify({

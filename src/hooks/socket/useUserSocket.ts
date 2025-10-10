@@ -30,6 +30,11 @@ export const useUserSocket = () => {
         );
       }
     });
+    socket.on("user:account:blocked", () => {
+      errorToast(
+        "Your account has been blocked. Please contact support for assistance."
+      );
+    });
 
     return () => {
       socket.off("user:status:updated");

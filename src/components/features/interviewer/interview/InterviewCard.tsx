@@ -268,7 +268,7 @@ export const InterviewCard: React.FC<InterviewCardProps> = ({
             {/* Bottom Row - Meeting Action */}
             <div className="flex justify-center">
                {/* {true && ( */}
-               {canJoin() && (
+                {canJoin() && (
                 <button
                   onClick={() =>
                     onJoinMeeting(interview.meetingLink!, interview._id!)

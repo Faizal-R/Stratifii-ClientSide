@@ -60,7 +60,7 @@ export interface IInterviewRound {
   roundNumber: number;
   type: "mock" | "final" | "followup";
   timeZone?: string;
-  status: "scheduled" | "started" | "completed" | "cancelled";
+  status: "scheduled" | "started" | "completed" | "cancelled"|"no_show";
   feedback?: IInterviewFeedback;
   interviewer:string | IInterviewerProfile;
   isFollowUpScheduled: boolean;
@@ -79,7 +79,8 @@ export interface IDelegatedCandidate {
     | "interview_completed"  
     | "shortlisted"
     | "hired"
-    | "rejected";
+    | "rejected"
+    | "disqualified";
   interviewRounds: IInterviewRound[];
   totalNumberOfRounds?: number;
   currentRound?:number

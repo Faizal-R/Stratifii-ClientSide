@@ -7,13 +7,10 @@ import {
   Save,
   Mail,
   Phone,
- 
   Linkedin,
   Briefcase,
- 
   Upload,
   ImageIcon,
-
   Check,
   CreditCard,
   FileText,
@@ -69,12 +66,11 @@ function InterviewerProfilePage() {
   };
 
   const handleSave = async () => {
-    
     const validatedInterviewer =
       InterviewerProfileSchema.safeParse(interviewerData);
     if (!validatedInterviewer.success) {
       const errors = validatedInterviewer.error;
-      
+
       for (const issue of errors.issues) {
         errorToast(issue.message);
       }
@@ -97,7 +93,7 @@ function InterviewerProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setLogoPreview(null);
+    setLogoPreview(interviewerData.avatar ? interviewerData.avatar : null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +181,6 @@ function InterviewerProfilePage() {
   };
 
   const onSaveBankDetails = async (bankDetails: IBankDetails) => {
-    
     const response = await addBankDetails(bankDetails);
     if (!response.success) {
       errorToast(response.message);
@@ -222,7 +217,7 @@ function InterviewerProfilePage() {
   ) : user?.status === "rejected" || interviewerData.status === "rejected" ? (
     <InterviewerRejectedPage interviewer={interviewerData} />
   ) : (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white ">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white custom-64">
       {/* Main Section */}
       <main className=" p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-8">
@@ -239,12 +234,11 @@ function InterviewerProfilePage() {
                     width={160}
                     height={144}
                   />
-                ) : (
+                ) : !isEditing && !interviewerData?.avatar ? (
                   <ImageIcon className="text-gray-400 w-10 h-10" />
-                )}
-                {isEditing && !interviewerData?.avatar && (
-                  <div className="w-full">
-                    <label className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                ) : (
+                  <div className="w-full flex flex-col items-center">
+                    <label className="flex items-center text-xs font-semibold justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-1 py-1 rounded-lg cursor-pointer mt-14 transition-colors">
                       <Upload size={18} />
                       Upload Photo
                       <input
@@ -259,6 +253,9 @@ function InterviewerProfilePage() {
                     </p>
                   </div>
                 )}
+                {/* { && (
+                 
+                )} */}
                 {isEditing && interviewerData?.avatar && (
                   <div className="absolute bottom-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
                     <label className="flex items-center justify-center gap-1 font-semibold bg-violet-600 hover:bg-violet-700 px-1 rounded-lg cursor-pointer transition-colors text-base bottom-2 absolute">
@@ -446,7 +443,6 @@ function InterviewerProfilePage() {
                   interviewerData.resume &&
                   typeof interviewerData.resume === "string" && (
                     <a
-                
                       href={interviewerData.resume}
                       target="_blank"
                       rel="noopener noreferrer"

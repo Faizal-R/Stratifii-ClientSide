@@ -183,6 +183,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
+     
       if (user.role === Roles.INTERVIEWER) {
         router.push(`${Roles.INTERVIEWER}/profile`);
       } else if (user.role === Roles.COMPANY && user.status === "rejected") {

@@ -95,3 +95,19 @@ export const useCompleteCandidateInterviewProcess= function () {
   }, []);
   return { completeCandidateInterviewProcess, loading };
 }
+
+
+
+export const useHandleNoShowInterview = function () {
+  const [loading, setLoading] = useState(false);
+  const handleNoShowInterview = useCallback(async (interviewId:string,noShowBy:string) => {
+    try {
+      setLoading(true);
+      const response = await InterviewService.handleNoShowInterview(interviewId,noShowBy);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { handleNoShowInterview, loading };
+}

@@ -19,6 +19,8 @@ import {
   Eye,
   ChevronRight,
   CalendarCheck,
+  Ban,
+  UserX,
 } from "lucide-react";
 import FileUploadModal from "@/components/ui/Modals/FileUploadModal";
 import SlotModal from "@/components/features/company/schedule-interview/AvailableSlotListingModal";
@@ -75,7 +77,8 @@ function JobManagementPage() {
   const [currentCandidate, setCurrentCandidate] =
     useState<IDelegatedCandidate | null>(null);
   const { getSlotsByInterviewer } = useGetAllSlotsByInterviewer();
-  const {completeCandidateInterviewProcess}=useCompleteCandidateInterviewProcess()
+  const { completeCandidateInterviewProcess } =
+    useCompleteCandidateInterviewProcess();
 
   const { paymentOrderCreation } = usePaymentOrderCreation();
   const [isInterviewProcessInitiated, setIsInterviewProcessInitiated] =
@@ -251,11 +254,11 @@ function JobManagementPage() {
   // Handle completing candidate
   const handleCompleteCandidateInterview = async (candidateId: string) => {
     try {
-      const res=await completeCandidateInterviewProcess(candidateId)
-      if(!res.success){
-        errorToast(res.message)
-        return
-      } 
+      const res = await completeCandidateInterviewProcess(candidateId);
+      if (!res.success) {
+        errorToast(res.message);
+        return;
+      }
       const updatedCandidates = candidates.map((c) => {
         if (c._id === candidateId) {
           return {
@@ -310,11 +313,9 @@ function JobManagementPage() {
         break;
       case "in-progress":
         filtered = candidates.filter((c) =>
-          [
-            "in_interview_process",
-            "mock_started",
-            "mock_completed",
-          ].includes(c.status)
+          ["in_interview_process", "mock_started", "mock_completed"].includes(
+            c.status
+          )
         );
         break;
       case "completed":
@@ -356,6 +357,9 @@ function JobManagementPage() {
       case "completed":
       case "hired":
         return <Trophy className="w-3 h-3" />;
+      case "disqualified":
+        return <UserX className="w-3 h-3 text-red-500" />;
+
       default:
         return <Clock className="w-3 h-3" />;
     }
@@ -368,14 +372,12 @@ function JobManagementPage() {
   // Calculate counts for tabs
   const allCount = candidates.length;
   const inProgressCount = candidates.filter((c) =>
-    [
-      "in_interview_process",
-      "mock_started",
-      "mock_completed",
-    ].includes(c.status)
+    ["in_interview_process", "mock_started", "mock_completed"].includes(
+      c.status
+    )
   ).length;
   const completedCount = candidates.filter((c) =>
-    [ "hired", "shortlisted"].includes(c.status)
+    ["hired", "shortlisted"].includes(c.status)
   ).length;
 
   const tabs: TabConfig[] = [
@@ -423,42 +425,6 @@ function JobManagementPage() {
       : null;
   };
 
-  const getNextAction = (candidate: IDelegatedCandidate) => {
-    const completedRounds = candidate.interviewRounds;
-
-    if (completedRounds.length === 0) {
-      return { type: "none", reason: "No completed rounds with feedback" };
-    }
-
-    const latestCompletedRound = completedRounds[completedRounds.length - 1];
-    const feedback = latestCompletedRound.feedback;
-
-    if (!feedback) {
-      return { type: "none", reason: "No feedback available" };
-    }
-
-    // Check if all planned rounds are completed
-    const allRoundsCompleted =
-      candidate.interviewRounds.length >= candidate.totalNumberOfRounds!;
-
-    if (feedback.recommendation === "hire") {
-      return { type: "complete", reason: "Recommendation: Hire" };
-    } else if (feedback.recommendation === "no-hire") {
-      return { type: "complete", reason: "Recommendation: No Hire" };
-    } else if (
-      feedback.needsFollowUp === true ||
-      feedback.recommendation === "next-round"
-    ) {
-      if (allRoundsCompleted) {
-        return { type: "complete", reason: "All rounds completed" };
-      }
-      return { type: "next-round", reason: "Follow-up needed" };
-    } else if (allRoundsCompleted) {
-      return { type: "complete", reason: "All rounds completed" };
-    }
-
-    return { type: "next-round", reason: "Continue interview process" };
-  };
   return loading ? (
     <div className=" h-screen flex items-center justify-center">
       <RiseLoader className="" color="white" />
@@ -625,7 +591,6 @@ function JobManagementPage() {
                     const latestCompletedRound = getLatestCompletedRound(
                       candidateWrapper.interviewRounds
                     );
-                   
 
                     return (
                       <div
@@ -697,7 +662,11 @@ function JobManagementPage() {
                                     </span>
                                   </div>
                                   <span className="text-sm font-medium text-violet-300 capitalize">
-                                    {latestCompletedRound.type} Round
+                                    {latestCompletedRound.status === "no_show"
+                                      ? latestCompletedRound.type == "followup"
+                                        ? "No Show FollowUp"
+                                        : "No Show"
+                                      : latestCompletedRound.type}
                                   </span>
                                 </div>
                                 {latestCompletedRound.feedback
@@ -741,6 +710,28 @@ function JobManagementPage() {
                                   </span>
                                 </div>
                               )}
+                              {latestCompletedRound.status === "no_show" &&
+                                latestCompletedRound.type === "final" && (
+                                  <div className="flex items-center gap-2 text-red-400 text-xs mt-2">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    <span>
+                                      Candidate was disqualified for failing to
+                                      attend the interview.
+                                    </span>
+                                  </div>
+                                )}
+
+                              {latestCompletedRound.status === "no_show" &&
+                                latestCompletedRound.type === "followup" && (
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs mt-2">
+                                    <AlertTriangle className="w-5 h-5" />
+                                    <span>
+                                      Interview not conducted due to interviewer
+                                      unavailability — please reschedule the
+                                      interview for the candidate.
+                                    </span>
+                                  </div>
+                                )}
 
                               {latestCompletedRound.feedback?.needsFollowUp && (
                                 <>
@@ -795,7 +786,13 @@ function JobManagementPage() {
                                 </div>
                                 <div className="flex items-center gap-1 text-violet-300">
                                   {getStatusIcon(candidateWrapper.status)}
-                                  <span className="text-xs">
+                                  <span
+                                    className={`text-sm ${
+                                      candidateWrapper.status === "disqualified"
+                                        ? "text-red-400"
+                                        : "text-violet-400"
+                                    }`}
+                                  >
                                     {candidateWrapper.isInterviewScheduled
                                       ? "Interivew Scheduled"
                                       : formatStatusText(
@@ -824,20 +821,26 @@ function JobManagementPage() {
                                           className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-violet-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
                                         >
                                           <UserPlus className="h-4 w-4" />
-                                          Next Round
+                                          {latestCompletedRound?.status ===
+                                          "no_show"
+                                            ? "Reschedule Interview"
+                                            : "Next Round"}
                                         </button>
 
-                                        <button
-                                          onClick={() =>
-                                            handleCompleteCandidateInterview(
-                                              candidateWrapper._id!
-                                            )
-                                          }
-                                          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-emerald-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
-                                        >
-                                          <CheckCircle className="h-4 w-4" />
-                                          Complete
-                                        </button>
+                                        {latestCompletedRound?.status !==
+                                          "no_show" && (
+                                          <button
+                                            onClick={() =>
+                                              handleCompleteCandidateInterview(
+                                                candidateWrapper._id!
+                                              )
+                                            }
+                                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 font-medium text-sm shadow-lg hover:shadow-emerald-500/25 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
+                                          >
+                                            <CheckCircle className="h-4 w-4" />
+                                            Complete
+                                          </button>
+                                        )}
                                       </div>
                                     )}
 

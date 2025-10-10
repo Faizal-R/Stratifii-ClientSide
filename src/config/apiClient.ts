@@ -72,6 +72,7 @@ apiClient.interceptors.response.use(
     // Handle Forbidden
     if (error.response?.status === StatusCodes.LOCKED &&!originalRequest?.url?.includes("/auth")) {
       errorToast(error.response.data.message);
+      localStorage.clear()
       setTimeout(() => {
         window.location.href = "/signin";
       }, 1000);
