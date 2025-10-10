@@ -11,10 +11,7 @@ import {
   Clock,
   TrendingUp,
 } from "lucide-react";
-import {
-  dummySubscriptionRecords,
-  dummyInterviewPayments,
-} from "@/constants/dummyData";
+
 import { ISubscriptionDetails } from "@/types/ISubscription";
 import { IJob, IPaymentTransaction } from "@/types/IJob";
 import { formatDate } from "@/utils/dateHelper";
@@ -72,23 +69,8 @@ const PaymentHistory: React.FC = () => {
     );
   };
 
-  const calculateTotals = () => {
-    const subscriptionTotal = dummySubscriptionRecords
-      .filter((sub) => sub.status === "active" || sub.status === "expired")
-      .reduce((sum, sub) => sum + sub.planDetails.price, 0);
 
-    const interviewTotal = dummyInterviewPayments
-      .filter((pay) => pay.status === "PAID")
-      .reduce((sum, pay) => sum + pay.finalPayableAmount, 0);
 
-    return {
-      subscriptionTotal,
-      interviewTotal,
-      grandTotal: subscriptionTotal + interviewTotal,
-    };
-  };
-
-  const totals = calculateTotals();
 
   const fetchCompanyPaymentHistory = async () => {
     const res = await getCompanyPaymentHistory(user?.id as string);
@@ -126,7 +108,10 @@ const PaymentHistory: React.FC = () => {
             </div>
             <p className="text-gray-400 text-sm mb-1">Total Spent</p>
             <p className="text-3xl font-bold">
-              {formatCurrency(totals.grandTotal)}
+              {formatCurrency(
+                (paymentHistory?.totalSpendOnInterview ?? 0) +
+                (paymentHistory?.totalSpendOnSubscription ?? 0)
+              )}
             </p>
           </div>
 
@@ -208,7 +193,7 @@ const PaymentHistory: React.FC = () => {
                   Subscription Payments
                 </h2>
                 <div className="space-y-4">
-                  {dummySubscriptionRecords.length === 0 ? (
+                  {paymentHistory?.subscriptionPayments.length === 0 ? (
                     <div className="text-center py-12 text-gray-400">
                       No subscription payments found
                     </div>
@@ -302,7 +287,7 @@ const PaymentHistory: React.FC = () => {
                   Interview Process Payments
                 </h2>
                 <div className="space-y-4">
-                  {dummyInterviewPayments.length === 0 ? (
+                  {paymentHistory?.interviewProcessPayments.length === 0 ? (
                     <div className="text-center py-12 text-gray-400">
                       No interview payments found
                     </div>
