@@ -49,7 +49,8 @@ function InterviewerProfilePage() {
     useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [resumePreview, setResumePreview] = useState<string | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>("");
+  const [selectedResumeFile, setSelectedResumeFile] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const { interviewerProfile, loading } = useFetchInterviewerProfile();
   const { updateInterviewerProfile, loading: updateLoading } =
     useUpdateInterviewerProfile();
@@ -87,6 +88,9 @@ function InterviewerProfilePage() {
       return;
     } else {
       successToast(respone.message);
+      
+      setResumePreview(null);
+      setSelectedResumeFile(null);
       setIsEditing(false);
     }
   };
@@ -94,6 +98,8 @@ function InterviewerProfilePage() {
   const handleCancel = () => {
     setIsEditing(false);
     setLogoPreview(interviewerData.avatar ? interviewerData.avatar : null);
+    setResumePreview(null);
+    setSelectedResumeFile(null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +128,7 @@ function InterviewerProfilePage() {
     if (file) {
       const fileUrl = URL.createObjectURL(file);
       setResumePreview(fileUrl);
+      setSelectedResumeFile(file.name);
     }
   };
 
@@ -204,7 +211,7 @@ function InterviewerProfilePage() {
         return;
       }
       setInterviewerData(response.data as IInterviewerProfile);
-      setLogoPreview(response.data?.avatar!);
+      setLogoPreview(response.data?.avatar || null);
     };
 
     fetchInterviewer();
@@ -225,51 +232,51 @@ function InterviewerProfilePage() {
 
           <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
             <div className="h-48 bg-gradient-to-bl from-violet-950 via-violet-900 to-black relative">
-              <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-700 flex items-center justify-center z-10">
+            <div className="absolute -bottom-16 left-8 w-40 h-36 rounded-2xl border-4 border-gray-900 overflow-hidden bg-gray-800 flex items-center justify-center z-10">
                 {logoPreview ? (
-                  <Image
-                    src={logoPreview!}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                    width={160}
-                    height={144}
-                  />
-                ) : !isEditing && !interviewerData?.avatar ? (
-                  <ImageIcon className="text-gray-400 w-10 h-10" />
+                  <div className="relative w-full h-full group">
+                    <img
+                      src={logoPreview}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                    {isEditing && (
+                      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <label className="cursor-pointer flex flex-col items-center">
+                          <Upload className="w-6 h-6 mb-1" />
+                          <span className="text-[10px] font-bold">Change</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="w-full flex flex-col items-center">
-                    <label className="flex items-center text-xs font-semibold justify-center gap-2 bg-violet-600 hover:bg-violet-700 px-1 py-1 rounded-lg cursor-pointer mt-14 transition-colors">
-                      <Upload size={18} />
-                      Upload Photo
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
-                    <p className="text-xs text-gray-400 text-center mt-2">
-                      Recommended: 400x400px, Max 2MB
-                    </p>
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-700">
+                    {isEditing ? (
+                      <label className="flex flex-col items-center gap-2 cursor-pointer p-4">
+                        <Upload className="text-gray-400 w-8 h-8" />
+                        <span className="text-xs font-semibold text-gray-400">Upload Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    ) : (
+                      <ImageIcon className="text-gray-400 w-10 h-10" />
+                    )}
                   </div>
                 )}
                 {/* { && (
                  
                 )} */}
-                {isEditing && interviewerData?.avatar && (
-                  <div className="absolute bottom-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-                    <label className="flex items-center justify-center gap-1 font-semibold bg-violet-600 hover:bg-violet-700 px-1 rounded-lg cursor-pointer transition-colors text-base bottom-2 absolute">
-                      <Upload size={12} />
-                      <p className="text-[10px]"> Upload New Photo</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                )}
+
               </div>
             </div>
             <div className="pt-20 pb-6 px-8 bg-gray-900/60 backdrop-blur-xl rounded-b-3xl">
@@ -412,46 +419,62 @@ function InterviewerProfilePage() {
                   <FileText className="text-violet-400" size={20} />
                   Upload Resume (PDF or DOCX)
                 </label>
-                {isEditing ? (
-                  <>
-                    {interviewerData.resume &&
-                      typeof interviewerData.resume === "string" && (
-                        <div className="mb-2">
+                <div className="space-y-3">
+                  {isEditing ? (
+                    <>
+                      {interviewerData.resume && (
+                        <div className="flex items-center gap-2 p-2 bg-violet-600/10 border border-violet-500/20 rounded-lg">
+                          <FileText className="text-violet-400 w-4 h-4" />
                           <a
                             href={interviewerData.resume}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-violet-400 hover:underline"
+                            className="text-sm text-violet-400 hover:underline"
                           >
-                            View Previously Uploaded Resume
+                            Current Resume
                           </a>
                         </div>
                       )}
-
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Upload New Resume
-                    </label>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      name="resume"
-                      onChange={handleResumeUpload}
-                      className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-600/20 file:text-violet-400 hover:file:bg-violet-600/30"
-                    />
-                  </>
-                ) : (
-                  interviewerData.resume &&
-                  typeof interviewerData.resume === "string" && (
-                    <a
-                      href={interviewerData.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-violet-400 hover:underline"
-                    >
-                      View Uploaded Resume
-                    </a>
-                  )
-                )}
+                      
+                      <div className="space-y-2">
+                        <label className="block text-xs font-medium text-gray-400">
+                          {interviewerData.resume ? "Upload New Resume" : "Click to upload resume"}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            name="resume"
+                            onChange={handleResumeUpload}
+                            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-600 file:text-white hover:file:bg-violet-700 cursor-pointer"
+                          />
+                          {selectedResumeFile && (
+                            <p className="mt-2 text-sm text-green-400 flex items-center gap-1">
+                              <Check className="w-4 h-4" />
+                              Selected: {selectedResumeFile}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    interviewerData.resume ? (
+                      <a
+                        href={interviewerData.resume}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 p-3 bg-violet-600/10 border border-violet-500/20 rounded-xl group transition-all hover:bg-violet-600/20"
+                      >
+                        <FileText className="text-violet-400" />
+                        <span className="text-violet-400 font-medium group-hover:underline">
+                          View Uploaded Resume
+                        </span>
+                      </a>
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">No resume uploaded</p>
+                    )
+                  )}
+                </div>
               </div>
             </div>
           </div>

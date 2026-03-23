@@ -44,12 +44,12 @@ export const InterviewerProfileSchema = z.object({
   expertise: z
     .array(SkillExpertiseSchema)
     .min(1, "At least one expertise is required"),
-    isBlocked: z.boolean().optional(),
-    createdAt: z.string().optional(),
+  isBlocked: z.boolean().optional(),
+  createdAt: z.string().optional(),
   stripeAccountId: z.string().optional(),
-    bankDetails:bankDetailsSchema.nullable().optional(),
-    resubmissionPeriod:z.string().nullable().optional(),
-    resubmissionNote:z.string().nullable().optional()
+  bankDetails: bankDetailsSchema.nullable().optional(),
+  resubmissionPeriod: z.string().nullable().optional(),
+  resubmissionNote: z.string().nullable().optional()
 });
 
 // Type export

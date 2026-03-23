@@ -38,7 +38,8 @@ export const InterviewerService = {
         const resumeFile = await convertBlobUrlToFile(resume);
         formData.append("resume", resumeFile!);
       }
-      formData.append("interviewer", JSON.stringify(interviewer));
+      const { avatar: _, resume: __, ...payload } = interviewer;
+      formData.append("interviewer", JSON.stringify(payload));
       const response = await apiClient.put(
         InterviewerRoutes.PROFILE,
         formData,

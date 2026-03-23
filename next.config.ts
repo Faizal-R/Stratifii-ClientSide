@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       "static.vecteezy.com",
       "res.cloudinary.com",
       "lh3.googleusercontent.com",
-      "outsourcing-interview-platform.s3.ap-south-1.amazonaws.com",
+      "stratifii-outsourcing-interview-platform-bucket.s3.ap-south-1.amazonaws.com",
     ],
   },
   eslint:{
