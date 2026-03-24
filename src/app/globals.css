@@ -231,3 +231,15 @@ input[type="number"]::-webkit-outer-spin-button {
   background-color: #8b5cf6; /* thumb color (e.g. violet-500) */
   border-radius: 4px;
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-violet-900/20;
+  }
+  .text-gradient {
+    @apply bg-gradient-to-r from-violet-400 via-violet-200 to-white bg-clip-text text-transparent;
+  }
+}
