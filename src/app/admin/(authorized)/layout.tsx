@@ -48,7 +48,7 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { isSidebarCollapsed } = useSidebarCollapseStore();
+  const { isSidebarCollapsed,isMobileScreen } = useSidebarCollapseStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { signoutUser } = useSignoutUser();
   const router = useRouter();
@@ -82,9 +82,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         isModalOpen={isModalOpen}
         handleModalState={handleModalState}
       />
-      <div
-        className="transition-all duration-300"
-        style={{ marginLeft: isSidebarCollapsed ? 80 : 256 }}
+       <div
+        className="transition-all duration-300 h-screen"
+        style={{
+          marginLeft: isMobileScreen ? 80 : isSidebarCollapsed ? 80 : 256,
+        }}
       >
         {children}
       </div>

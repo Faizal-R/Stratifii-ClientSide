@@ -49,7 +49,6 @@ const CandidateInterviewsPage = () => {
 
   const fetchDelegatedJobs = async () => {
     const response = await getDelegatedJobs();
-    console.log(response)
     setDelegatedJobs(response.data || []);
   };
 

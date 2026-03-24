@@ -1,11 +1,11 @@
 import apiClient from "@/config/apiClient";
-import { IInterviewSlot, ISlotGenerationRequest } from "@/types/ISlotTypes";
+import { IInterviewSlot, ISlotGenerationRequest, ISlotGenerationRequestForServer } from "@/types/ISlotTypes";
 import { SlotRoutes } from "@/constants/routes/api/SlotRoutes";
 import { parseAxiosError } from "@/utils/parseAxiosError";
 
 
 export const SlotService = {
-  generateSlots: async (slotGenerationRule: ISlotGenerationRequest) => {
+  generateSlots: async (slotGenerationRule: ISlotGenerationRequestForServer) => {
     try {
       const response = await apiClient.post(
         SlotRoutes.GENERATE_SLOTS,
@@ -76,7 +76,7 @@ export const SlotService = {
     }
   },
 
-  updateInterviewerSlotGenerationRule: async (interviewerId:string,ruleData:ISlotGenerationRequest)=>{
+  updateInterviewerSlotGenerationRule: async (interviewerId:string,ruleData:ISlotGenerationRequestForServer)=>{
     try {
       const response = await apiClient.put(
        `${SlotRoutes.UPDATE_INTERVIEWER_SLOT_GENERATION_RULE}/${interviewerId}`,

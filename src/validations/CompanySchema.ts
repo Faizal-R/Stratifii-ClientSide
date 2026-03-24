@@ -35,6 +35,7 @@ export const CompanyProfileSchema = z.object({
   activePlan: z.string().nullable().optional(),
   resubmissionPeriod:z.string().nullable().optional(),
     resubmissionNote:z.string().nullable().optional(),
+    resubmissonCount:z.number().default(0).optional(),
   usage: z
     .object({
       jobPostsThisMonth: z.number().nonnegative().default(0),

@@ -7,10 +7,10 @@ import React, {
   useState,
 } from "react";
 import SimplePeer from "simple-peer";
-import  VideoPlayer  from "./VideoPlayer";
-import  VideoControls from "./VideoControls";
+import VideoPlayer from "./VideoPlayer";
+import VideoControls from "./VideoControls";
 import { ChatPanel } from "./ChatPanel";
-import {  Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { IMessage, Note } from "@/types/IInterviewRoom";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useAuthStore } from "@/features/auth/authStore";
@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import InterviewFeedbackModal from "@/components/ui/Modals/InterviewFeedbackModal";
 import { Socket } from "socket.io-client";
 
-import { useUpdateInterviewWithFeedback } from "@/hooks/api/useInterview";
+import { useHandleNoShowInterview, useUpdateInterviewWithFeedback } from "@/hooks/api/useInterview";
 import { IInterviewFeedback } from "@/types/IInterview";
 
 import { successToast } from "@/utils/customToast";
@@ -44,7 +44,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [callDuration, setCallDuration] = useState(0);
+  const [callDuration, setCallDuration] = useState(60*10);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -54,7 +54,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showRemoteScreen, setShowRemoteScreen] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-
+  const {handleNoShowInterview,loading:handleNoShowInterviewLoading}=useHandleNoShowInterview()
   const { updateInterviewWithFeedback } = useUpdateInterviewWithFeedback();
 
   useEffect(() => {
@@ -202,9 +202,9 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
       localStreamRef.current = null;
     }
     socket.emit("leave:room", { roomId: room });
-    if(user?.role === Roles.INTERVIEWER) {
+    if (user?.role === Roles.INTERVIEWER) {
       router.push(`/${user?.role}/interviews`);
-    }else router.push(`/${user?.role}/dashboard`);
+    } else router.push(`/${user?.role}/dashboard`);
     setIsConnected(false);
   };
 
@@ -245,13 +245,19 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
 
   const handleScreenShare = async () => {
     try {
-      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+      });
       const screenTrack = screenStream.getVideoTracks()[0];
       const senderTrack = localStreamRef.current?.getVideoTracks()[0];
 
       if (peerRef.current && senderTrack) {
         // Replace camera feed with screen
-        peerRef.current.replaceTrack(senderTrack, screenTrack, localStreamRef.current!);
+        peerRef.current.replaceTrack(
+          senderTrack,
+          screenTrack,
+          localStreamRef.current!
+        );
 
         if (remoteScreenRef.current) {
           remoteScreenRef.current.srcObject = screenStream;
@@ -263,7 +269,11 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
         // When user stops sharing, revert back
         screenTrack.onended = () => {
           if (peerRef.current && senderTrack) {
-            peerRef.current.replaceTrack(screenTrack, senderTrack, localStreamRef.current!);
+            peerRef.current.replaceTrack(
+              screenTrack,
+              senderTrack,
+              localStreamRef.current!
+            );
             if (localVideoRef.current) {
               localVideoRef.current.srcObject = localStreamRef.current;
             }
@@ -293,6 +303,14 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
     return `${mins.toString().padStart(2, "0")}:${secs
       .toString()
       .padStart(2, "0")}`;
+  };
+  const handleMarkNoShow = async() => {
+   const response=await handleNoShowInterview(interviewId!,user?.role!);
+   if(response.success){
+    successToast(response.message);
+    terminateCallAndCleanup();
+   }
+   
   };
 
   return (
@@ -327,37 +345,46 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
         }`}
       >
         <div className="h-full  py-10 px-20  rounded-xl">
-   
-            <div className="h-full relative">
-              {/* Main remote video */}
+          <div className="h-full relative">
+            {/* Main remote video */}
+            <VideoPlayer
+              videoRef={remoteVideoRef as RefObject<HTMLVideoElement>}
+              label="Remote"
+              className="h-full w-full"
+            />
+
+            {/* Local video overlay in bottom right */}
+            <div className="absolute bottom-4 right-4 w-64 h-48 z-20">
               <VideoPlayer
-                videoRef={remoteVideoRef as RefObject<HTMLVideoElement>}
-                label="Remote"
-                className="h-full w-full"
+                videoRef={localVideoRef as RefObject<HTMLVideoElement>}
+                isLocal={true}
+                label="You"
+                isAudioEnabled={isAudioEnabled}
+                isVideoEnabled={isVideoEnabled}
+                className="h-full w-full rounded-lg shadow-lg border-2 border-white/20"
               />
-              
-              {/* Local video overlay in bottom right */}
-              <div className="absolute bottom-4 right-4 w-64 h-48 z-20">
-                <VideoPlayer
-                  videoRef={localVideoRef as RefObject<HTMLVideoElement>}
-                  isLocal={true}
-                  label="You"
-                  isAudioEnabled={isAudioEnabled}
-                  isVideoEnabled={isVideoEnabled}
-                  className="h-full w-full rounded-lg shadow-lg border-2 border-white/20"
-                />
-              </div>
             </div>
-          
-          
+          </div>
+
           {!isConnected && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
-              <h2 className="text-xl font-semibold mb-2 text-white">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 space-y-4">
+              <h2 className="text-xl font-semibold text-white">
                 Waiting for others to join
               </h2>
               <p className="text-gray-300">
                 Share the room ID with participants
               </p>
+
+             {
+              callDuration>=60*10 && (
+                 <button
+                onClick={() => handleMarkNoShow()}
+                className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Mark as No Show
+              </button>
+              )
+             }
             </div>
           )}
         </div>
@@ -372,13 +399,13 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
         isChatOpen={isChatOpen}
         onStartScreenShare={handleScreenShare}
-         onToggleCompiler={() => setIsCompilerOpen((prev) => !prev)} 
+        onToggleCompiler={() => setIsCompilerOpen((prev) => !prev)}
         isCompilerOpen={isCompilerOpen}
         onStopScreenShare={() => {}}
         isScreenSharing={isScreenSharing}
       />
 
-       <CompilerPanel
+      <CompilerPanel
         isOpen={isCompilerOpen}
         onClose={() => setIsCompilerOpen(false)}
         roomId={room}

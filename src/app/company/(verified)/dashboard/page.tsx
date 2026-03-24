@@ -61,7 +61,7 @@ const CompanyDashboard = () => {
       if (res.success) {
         setDashboardData(res.data);
       }
-      console.log("dashboardData", res.data);
+      
     };
     fetchDashboardData();
   }, []);

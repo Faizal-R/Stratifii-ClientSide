@@ -17,6 +17,7 @@ export interface ISubscription {
 
 
 export interface ISubscriptionDetails {
+  _id?:string
   subscriberId: string;
   planId: string;
   status: "active" | "expired" | "canceled" | "pending";

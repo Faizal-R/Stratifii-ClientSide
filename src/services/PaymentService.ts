@@ -57,6 +57,15 @@ export const PaymentService = {
       return parseAxiosError(error, "An error occurred while retrying payment");
     }
   },
+
+  getCompanyPaymentHistory:async(companyId:string)=>{
+    try {
+      const response = await apiClient.get(`${PaymentRoutes.GET_COMPANY_PAYMENT_HISTORY}/${companyId}`);
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error,"An error occured while fetching payment history");
+    }
+  }
 };
 
 

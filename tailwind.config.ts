@@ -9,6 +9,19 @@ export default{
   ],
   theme: {
   	extend: {
+  		keyframes: {
+  			shimmer: {
+  				'100%': { transform: 'translateX(100%)' }
+  			},
+  			'bounce-slow': {
+  				'0%, 100%': { transform: 'translateY(0)' },
+  				'50%': { transform: 'translateY(-10px)' }
+  			}
+  		},
+  		animation: {
+  			shimmer: 'shimmer 1.5s infinite',
+  			'bounce-slow': 'bounce-slow 3s ease-in-out infinite'
+  		},
   		colors: {
   			'background-primary': '#000000',
   			'background-secondary': '#09090b',

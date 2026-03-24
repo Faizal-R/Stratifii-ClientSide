@@ -81,6 +81,8 @@ function App() {
     resolver: zodResolver(loginSchema),
   });
 
+
+
   const onHandleSubmit = async (data: LoginSchemaType) => {
     const response = await signIn({
       email: data.email,
@@ -183,6 +185,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
+
       if (user.role === Roles.INTERVIEWER) {
         router.push(`${Roles.INTERVIEWER}/profile`);
       } else if (user.role === Roles.COMPANY && user.status === "rejected") {
@@ -237,8 +240,8 @@ function App() {
                   type="button"
                   onClick={() => setSelectedRole(role.id)}
                   className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 ${selectedRole === role.id
-                      ? "bg-violet-800/30 border-2 border-violet-500 text-white"
-                      : "bg-black/80 border border-violet-900/50 text-violet-300 hover:bg-violet-900/20"
+                    ? "bg-violet-800/30 border-2 border-violet-500 text-white"
+                    : "bg-black/80 border border-violet-900/50 text-violet-300 hover:bg-violet-900/20"
                     }`}
                 >
                   <role.icon
@@ -316,6 +319,34 @@ function App() {
             >
               {loading ? <RiseLoader color="white" size={11} /> : "SignIn"}
             </button>
+
+            {(selectedRole === Roles.INTERVIEWER ||
+              selectedRole === Roles.COMPANY) && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const email =
+                      selectedRole === Roles.INTERVIEWER
+                        ? process.env.NEXT_PUBLIC_DEMO_INTERVIEWER_EMAIL
+                        : process.env.NEXT_PUBLIC_DEMO_COMPANY_EMAIL;
+                    const password =
+                      selectedRole === Roles.INTERVIEWER
+                        ? process.env.NEXT_PUBLIC_DEMO_INTERVIEWER_PASSWORD
+                        : process.env.NEXT_PUBLIC_DEMO_COMPANY_PASSWORD;
+                    console.log(email, password)
+                    if (email && password) {
+                      await onHandleSubmit({ email: email!, password: password! });
+                    } else {
+                      errorToast("Demo credentials not found");
+                    }
+                  }}
+                  className="flex justify-center items-center h-12 w-full bg-violet-900/40 border border-violet-500/50 text-white py-3 rounded-lg font-medium hover:bg-violet-800/60 transition duration-200 mt-4"
+                >
+                  {selectedRole === Roles.INTERVIEWER
+                    ? "Demo Interviewer"
+                    : "Demo Company"}
+                </button>
+              )}
           </div>
           <div className="mt-3">
             {selectedRole !== Roles.CANDIDATE && (

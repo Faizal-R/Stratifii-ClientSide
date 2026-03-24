@@ -4,6 +4,8 @@ import {
   CreditCard, 
   LayoutDashboard, 
 
+  Receipt, 
+
   UserCircle, 
   Wallet 
 } from "lucide-react";
@@ -45,13 +47,13 @@ import {
       route: "/company/subscription",
       isDisabled: !isAdminVerified,
     },
-    // {
-    //   id: "payments",
-    //   label: "Payments",
-    //   icon: Receipt,
-    //   route: "/company/payments",
-    //   isDisabled: !isAdminVerified,
-    // },
+    {
+      id: "payments",
+      label: "Payments History",
+      icon: Receipt,
+      route: "/company/payment-history",
+      isDisabled: !isAdminVerified,
+    },
     // { 
     //   id: "wallet", 
     //   label: "Wallet", 

@@ -137,4 +137,21 @@ export const InterviewService = {
     }
   },
 
+  handleNoShowInterview:async (interviewId:string,noShowBy:string)=>{
+    try {
+      const response = await apiClient.post(
+        `${InterviewRoutes.HANDLE_NO_SHOW_INTERVIEW}/${interviewId}`,
+        {
+          noShowBy,
+        }
+      )
+      return response.data
+    } catch (error) {
+      return parseAxiosError(
+        error,
+        "An error occurred while handling no show interview."
+      )
+    }
+  }
+
 };

@@ -15,8 +15,8 @@ export interface IJob {
 
 export interface IPaymentTransaction {
   _id: string;
-  companyId: string;
-  jobId: string;
+  company: string;
+  job: string | IJob;
   candidatesCount: number;
   pricePerInterview: number;
   totalAmount: number;
