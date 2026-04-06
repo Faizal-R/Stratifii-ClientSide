@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     domains: [
       "images.unsplash.com",
@@ -11,9 +10,7 @@ const nextConfig: NextConfig = {
       "stratifii-outsourcing-interview-platform-bucket.s3.ap-south-1.amazonaws.com",
     ],
   },
-  eslint:{
-    ignoreDuringBuilds: true,
-  }
+  reactStrictMode: true,
 };
 
 export default nextConfig;
