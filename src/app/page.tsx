@@ -34,7 +34,9 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useRouter } from 'next/navigation';
-import OrbitingSkills from '@/components/ui/Orbiting/Orbiting';
+import dynamic from "next/dynamic";
+
+const OrbitingSkills = dynamic(() => import("@/components/ui/Orbiting/Orbiting"), { ssr: false });
 import { Roles } from '@/constants/enums/roles';
 
 // --- Components ---
