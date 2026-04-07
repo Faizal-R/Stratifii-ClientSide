@@ -83,7 +83,6 @@ const PaymentHistory: React.FC = () => {
 
   useEffect(() => {
     fetchCompanyPaymentHistory();
-    console.log("paymentHistory", paymentHistory);
   }, []);
 
   return (
