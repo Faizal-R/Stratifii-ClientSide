@@ -108,7 +108,11 @@ function App() {
     if (selectedRole === Roles.COMPANY) {
       setSubscription(response.data.subscription);
     }
-    socket.emit("user:loggedIn", id);
+    try {
+      socket.emit("user:loggedIn", id);
+    } catch (error) {
+      console.error("Socket emit failed:", error);
+    }
     setUser({
       email,
       id,
@@ -118,11 +122,11 @@ function App() {
     });
 
     if (selectedRole === Roles.INTERVIEWER) {
-      router.push(`${Roles.INTERVIEWER}/profile`);
+      router.replace(`/${Roles.INTERVIEWER}/profile`);
     } else if (selectedRole === Roles.COMPANY && status === "rejected") {
-      router.push(`${Roles.COMPANY}/profile`);
+      router.replace(`/${Roles.COMPANY}/profile`);
     } else {
-      router.push(`/${selectedRole}/dashboard`);
+      router.replace(`/${selectedRole}/dashboard`);
     }
   };
   const handleModalConfirm = () => {
@@ -132,7 +136,7 @@ function App() {
     setIsVerifyAccountModalOpen(false);
     const userEmail = watch("email");
     await verifyUserAccount(userEmail);
-    router.push(`/verify-otp?email=${userEmail}&&role=${selectedRole}`);
+    router.push(`/verify-otp?email=${userEmail}&role=${selectedRole}`);
   };
 
   const handleForgotPassword = () => {
@@ -177,10 +181,10 @@ function App() {
         name: authUser.name,
         status: authUser.status,
       });
-      router.push(`${Roles.INTERVIEWER}/profile`);
+      router.replace(`/${Roles.INTERVIEWER}/profile`);
     } else {
       router.push(
-        `/register/interviewer?isGoogleVerified=true&&id=${authUser._id}`,
+        `/register/interviewer?isGoogleVerified=true&id=${authUser._id}`,
       );
     }
   };
@@ -188,12 +192,12 @@ function App() {
   useEffect(() => {
     if (user) {
       if (user.role === Roles.INTERVIEWER) {
-        router.push(`${Roles.INTERVIEWER}/profile`);
+        router.replace(`/${Roles.INTERVIEWER}/profile`);
       } else if (user.role === Roles.COMPANY && user.status === "rejected") {
-        router.push(`${Roles.COMPANY}/profile`);
-      } else router.push(`/${user.role}/dashboard`);
+        router.replace(`/${Roles.COMPANY}/profile`);
+      } else router.replace(`/${user.role}/dashboard`);
     }
-  }, []);
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex">
