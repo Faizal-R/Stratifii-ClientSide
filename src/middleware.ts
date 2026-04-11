@@ -5,8 +5,13 @@ import { Roles } from "@/constants/enums/roles";
 
 function isTokenValid(token: string): boolean {
   try {
-    const [, payload] = token.split(".");
-    const decoded = JSON.parse(atob(payload));
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    
+    const payload = parts[1];
+    // Add padding if necessary for atob
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = JSON.parse(atob(base64));
     
     // Check if token is expired
     const currentTime = Math.floor(Date.now() / 1000);
@@ -15,15 +20,20 @@ function isTokenValid(token: string): boolean {
     }
     
     return true;
-  } catch {
+  } catch (error) {
+    console.error("[Middleware] JWT validation error:", error);
     return false;
   }
 }
 
 function getRoleFromToken(token: string): string | null {
   try {
-    const [, payload] = token.split(".");
-    const { role } = JSON.parse(atob(payload));
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    
+    const payload = parts[1];
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const { role } = JSON.parse(atob(base64));
     return role;
   } catch {
     return null;
@@ -33,49 +43,43 @@ function getRoleFromToken(token: string): string | null {
 export function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
-  const url = req.nextUrl.clone();
+  const { pathname } = req.nextUrl;
+
+  // Console log for production debugging
+  console.log(`[Middleware] Path: ${pathname}, hasAccessToken: ${!!accessToken}, hasRefreshToken: ${!!refreshToken}`);
 
   // ✅ If no tokens at all → redirect to signin
   if (!accessToken && !refreshToken) {
-    url.pathname = "/signin";
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
-
-  
 
   // ✅ If access token exists, validate it
   if (accessToken) {
-    // Check if token is valid and not expired
     if (!isTokenValid(accessToken)) {
-      url.pathname = "/signin";
-      return NextResponse.redirect(url);
+      console.warn("[Middleware] Invalid access token, redirecting to signin");
+      return NextResponse.redirect(new URL("/signin", req.url));
     }
 
     const role = getRoleFromToken(accessToken);
     if (!role) {
-      url.pathname = "/signin";
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(new URL("/signin", req.url));
     }
 
     // ✅ Role-based access control
-    if (url.pathname.startsWith("/admin") && role !== Roles.ADMIN) {
-      url.pathname = "/unauthorized";
-      return NextResponse.redirect(url);
+    if (pathname.startsWith("/admin") && role !== Roles.ADMIN) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    if (url.pathname.startsWith("/company") && role !== Roles.COMPANY) {
-      url.pathname = "/unauthorized";
-      return NextResponse.redirect(url);
+    if (pathname.startsWith("/company") && role !== Roles.COMPANY) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    if (url.pathname.startsWith("/candidate") && role !== Roles.CANDIDATE) {
-      url.pathname = "/unauthorized";
-      return NextResponse.redirect(url);
+    if (pathname.startsWith("/candidate") && role !== Roles.CANDIDATE) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    if (url.pathname.startsWith("/interviewer") && role !== Roles.INTERVIEWER) {
-      url.pathname = "/unauthorized";
-      return NextResponse.redirect(url);
+    if (pathname.startsWith("/interviewer") && role !== Roles.INTERVIEWER) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
 

@@ -102,9 +102,8 @@ function App() {
       return;
     }
 
-    successToast(response.message);
     const { email, _id: id, name, status } = response.data.user;
-
+    
     if (selectedRole === Roles.COMPANY) {
       setSubscription(response.data.subscription);
     }
@@ -120,14 +119,7 @@ function App() {
       name,
       status,
     });
-
-    if (selectedRole === Roles.INTERVIEWER) {
-      router.replace(`/${Roles.INTERVIEWER}/profile`);
-    } else if (selectedRole === Roles.COMPANY && status === "rejected") {
-      router.replace(`/${Roles.COMPANY}/profile`);
-    } else {
-      router.replace(`/${selectedRole}/dashboard`);
-    }
+    successToast(response.message);
   };
   const handleModalConfirm = () => {
     router.push(`/forgot-password?role=${selectedRole}`);
