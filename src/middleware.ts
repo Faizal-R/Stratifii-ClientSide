@@ -7,18 +7,18 @@ function isTokenValid(token: string): boolean {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return false;
-    
+
     const payload = parts[1];
     // Add padding if necessary for atob
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const decoded = JSON.parse(atob(base64));
-    
+
     // Check if token is expired
     const currentTime = Math.floor(Date.now() / 1000);
     if (decoded.exp && decoded.exp < currentTime) {
       return false;
     }
-    
+
     return true;
   } catch (error) {
     console.error("[Middleware] JWT validation error:", error);
@@ -30,7 +30,7 @@ function getRoleFromToken(token: string): string | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-    
+
     const payload = parts[1];
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const { role } = JSON.parse(atob(base64));
