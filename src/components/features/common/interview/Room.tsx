@@ -78,6 +78,26 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
     };
     initUserMedia();
 
+    const iceServers = [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:openrelay.metered.ca:80" },
+      {
+        urls: "turn:openrelay.metered.ca:80",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turns:openrelay.metered.ca:443?transport=tcp",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      }
+    ];
+
     // Handle when another user joins
     socket.on("user-joined", () => {
       if (peerRef.current || !localStreamRef.current) return;
@@ -85,6 +105,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
         initiator: true,
         trickle: false,
         stream: localStreamRef.current,
+        config: { iceServers },
       });
 
       peer.on("signal", (data) => {
@@ -114,6 +135,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
           initiator: false,
           trickle: false,
           stream: localStreamRef.current,
+          config: { iceServers },
         });
 
         peer.on("signal", (signalData) => {
@@ -314,7 +336,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 relative">
+    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 relative overflow-hidden">
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 z-30 p-4">
         <div className="flex items-center justify-between">
@@ -340,21 +362,21 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
 
       {/* Google Meet Style Video Layout */}
       <div
-        className={`h-screen transition-all duration-300 ${
-          isChatOpen ? "mr-96" : ""
-        }`}
+        className={`h-screen transition-all duration-300 flex flex-col justify-between ${
+          isCompilerOpen ? "lg:pl-[600px]" : ""
+        } ${isChatOpen ? "lg:pr-96" : ""}`}
       >
-        <div className="h-full  py-10 px-20  rounded-xl">
-          <div className="h-full relative">
+        <div className="flex-1 p-4 md:p-6 lg:p-10 rounded-xl relative min-h-0">
+          <div className="h-full relative w-full flex items-center justify-center">
             {/* Main remote video */}
             <VideoPlayer
               videoRef={remoteVideoRef as RefObject<HTMLVideoElement>}
               label="Remote"
-              className="h-full w-full"
+              className="h-full w-full object-cover rounded-xl"
             />
 
             {/* Local video overlay in bottom right */}
-            <div className="absolute bottom-4 right-4 w-64 h-48 z-20">
+            <div className="absolute bottom-4 right-4 w-32 h-24 sm:w-48 sm:h-36 md:w-64 md:h-48 z-20 transition-all duration-300">
               <VideoPlayer
                 videoRef={localVideoRef as RefObject<HTMLVideoElement>}
                 isLocal={true}
@@ -367,7 +389,7 @@ const RoomPage: React.FC<RoomPageProps> = ({ room, socket, interviewId }) => {
           </div>
 
           {!isConnected && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 space-y-4">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 space-y-4 rounded-xl m-4 md:m-6 lg:m-10">
               <h2 className="text-xl font-semibold text-white">
                 Waiting for others to join
               </h2>
