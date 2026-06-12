@@ -1,6 +1,6 @@
 "use client";
 import React, { ReactNode, useState } from "react";
-import { Calendar, UserCircle, Wallet, CalendarCheck } from "lucide-react";
+import { Calendar, UserCircle, Wallet, CalendarCheck, Menu, Building2 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import { Modal } from "@/components/ui/Modals/ConfirmationModal";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ import { useUserSocket } from "@/hooks/socket/useUserSocket";
 
 const InterviewerLayout = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const router = useRouter();
   const { logout, user } = useAuthStore();
   const { isSidebarCollapsed, isMobileScreen } = useSidebarCollapseStore();
@@ -54,18 +55,37 @@ const InterviewerLayout = ({ children }: { children: ReactNode }) => {
         confirmText="Logout"
         onConfirm={handleModalConfirm}
       />
+
+      {/* Mobile Top Header */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-gray-950 border-b border-gray-800 text-white fixed top-0 left-0 right-0 z-30 h-16">
+        <div className="flex items-center gap-3">
+          <img src="/favicon.png" alt="Stratifii Logo" className="w-7 h-7 object-contain" />
+          <span className="font-bold text-lg text-white">Stratifii</span>
+        </div>
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 hover:bg-gray-800 rounded-lg text-white border border-gray-800"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+
       <Sidebar
         navItems={navItems}
         isModalOpen={isModalOpen}
         handleModalState={handleModalState}
+        isMobileOpen={isMobileOpen}
+        onMobileClose={() => setIsMobileOpen(false)}
       />
       <div
-        className="transition-all duration-300 h-screen"
+        className="transition-all duration-300 min-h-screen pt-16 md:pt-0"
         style={{
-          marginLeft: isMobileScreen ? 80 : isSidebarCollapsed ? 80 : 256,
+          marginLeft: isMobileScreen ? 0 : isSidebarCollapsed ? 80 : 256,
         }}
       >
-        {children}
+        <div className="h-full p-4 md:p-6 lg:p-8">
+          {children}
+        </div>
       </div>
     </>
   );

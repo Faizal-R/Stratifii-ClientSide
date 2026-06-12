@@ -14,8 +14,11 @@ import { IInterviewerProfile } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import { useScheduleInterviewForCandidate } from "@/hooks/api/useSlot";
 import { errorToast, successToast } from "@/utils/customToast";
+import { useRouter } from "next/navigation";
+import { Calendar, Briefcase } from "lucide-react";
 
 const InterviewScheduling = () => {
+  const router = useRouter();
   const [selectedJob, setSelectedJob] =
     useState<IJobWithQualifiedCandidatesCount>();
   const { getInProgressJobs } = useGetInProgressJobs();
@@ -69,8 +72,32 @@ const InterviewScheduling = () => {
     fetchGetInProgressJobs();
   }, []);
 
+  if (jobsInProgress.length === 0) {
+    return (
+      <div className="text-white w-full flex items-center justify-center py-20 min-h-[70vh]">
+        <div className="max-w-md w-full p-8 text-center flex flex-col items-center justify-center">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 bg-violet-600/10 border border-violet-500/20 rounded-full text-violet-400">
+              <Calendar className="w-12 h-12 animate-bounce" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">No Active Jobs for Scheduling</h2>
+          <p className="text-gray-400 text-sm leading-relaxed mb-6">
+            You don't have any active job positions with qualified candidates ready for scheduling. First, delegate a job. Delegated candidates must attend and pass their AI mock interviews to qualify for the final round.
+          </p>
+          <button
+            onClick={() => router.push("/company/interview-delegation")}
+            className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-medium rounded-xl shadow-lg shadow-violet-950/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            Post a Job Delegation
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-white custom-64 h-min-screen bg-gradient-to-br from-black via-black">
+    <div className="text-white w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8  ">
         <JobSelection
           sendSelectedJob={(job) => setSelectedJob(job)}

@@ -63,9 +63,15 @@ apiClient.interceptors.response.use(
       error.response?.status === StatusCodes.FORBIDDEN &&
       !originalRequest?.url?.includes(AuthRoutes.SIGN_IN)
     ) {
-      errorToast("You are not authorized to access this resource.");
+      const errorMessage = error.response?.data?.message || "You are not authorized to access this resource.";
+      errorToast(errorMessage);
       if (typeof window !== "undefined") {
-        window.location.href = "/unauthorized";
+        setTimeout(() => {
+          const targetUrl = errorMessage.toLowerCase().includes("subscription")
+            ? "/company/subscription"
+            : "/unauthorized";
+          window.dispatchEvent(new CustomEvent("app:navigate", { detail: targetUrl }));
+        }, 3000);
       }
     }
 

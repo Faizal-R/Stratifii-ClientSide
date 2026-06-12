@@ -221,7 +221,7 @@ function InterviewDelegation() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-violet-950 p-8 ">
+    <div className="w-full">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto text-violet-200">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
@@ -381,14 +381,8 @@ function InterviewDelegation() {
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
                 <Plus className="text-violet-500" size={24} />
-                <h2 className="text-2xl font-bold ">Create New Job</h2>
+                <h2 className="text-2xl font-bold ">{isJobEditing ? "Edit Job" : "Create New Job"}</h2>
               </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <X size={24} />
-              </button>
             </div>
             <form onSubmit={isJobEditing ? handleEditJob : handleCreateJob}>
               <div className="space-y-4">
@@ -419,25 +413,28 @@ function InterviewDelegation() {
                   </label>
                   <input
                     name="experienceRequired"
-                    type="string"
+                    type="text"
                     value={
                       isJobEditing
                         ? selectedJob.experienceRequired
                         : newJob.experienceRequired
                     }
-                    onChange={(e) =>
-                      isJobEditing
-                        ? setSelectedJob({
-                            ...selectedJob,
-                            experienceRequired: Number(e.target.value),
-                          })
-                        : setNewJob({
-                            ...newJob,
-                            experienceRequired: Number(e.target.value),
-                          })
-                    }
+                    onChange={(e) => {
+                      const cleanVal = e.target.value.replace(/[^0-9]/g, "");
+                      if (isJobEditing) {
+                        setSelectedJob({
+                          ...selectedJob,
+                          experienceRequired: cleanVal,
+                        });
+                      } else {
+                        setNewJob({
+                          ...newJob,
+                          experienceRequired: cleanVal,
+                        });
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    placeholder="Enter Reqired experience"
+                    placeholder="Enter Required experience"
                   />
                 </div>
 
@@ -513,6 +510,13 @@ function InterviewDelegation() {
                   onClick={() => {
                     setIsModalOpen(false);
                     setIsJobEditing(false);
+                    setNewJob({
+                      position: "",
+                      description: "",
+                      requiredSkills: [],
+                      experienceRequired: "",
+                    });
+                    setSkillInput("");
                   }}
                   className="px-4 py-2 text-violet-300 hover:text-gray-500 rounded-lg transition-colors"
                 >

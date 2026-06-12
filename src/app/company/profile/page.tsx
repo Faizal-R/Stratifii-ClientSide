@@ -179,7 +179,7 @@ function CompanyProfilePage() {
   ) :user?.status==="rejected"? (
   <CompanyResubmissionPage company={companyData}/>
   ):(
-      <div className="min-h-screen custom-64 bg-gradient-to-br from-gray-950 via-black to-violet-950 text-white">
+      <div className="min-h-screen custom-64 bg-transparent text-white">
       {/* Navigation Tabs */}
       <TabsNav
         activeTab={activeTab}
@@ -188,7 +188,7 @@ function CompanyProfilePage() {
       />
 
       {/* Main Content */}
-      <main className="p-6 overflow-y-auto">
+      <main className=" overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-8">
           {activeTab === "profile" ? (
             <>

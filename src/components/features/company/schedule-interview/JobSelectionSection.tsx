@@ -33,7 +33,7 @@ const JobSelection: React.FC<IJobSelectionProps> = ({
         className={`group relative p-6 rounded-xl border cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
           selectedJob?.job._id === job.job._id
             ? "border-violet-400 bg-gradient-to-br from-violet-900/40 to-purple-900/40 shadow-lg shadow-violet-500/20 ring-1 ring-violet-400/30"
-            : "border-gray-700 bg-gradient-to-br from-gray-900/60 to-black/40 hover:border-violet-500/50 hover:bg-gradient-to-br hover:from-gray-900/80 hover:to-violet-950/40 backdrop-blur-sm"
+            : "glass-dark hover:border-violet-500/50 hover:bg-violet-950/40"
         }`}
       >
         {/* Subtle glow effect for selected state */}

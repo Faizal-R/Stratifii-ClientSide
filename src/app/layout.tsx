@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-black via-black to-violet-950`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-black via-black to-violet-950 bg-fixed min-h-screen`}
       >
         <SocketProvider>{children}</SocketProvider>
 

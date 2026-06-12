@@ -44,10 +44,10 @@ const CandidateList: React.FC<any> = ({
     };
 
     getMockQualifiedCandidates();
-  }, []);
+  }, [selectedJob, mockQualifiedCandidatesByJob]);
 
   return (
-    <div className="bg-gray-900/40 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50">
+    <div className="glass-dark rounded-2xl shadow-2xl">
       <div className="p-6 border-b border-gray-700/50">
         <div className="flex items-center justify-between">
           <div>
@@ -81,9 +81,9 @@ const CandidateList: React.FC<any> = ({
             <h3 className="text-lg font-medium text-white mb-2">
               No candidates found
             </h3>
-            <p className="text-gray-400">
+            <p className="text-gray-400 text-sm">
               {selectedJob
-                ? "No candidates have been delegated for this job yet"
+                ? "No candidates have qualified for this job yet. Candidates must complete and pass their AI mock interviews first."
                 : "Select a job to view candidates"}
             </p>
           </div>

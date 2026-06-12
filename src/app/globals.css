@@ -243,3 +243,8 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply bg-gradient-to-r from-violet-400 via-violet-200 to-white bg-clip-text text-transparent;
   }
 }
+
+/* Fix scrolling background cut-offs by making inner page backgrounds transparent */
+div.min-h-screen.bg-gradient-to-br.from-black.via-black.to-violet-950 {
+  background: transparent !important;
+}

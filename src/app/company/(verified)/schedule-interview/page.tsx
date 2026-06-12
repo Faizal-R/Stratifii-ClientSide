@@ -1,10 +1,9 @@
-
 import InterviewScheduling from "@/components/features/company/schedule-interview/InterviewScheduling";
 
 
 const Page = () => {
  return(
-  <div className="bg-gradient-to-br from-black via-black to-violet-950">
+  <div className="w-full">
     <InterviewScheduling/>
   </div>
  )

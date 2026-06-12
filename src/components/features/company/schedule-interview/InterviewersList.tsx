@@ -82,7 +82,7 @@ const InterviewerList: React.FC<{
 
   return (
     <>
-      <div className="bg-gradient-to-br from-gray-900/60 to-black/40 backdrop-blur-sm rounded-xl border border-gray-700 shadow-xl">
+      <div className="glass-dark rounded-2xl shadow-xl">
         {/* Header */}
         <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-violet-900/20 to-purple-900/20">
           <div className="flex items-center justify-between">

@@ -55,9 +55,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md border-b border-violet-900/30 py-3' : 'bg-transparent py-5'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2 group">
-          <div className="bg-violet-600 p-1.5 rounded-lg group-hover:bg-violet-500 transition-colors">
-            <Globe className="text-white" size={20} />
-          </div>
+          <img src="/favicon.png" alt="Stratifii Logo" className="w-8 h-8 object-contain" />
           <span className="text-2xl font-bold tracking-tight text-white">Stratifii</span>
         </Link>
         
@@ -423,9 +421,7 @@ function LandingPage() {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-12">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="bg-white p-2 rounded-2xl group-hover:rotate-[360deg] transition-transform duration-1000">
-                <Globe className="text-black" size={24} />
-              </div>
+              <img src="/favicon.png" alt="Stratifii Logo" className="w-9 h-9 object-contain group-hover:rotate-[360deg] transition-transform duration-1000" />
               <span className="text-3xl font-black tracking-tighter text-white uppercase italic">Stratifii.</span>
             </Link>
             

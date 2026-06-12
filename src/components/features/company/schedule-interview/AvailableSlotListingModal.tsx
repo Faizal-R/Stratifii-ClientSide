@@ -135,26 +135,26 @@ const SlotModal: React.FC<{
       {/* Modal */}
       <div className="relative w-full max-w-4xl max-h-[90vh] bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-violet-900/20 to-purple-900/20">
-          <div className="flex items-center justify-between">
+        <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-violet-900/20 to-purple-900/20 relative">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pr-10 sm:pr-0">
             <div className="flex items-center space-x-4">
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <img
                   src={interviewer.interviewer.avatar}
                   alt={interviewer.interviewer.name}
-                  className="w-16 h-16 rounded-full object-cover border-3 border-violet-400 shadow-lg"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-3 border-violet-400 shadow-lg"
                 />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-gray-900"></div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-gray-900"></div>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white mb-1">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
                   {interviewer.interviewer.name}
                 </h2>
-                <p className="text-violet-200 font-medium">
+                <p className="text-violet-200 font-medium text-xs sm:text-base">
                   {interviewer.interviewer.position}
                 </p>
-                <div className="flex items-center mt-2 space-x-4">
-                  <span className="text-gray-300 text-sm">
+                <div className="flex items-center mt-1 space-x-4">
+                  <span className="text-gray-300 text-xs sm:text-sm">
                     {interviewer.interviewer.experience} years experience
                   </span>
                 </div>
@@ -162,7 +162,7 @@ const SlotModal: React.FC<{
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
+              className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 p-2 rounded-full hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
             >
               <X className="h-6 w-6" />
             </button>
