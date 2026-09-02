@@ -299,73 +299,77 @@ function InterviewDelegation() {
             {jobs.map((job) => (
               <div
                 key={job._id}
-                className="group relative bg-zinc-900 rounded-2xl border border-violet-800 p-6 shadow-lg hover:shadow-violet-800/30 transition-all duration-300 hover:-translate-y-1 w-full max-w-md"
+                className="group relative bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-black rounded-3xl border border-zinc-800/90 p-6 shadow-2xl hover:border-violet-500/50 transition-all duration-300 flex flex-col justify-between"
               >
-                {/* Accent Glow */}
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-violet-700/20 rounded-full blur-3xl z-0 group-hover:opacity-70 transition-opacity" />
-
-                {/* Header */}
-                <div className="relative z-10 flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-violet-700/20 p-3 rounded-xl">
-                      <Briefcase className="text-violet-400" size={24} />
+                <div className="space-y-4">
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 shrink-0">
+                        <Briefcase size={22} />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-black text-white group-hover:text-violet-300 transition-colors">
+                          {job.position}
+                        </h2>
+                        <p className="text-xs text-zinc-400 font-semibold mt-0.5">
+                          {job.experienceRequired}+ Yrs Exp Required
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-white">
-                        {job.position}
-                      </h2>
-                      <p className="text-sm text-gray-400">
-                        {job.experienceRequired}+ yrs experience
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Edit
-                      className="hover:text-yellow-400 transition"
-                      size={20}
-                      onClick={() => handleJobEdit(job._id!)}
-                    />
-                    <Trash
-                      className="hover:text-red-500 transition"
-                      size={20}
-                      onClick={() => handleJobDelete(job._id!)}
-                    />
-                  </div>
-                </div>
 
-                {/* Description */}
-                {job.description && (
-                  <p className=" text-gray-500 leading-relaxed line-clamp-3 mb-4 text-sm font-semibold">
-                    {job.description}
-                  </p>
-                )}
-
-                {/* Skills */}
-                <div className="mb-4">
-                  <h4 className="text-sm text-violet-300 font-semibold flex items-center gap-2 mb-2">
-                    <Tag size={16} className="text-violet-400" />
-                    Skills Required
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {job.requiredSkills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="bg-violet-800/30 border border-violet-700 text-violet-200 px-3 py-1 rounded-full text-xs font-medium hover:bg-violet-700 hover:text-white transition"
+                    <div className="flex items-center gap-1 bg-zinc-900/80 border border-zinc-800 p-1.5 rounded-xl shrink-0">
+                      <button
+                        onClick={() => handleJobEdit(job._id!)}
+                        className="p-1.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded-lg transition-all"
+                        title="Edit Job"
                       >
-                        {skill}
-                      </span>
-                    ))}
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleJobDelete(job._id!)}
+                        className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all"
+                        title="Delete Job"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {job.description && (
+                    <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                      {job.description}
+                    </p>
+                  )}
+
+                  {/* Required Skills */}
+                  <div className="space-y-2">
+                    <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <Tag size={13} className="text-violet-400" /> Required Skills
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.requiredSkills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-2.5 py-1 bg-violet-950/60 border border-violet-800/40 text-violet-300 text-[11px] font-bold rounded-lg"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Info Footer */}
-                <div className="border-t border-zinc-700 pt-4 flex items-center justify-between text-sm text-gray-400">
+                {/* Footer Action */}
+                <div className="border-t border-zinc-900 pt-4 mt-5 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-500">Delegated Position</span>
                   <button
                     onClick={() => navigateToJob(job._id!)}
-                    className="flex items-center gap-1 text-violet-400 hover:text-white transition"
+                    className="flex items-center gap-1.5 text-xs font-extrabold text-violet-400 hover:text-white bg-violet-950/80 hover:bg-violet-600 px-4 py-2 rounded-xl border border-violet-800/50 transition-all shadow-md"
                   >
-                    View
-                    <ChevronRight size={18} />
+                    View Details
+                    <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
@@ -374,137 +378,142 @@ function InterviewDelegation() {
         )}
       </div>
 
-      {/* Create Job Modal */}
+      {/* Create / Edit Job Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-violet-300 ">
-          <div className="w-full max-w-md max-h-[80vh] overflow-y-auto  p-6 bg-gradient-to-br from-violet-950/50 via-black/95 to-black/90 rounded-xl border border-violet-500/20 shadow-2xl shadow-violet-100/10 ">
-            <div className="flex justify-between items-center mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black rounded-3xl border border-zinc-800 shadow-2xl space-y-6">
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
               <div className="flex items-center gap-3">
-                <Plus className="text-violet-500" size={24} />
-                <h2 className="text-2xl font-bold ">{isJobEditing ? "Edit Job" : "Create New Job"}</h2>
-              </div>
-            </div>
-            <form onSubmit={isJobEditing ? handleEditJob : handleCreateJob}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      isJobEditing ? selectedJob?.position : newJob.position
-                    }
-                    onChange={(e) =>
-                      isJobEditing
-                        ? setSelectedJob({
-                            ...selectedJob,
-                            position: e.target.value,
-                          })
-                        : setNewJob({ ...newJob, position: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 "
-                    placeholder="e.g., Senior Frontend Developer"
-                  />
+                <div className="w-10 h-10 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+                  <Briefcase size={20} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Required Experience
-                  </label>
-                  <input
-                    name="experienceRequired"
-                    type="text"
-                    value={
-                      isJobEditing
-                        ? selectedJob.experienceRequired
-                        : newJob.experienceRequired
+                  <h2 className="text-xl font-black text-white">{isJobEditing ? "Edit Position Details" : "Delegate New Job Position"}</h2>
+                  <p className="text-xs text-zinc-400">Define role requirements for AI vetting & expert interviewer matching</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsJobEditing(false);
+                  setNewJob({
+                    position: "",
+                    description: "",
+                    requiredSkills: [],
+                    experienceRequired: "",
+                  });
+                  setSkillInput("");
+                }}
+                className="p-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white rounded-xl transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={isJobEditing ? handleEditJob : handleCreateJob} className="space-y-5">
+              {/* Job Title / Position */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Position Title</label>
+                <input
+                  type="text"
+                  value={isJobEditing ? selectedJob?.position : newJob.position}
+                  onChange={(e) =>
+                    isJobEditing
+                      ? setSelectedJob({ ...selectedJob, position: e.target.value })
+                      : setNewJob({ ...newJob, position: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                  placeholder="e.g. Senior Fullstack Architect"
+                />
+              </div>
+
+              {/* Experience Required */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Required Experience (Years)</label>
+                <input
+                  name="experienceRequired"
+                  type="text"
+                  value={isJobEditing ? selectedJob.experienceRequired : newJob.experienceRequired}
+                  onChange={(e) => {
+                    const cleanVal = e.target.value.replace(/[^0-9]/g, "");
+                    if (isJobEditing) {
+                      setSelectedJob({ ...selectedJob, experienceRequired: cleanVal });
+                    } else {
+                      setNewJob({ ...newJob, experienceRequired: cleanVal });
                     }
-                    onChange={(e) => {
-                      const cleanVal = e.target.value.replace(/[^0-9]/g, "");
-                      if (isJobEditing) {
-                        setSelectedJob({
-                          ...selectedJob,
-                          experienceRequired: cleanVal,
-                        });
-                      } else {
-                        setNewJob({
-                          ...newJob,
-                          experienceRequired: cleanVal,
-                        });
+                  }}
+                  className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                  placeholder="e.g. 5"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Job Description & Context</label>
+                <textarea
+                  value={isJobEditing ? selectedJob?.description : newJob.description}
+                  onChange={(e) =>
+                    isJobEditing
+                      ? setSelectedJob({ ...selectedJob, description: e.target.value })
+                      : setNewJob({ ...newJob, description: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                  rows={3}
+                  placeholder="Describe essential responsibilities and evaluation criteria..."
+                />
+              </div>
+
+              {/* Required Skills Input & Tags */}
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Technical Skills Stack</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddSkill();
                       }
                     }}
-                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    placeholder="Enter Required experience"
+                    className="flex-1 px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 transition-all"
+                    placeholder="e.g. React, Node.js"
                   />
+                  <button
+                    type="button"
+                    onClick={handleAddSkill}
+                    className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1"
+                  >
+                    <Plus size={14} /> Add Skill
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={
-                      isJobEditing
-                        ? selectedJob?.description
-                        : newJob.description
-                    }
-                    onChange={(e) =>
-                      isJobEditing
-                        ? setSelectedJob({
-                            ...selectedJob,
-                            description: e.target.value,
-                          })
-                        : setNewJob({ ...newJob, description: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-violet-dark border-none outline-none  rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 "
-                    rows={3}
-                    placeholder="Describe the job requirements and responsibilities"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Required Skills
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      className="flex-1 px-3 py-2 bg-violet-dark border-none outline-none rounded-lg focus:ring-2 focus:ring-violet-500"
-                      placeholder="e.g., React"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddSkill}
-                      className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition"
+                {/* Skill Pills */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {(isJobEditing ? selectedJob : newJob).requiredSkills?.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-violet-950/80 border border-violet-800/60 text-violet-300 text-xs font-bold rounded-xl flex items-center gap-1.5"
                     >
-                      Add
-                    </button>
-                  </div>
-
-                  {/* Skill tags */}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {(isJobEditing ? selectedJob : newJob).requiredSkills.map(
-                      (skill, index) => (
-                        <div
-                          key={index}
-                          className="bg-violet-500 text-white px-3 py-1 rounded-full flex items-center space-x-2"
-                        >
-                          <span>{skill}</span>
-                          <button
-                            onClick={() => handleDeleteSkill(skill)}
-                            className="text-white hover:text-gray-200 text-sm"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )
-                    )}
-                  </div>
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSkill(skill)}
+                        className="text-violet-400 hover:text-white transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
                 </div>
               </div>
-              <div className="mt-6 flex justify-end gap-3">
+
+              {/* Modal Actions */}
+              <div className="pt-4 border-t border-zinc-800 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -518,21 +527,15 @@ function InterviewDelegation() {
                     });
                     setSkillInput("");
                   }}
-                  className="px-4 py-2 text-violet-300 hover:text-gray-500 rounded-lg transition-colors"
+                  className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-bold text-xs rounded-xl transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-violet-900 text-white rounded-lg hover:bg-violet-700 transition-colors"
+                  className="px-6 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-violet-600/30 flex items-center gap-2"
                 >
-                  {isJobEditing ? (
-                    "Edit Job"
-                  ) : loading ? (
-                    <RiseLoader />
-                  ) : (
-                    "Create Job.."
-                  )}
+                  {isJobEditing ? "Update Position" : loading ? <RiseLoader color="#ffffff" size={6} /> : "Delegate Position"}
                 </button>
               </div>
             </form>

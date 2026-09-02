@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSidebarCollapseStore } from "@/features/sidebar/sidebarCollapseStore";
@@ -130,11 +130,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                           : "hover:bg-gray-800/70 text-gray-300 hover:text-white"
                       }`}
                   >
-                    <item.icon
-                      size={20}
-                      className={`${item.isDisabled ? "text-gray-500" : "text-inherit"
-                        } transition-colors`}
-                    />
+                    {React.createElement(item.icon as any, {
+                      size: 20,
+                      className: `${item.isDisabled ? "text-gray-500" : "text-inherit"} transition-colors`
+                    })}
                     <span className={!isMobileScreen && isSidebarCollapsed ? "hidden" : "block font-medium"}>
                       {item.label}
                     </span>

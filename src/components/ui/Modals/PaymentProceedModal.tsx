@@ -1,3 +1,4 @@
+import React from "react";
 import {
   X,
   Shield,
@@ -173,7 +174,7 @@ const PaymentProceedModal: React.FC<PaymentProceedModalProps> = ({
                     key={text}
                     className="flex items-center gap-2 bg-gradient-to-br from-violet-800/30 to-black/40 p-3 rounded-xl border border-violet-500/20 hover:border-violet-400/40 transition-all duration-200"
                   >
-                    <Icon size={18} className={color} />
+                    {React.createElement(Icon as any, { size: 18, className: color })}
                     <span className="text-sm text-violet-100">{text}</span>
                   </div>
                 ))}

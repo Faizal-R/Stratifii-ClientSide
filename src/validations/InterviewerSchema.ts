@@ -13,7 +13,8 @@ export const SkillExpertiseSchema = z.object({
   yearsOfExperience: z.number().min(0, "Experience must be a positive number").optional(),
   skillSource: z
     .array(z.enum(SkillSources))
-    .min(1, "At least one skill source is required"),
+    .optional()
+    .default([]),
 });
 
 export const bankDetailsSchema = z.object({

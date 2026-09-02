@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { X } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
+
 export const InputField = ({
   icon: Icon,
   label,
@@ -12,7 +13,7 @@ export const InputField = ({
   type,
   disabled = false,
 }: {
-  icon: React.ComponentType<{ size: number }>;
+  icon: React.ComponentType<{ size: number; className?: string }>;
   label: string;
   value: string | number;
   name: string;
@@ -23,9 +24,9 @@ export const InputField = ({
   disabled?: boolean;
 }) => {
   return (
-    <div className="mb-6">
-      <label className="text-gray-400 text-sm font-medium mb-2 flex items-center gap-2">
-        <Icon size={18} />
+    <div className="space-y-2">
+      <label className="text-zinc-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+        {Icon && <Icon size={15} className="text-violet-400 shrink-0" />}
         {label}
       </label>
       {isEditing ? (
@@ -33,21 +34,21 @@ export const InputField = ({
           disabled={disabled}
           type={type}
           name={name}
-          value={value}
+          value={value ?? ""}
           placeholder={placeholder}
           onChange={handleChange}
-          className={`w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500 transition-colors ${disabled ? "opacity-50 cursor-not-allowed" : ""} `}
+          className={`w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         />
       ) : (
-        <div className="text-white bg-gray-900 rounded-lg px-4 py-2">
-          {/* {(value as string)?.length > 1 ? value : placeholder} */}
-          {value?value:placeholder}
+        <div className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-3 text-sm font-medium text-zinc-200 min-h-[44px] flex items-center">
+          {value ? String(value) : <span className="text-zinc-600 italic">{placeholder}</span>}
         </div>
       )}
     </div>
   );
 };
-
 
 export const TagInput: React.FC<{
   tags: string[];
@@ -59,17 +60,10 @@ export const TagInput: React.FC<{
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag();
-    } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
-      removeTag(tags.length - 1);
-    }
-  };
-
-  const addTag = () => {
-    const trimmedValue = inputValue.trim();
-    if (trimmedValue && !tags.includes(trimmedValue)) {
-      onChange([...tags, trimmedValue]);
-      setInputValue('');
+      if (inputValue.trim()) {
+        onChange([...tags, inputValue.trim()]);
+        setInputValue('');
+      }
     }
   };
 
@@ -78,36 +72,23 @@ export const TagInput: React.FC<{
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5 p-3 bg-black/50 border border-violet-900/30 rounded-lg min-h-[44px] focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500 transition-all duration-200">
-        {tags.map((tag, index) => (
-          <span
-            key={index}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs rounded-full shadow-lg hover:shadow-violet-500/25 transition-all duration-200 group hover:scale-105"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(index)}
-              className="w-3.5 h-3.5 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-            >
-              <X className="w-2.5 h-2.5" />
-            </button>
-          </span>
-        ))}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleInputKeyDown}
-          onBlur={addTag}
-          placeholder={tags.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-white placeholder-gray-500 text-sm"
-        />
-      </div>
-      <p className="text-xs text-gray-400">
-        Press Enter or comma to add • Click tags to remove
-      </p>
+    <div className="flex flex-wrap items-center gap-2 p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl">
+      {tags.map((tag, index) => (
+        <span key={index} className="flex items-center gap-1.5 px-3 py-1 bg-violet-950/80 border border-violet-800/60 text-violet-300 text-xs font-bold rounded-lg">
+          {tag}
+          <button type="button" onClick={() => removeTag(index)} className="hover:text-white">
+            <X size={12} />
+          </button>
+        </span>
+      ))}
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleInputKeyDown}
+        placeholder={placeholder}
+        className="flex-1 bg-transparent text-sm text-white focus:outline-none min-w-[120px]"
+      />
     </div>
   );
 };

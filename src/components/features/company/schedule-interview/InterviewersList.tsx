@@ -1,22 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import {
-
-  Users,
-  BookOpen,
-} from "lucide-react";
+import { Users, Calendar, Clock, Star, Award, ChevronRight } from "lucide-react";
 import { IJob } from "@/types/IJob";
 import { useGetMatchedInterviewersByJobDescription } from "@/hooks/api/useJob";
-
-import {
-  IInterviewerProfile,
-  ISkillExpertise,
-} from "@/validations/InterviewerSchema";
+import { IInterviewerProfile, ISkillExpertise } from "@/validations/InterviewerSchema";
 import { IInterviewSlot } from "@/types/ISlotTypes";
 import SlotModal from "./AvailableSlotListingModal";
 import { errorToast } from "@/utils/customToast";
 
-// Main InterviewerList Component
 const InterviewerList: React.FC<{
   selectedJob: IJob;
   onBookSlot: (interviewer: IInterviewerProfile, slot: IInterviewSlot) => void;
@@ -27,8 +18,7 @@ const InterviewerList: React.FC<{
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hasFetched = useRef(false);
 
-  const { getMatchedInterviewersByJobDescription } =
-    useGetMatchedInterviewersByJobDescription();
+  const { getMatchedInterviewersByJobDescription } = useGetMatchedInterviewersByJobDescription();
 
   useEffect(() => {
     if (!selectedJob) return;
@@ -37,9 +27,7 @@ const InterviewerList: React.FC<{
 
     const fetchMatchedInterviewers = async () => {
       setLoading(true);
-      const res = await getMatchedInterviewersByJobDescription(
-        selectedJob._id!
-      );
+      const res = await getMatchedInterviewersByJobDescription(selectedJob._id!);
       if (res.success) {
         setInterviewers(res.data);
       } else {
@@ -60,200 +48,94 @@ const InterviewerList: React.FC<{
     setSelectedInterviewer(null);
   };
 
-  const getSkillMatch = (skill: string) => {
-    return selectedJob.requiredSkills.includes(skill);
-  };
-  const getSortedSkills = (expertise: ISkillExpertise[]) => {
-    if (!expertise) return [];
-
-    // Sort matched first, then non-matched
-    return [...expertise].sort((a, b) => {
-      const aMatch = getSkillMatch(a.skill) ? 1 : 0;
-      const bMatch = getSkillMatch(b.skill) ? 1 : 0;
-      return bMatch - aMatch;
-    });
-  };
-
   const getAvailableSlotCount = (slots: IInterviewSlot[]) => {
-    return slots.filter(
+    return (slots || []).filter(
       (slot) => slot.isAvailable && slot.status === "available"
     ).length;
   };
 
   return (
     <>
-      <div className="glass-dark rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-violet-900/20 to-purple-900/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent mb-2">
-                Expert Interviewers
-              </h2>
-              <p className="text-gray-400">
-                Handpicked professionals matching your requirements
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="bg-gradient-to-r from-violet-600/20 to-purple-600/20 text-violet-300 px-6 py-3 rounded-xl border border-violet-500/30">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span className="font-bold text-lg">
-                    {interviewers.length}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">Available</div>
-              </div>
-            </div>
+      <div className="bg-zinc-950 border border-zinc-800/80 rounded-3xl p-6 shadow-2xl space-y-5">
+        
+        {/* Header Bar */}
+        <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+          <div>
+            <h2 className="text-lg font-black text-white flex items-center gap-2">
+              <Users className="text-violet-400" size={20} />
+              Matched Expert Interviewers
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Handpicked domain experts matching technical job skills
+            </p>
           </div>
+          <span className="bg-violet-950/80 text-violet-300 text-xs font-bold px-3 py-1 rounded-full border border-violet-800/50">
+            {interviewers.length} Experts Available
+          </span>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {loading ? (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-400 mx-auto mb-6"></div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Finding Perfect Matches
-              </h3>
-              <p className="text-gray-400">
-                We're searching for the best interviewers for your role...
-              </p>
-            </div>
-          ) : interviewers.length === 0 ? (
-            <div className="text-center py-16">
-              <BookOpen className="h-16 w-16 text-gray-500 mx-auto mb-6" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                No Matches Found
-              </h3>
-              <p className="text-gray-500">
-                No interviewers match the current job requirements.
+        {/* Interviewers List Container */}
+        <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+          {interviewers.length === 0 ? (
+            <div className="text-center py-12 border border-zinc-900 rounded-2xl p-6">
+              <Users className="h-12 w-12 text-zinc-600 mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-white mb-1">No Expert Interviewers Found</h3>
+              <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+                No active interviewers currently match the required technical stack for this position.
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {interviewers.map((interviewer: any) => {
-                const availableSlots = getAvailableSlotCount(
-                  interviewer.slots || []
-                );
+            interviewers.map((item: any) => {
+              const interviewer: IInterviewerProfile = item.interviewer;
+              const slots: IInterviewSlot[] = item.availableSlots || [];
+              const availableCount = getAvailableSlotCount(slots);
 
-                return (
-                  <div
-                    key={interviewer.interviewer._id}
-                    className={`group relative w-full p-5 rounded-xl border transition-all duration-300 overflow-hidden ${
-                      availableSlots > 0
-                        ? "border-gray-700/50 bg-gray-800/30 hover:border-violet-500/50 hover:bg-violet-900/20 hover:shadow-lg"
-                        : "border-gray-700/50 bg-gray-800/20 opacity-70"
-                    }`}
-                  >
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    <div className="relative flex items-center gap-5">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        <img
-                          src={interviewer.interviewer.avatar}
-                          alt={interviewer.interviewer.name}
-                          className="w-14 h-14 rounded-full object-cover border-2 border-gray-600/50 shadow-lg"
-                        />
-                        {availableSlots > 0 && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border border-gray-900 shadow" />
-                        )}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-white text-lg truncate">
-                            {interviewer.interviewer.name}
-                          </h3>
-                          <span
-                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                              availableSlots > 0
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-red-500/10 text-red-400 border border-red-500/30"
-                            }`}
-                          >
-                            {availableSlots > 0
-                              ? `${availableSlots} Slots Available`
-                              : "No Slots"}
-                          </span>
-                        </div>
-                        <p className="text-sm text-violet-300 truncate">
-                          {interviewer.interviewer.position}
+              return (
+                <div
+                  key={interviewer._id}
+                  className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 transition-all space-y-3"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={interviewer.avatar || "/placeholder.svg?height=40&width=40"}
+                        alt={interviewer.name}
+                        className="w-10 h-10 rounded-xl border border-zinc-700 object-cover shrink-0"
+                      />
+                      <div>
+                        <h4 className="text-sm font-black text-white">{interviewer.name}</h4>
+                        <p className="text-xs text-zinc-400 flex items-center gap-1.5 mt-0.5">
+                          <Award size={12} className="text-violet-400" />
+                          {interviewer.position || "Senior Tech Evaluator"} • {interviewer.experience || 5}+ Yrs Exp
                         </p>
-                        <p className="text-xs text-gray-400">
-                          {interviewer.interviewer.experience} years experience
-                        </p>
-
-                        {/* Skills */}
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {getSortedSkills(
-                            interviewer.interviewer.expertise
-                          )?.map((expertise: ISkillExpertise, idx: number) => (
-                            <span
-                              key={idx}
-                              className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                                getSkillMatch(expertise.skill)
-                                  ? "bg-green-500/20 text-green-300 border-green-500/30"
-                                  : "bg-gray-700/40 text-gray-300 border-gray-600/30"
-                              }`}
-                            >
-                              {expertise.skill} - {expertise.yearsOfExperience} yrs
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* CTA Button */}
-                      <div className="flex-shrink-0">
-                        <button
-                          onClick={() => openSlotModal(interviewer)}
-                          disabled={availableSlots === 0}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md ${
-                            availableSlots > 0
-                              ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 hover:shadow-violet-500/25"
-                              : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                          }`}
-                        >
-                          {availableSlots > 0 ? "View Slots" : "Unavailable"}
-                        </button>
                       </div>
                     </div>
+
+                    <button
+                      onClick={() => openSlotModal(item)}
+                      className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                    >
+                      <Calendar size={13} />
+                      View Slots ({availableCount})
+                    </button>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })
           )}
         </div>
+
       </div>
 
-      {/* Slot Modal */}
-      <SlotModal
-        isOpen={isModalOpen}
-        onClose={closeSlotModal}
-        interviewer={selectedInterviewer}
-        onBookSlot={onBookSlot}
-        selectedJob={selectedJob}
-      />
-
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(75, 85, 99, 0.2);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(139, 92, 246, 0.5);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(139, 92, 246, 0.7);
-        }
-      `}</style>
+      {isModalOpen && selectedInterviewer && (
+        <SlotModal
+          isOpen={isModalOpen}
+          onClose={closeSlotModal}
+          interviewer={selectedInterviewer}
+          selectedJob={selectedJob}
+          onBookSlot={onBookSlot}
+        />
+      )}
     </>
   );
 };

@@ -501,7 +501,7 @@ export default function OrbitingSkills() {
       </div>
 
       <div 
-        className="relative w-[calc(100vw-40px)] h-[calc(100vw-40px)] md:w-[450px] md:h-[450px] flex items-center justify-center"
+        className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] md:w-[440px] md:h-[440px] max-w-full max-h-full flex items-center justify-center"
       >
         
         {/* Central "Code" Icon with enhanced glow */}
